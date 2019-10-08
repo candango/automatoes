@@ -1,16 +1,16 @@
-# ManuaLE
+# Automat-o-es
 
-manuale is a fully manual [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/) client for advanced users. It is intended to be used by a human in a manual workflow and contains no automation features whatsoever.
+Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/) client for advanced users and developers. It is intended to be used by anyone because we don't care if you're a robot, a processes or a person.
 
 ## Why?
 
-Isn't the point of Let's Encrypt to be automatic and seamless? Maybe, but here's some reasons:
+Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was refusing to add new features, fix bugs, refactor things and [as pointed here](https://github.com/veeti/manuale/issues/41), suggested users to find a client being supported.
 
-* You're not comfortable with an automatic process handling something as critical, or your complex infrastructure doesn't allow it in the first place.
+Well, let's keep the tool being supported and add api for developers create automated processes and features.
 
-* You already have perfect configuration management with something like Ansible. Renewing is a matter of dropping in a new certificate. With a manual client that works, it's literally a minute of work.
+Manuale format and way to do things is awesome, that's why we need the this tool.
 
-* You want the traditional and authentic SSL installation experience of copying files you don't understand to your server, searching for configuration instructions and praying that it works.
+## TODO: Rebuild read me from here!!!
 
 ## Features
 
@@ -114,7 +114,7 @@ There's plenty of documentation inside each command. Run `manuale -h` for a list
 
 ## License
 
-**The MIT License (MIT)**
+**The MIT License (MIT) WE'RE MOVING TO Apache**
 
 Copyright © 2016-2017 Veeti Paananen
 
