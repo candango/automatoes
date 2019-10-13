@@ -2,15 +2,17 @@
 
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/) client for advanced users and developers. It is intended to be used by anyone because we don't care if you're a robot, a processes or a person.
 
+Automatoes can be used as a direct replacement to [ManuaLE](https://github.com/veeti/manuale).
+
 ## Why?
 
-Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was refusing to add new features, fix bugs, refactor things and [as pointed here](https://github.com/veeti/manuale/issues/41), suggested users to find a client being supported.
+Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was refusing to add new features, fix bugs, refactor things, and [as pointed here](https://github.com/veeti/manuale/issues/41), suggested users to find a client being supported.
 
 Well, let's keep the tool being supported and add api for developers create automated processes and features.
 
-Manuale format and way to do things is awesome, that's why we need the this tool.
+ManuaLE format and way to do things is awesome, that's why we need the this tool.
 
-## TODO: Rebuild read me from here!!!
+## TODO: Rebuild README from here!!!
 
 ## Features
 
@@ -114,12 +116,8 @@ There's plenty of documentation inside each command. Run `manuale -h` for a list
 
 ## License
 
-**The MIT License (MIT) WE'RE MOVING TO Apache**
+**Apache License V2.0**
 
-Copyright © 2016-2017 Veeti Paananen
+Copyright © 2019 Flavio Garcia
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright © 2016-2017 Veeti Paananen under MIT License
