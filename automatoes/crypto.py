@@ -81,16 +81,14 @@ def sign_request(key, header, protected_header, payload):
     """
     protected = jose_b64(json.dumps(protected_header).encode('utf8'))
     payload = jose_b64(json.dumps(payload).encode('utf8'))
-    signer = key.signer(padding.PKCS1v15(), hashes.SHA256())
-    signer.update(protected.encode('ascii'))
-    signer.update(b'.')
-    signer.update(payload.encode('ascii'))
-
+    data = "{protected}.{payload}".format(protected=protected, payload=payload)
+    signed_data = key.sign(data.encode("ascii"), padding.PKCS1v15(),
+                           hashes.SHA256())
     return json.dumps({
         'header': header,
         'protected': protected,
         'payload': payload,
-        'signature': jose_b64(signer.finalize()),
+        'signature': jose_b64(signed_data),
     })
 
 
