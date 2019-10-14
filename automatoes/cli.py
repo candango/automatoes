@@ -1,21 +1,19 @@
 """
 The command line interface.
 """
-
+import automatoes
 import argparse
 import logging
 import sys
 import os
 
-from .account import Account
 from .account import deserialize as deserialize_account
 from .authorize import authorize
 from .issue import issue
 from .info import info
 from .register import register
 from .revoke import revoke
-from .errors import ManualeError
-import manuale
+from .errors import AutomatoesError
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +89,7 @@ LETS_ENCRYPT_PRODUCTION = "https://acme-v01.api.letsencrypt.org/"
 DEFAULT_ACCOUNT_PATH = 'account.json'
 DEFAULT_CERT_KEY_SIZE = 2048
 
+
 # Command handlers
 def _register(args):
     register(
@@ -100,9 +99,11 @@ def _register(args):
         key_file=args.key_file
     )
 
+
 def _authorize(args):
     account = load_account(args.account)
     authorize(args.server, account, args.domain, args.method)
+
 
 def _issue(args):
     account = load_account(args.account)
@@ -117,6 +118,7 @@ def _issue(args):
         must_staple=args.ocsp_must_staple,
     )
 
+
 def _revoke(args):
     account = load_account(args.account)
     revoke(
@@ -125,27 +127,31 @@ def _revoke(args):
         certificate=args.certificate
     )
 
+
 def _info(args):
     account = load_account(args.account)
     info(args.server, account)
+
 
 def load_account(path):
     # Show a more descriptive message if the file doesn't exist.
     if not os.path.exists(path):
         logger.error("Couldn't find an account file at {}.".format(path))
         logger.error("Are you in the right directory? Did you register yet?")
-        logger.error("Run 'manuale -h' for instructions.")
-        raise ManualeError()
+        logger.error("Run 'automatoes -h' for instructions.")
+        raise AutomatoesError()
 
     try:
         with open(path, 'rb') as f:
             return deserialize_account(f.read())
     except (ValueError, IOError) as e:
         logger.error("Couldn't read account file. Aborting.")
-        raise ManualeError(e)
+        raise AutomatoesError(e)
+
 
 class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
+
 
 # Where it all begins.
 def main():
@@ -214,7 +220,7 @@ def main():
         description=DESCRIPTION_REVOKE,
         formatter_class=Formatter,
     )
-    revoke.add_argument('certificate', help="The certificate file to revoke")
+    revoke.add_argument("certificate", help="The certificate file to revoke")
     revoke.set_defaults(func=_revoke)
 
     # Account info
@@ -227,8 +233,11 @@ def main():
     info.set_defaults(func=_info)
 
     # Version
-    version = subparsers.add_parser('version', help="Show the version number")
-    version.set_defaults(func=lambda *args: logger.info("manuale {}".format(manuale.__version__)))
+    version = subparsers.add_parser("version", help="Show the version number")
+    version.set_defaults(func=lambda *args: logger.info(
+        "automatoes {}\n\nThis tool is a full manuale "
+        "replacement.\nJust run manuale instead of automatoes"
+        ".".format(automatoes.get_version())))
 
     # Parse
     args = parser.parse_args()
@@ -237,7 +246,7 @@ def main():
         sys.exit(0)
 
     # Set up logging
-    root = logging.getLogger('manuale')
+    root = logging.getLogger('automatoes')
     root.setLevel(logging.INFO)
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(logging.Formatter("%(message)s"))
@@ -246,7 +255,7 @@ def main():
     # Let's encrypt
     try:
         args.func(args)
-    except ManualeError as e:
+    except AutomatoesError as e:
         if str(e):
             logger.error(e)
         sys.exit(1)

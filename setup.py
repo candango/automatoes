@@ -1,51 +1,71 @@
-import subprocess
+#!/usr/bin/env python
+#
+# Copyright 2019 Flavio Garcia
+# Copyright 2016-2017 Veeti Paananen under MIT License
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import automatoes
 from setuptools import setup
 from codecs import open
-from os import path
-
-here = path.abspath(path.dirname(__file__))
-readme = path.join(here, 'README.md')
-
-# Convert the README to reStructuredText for PyPI if pandoc is available.
-# Otherwise, just read it.
 try:
-    readme = subprocess.check_output(['pandoc', '-f', 'markdown', '-t', 'rst', readme]).decode('utf-8')
-except:
-    with open(readme, encoding='utf-8') as f:
-        readme = f.read()
+    # for pip >= 10
+    from pip._internal.req import parse_requirements
+except ImportError:
+    # for pip <= 9.0.3
+    from pip.req import parse_requirements
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+
+# Solution from http://bit.ly/29Yl8VN
+def resolve_requires(requirements_file):
+    requirements = parse_requirements("./%s" % requirements_file,
+            session=False)
+    return [str(ir.req) for ir in requirements]
+
 
 setup(
-    name='manuale',
-    version='1.1.0',
-
-    license='MIT',
-    description="A fully manual Let's Encrypt/ACME client",
-    long_description=readme,
-    url='https://github.com/veeti/manuale',
-    author="Veeti Paananen",
-    author_email='veeti.paananen@rojekti.fi',
+    name="automatoes",
+    version=automatoes.get_version(),
+    license=automatoes.__licence__,
+    description=("A Let's Encrypt/ACME client based on Manuale. Manual or "
+                 "automated your choice."),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/candango/automatoes",
+    author="Flavio Garcia",
+    author_email="piraz@candango.org",
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'License :: OSI Approved :: MIT License',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3 :: Only',
+        "Development Status :: 2 - Pre-Alpha",
+        "License :: OSI Approved :: Apache Software License",
+        "Environment :: Console",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3 :: Only",
     ],
-
-    packages=['manuale'],
-    install_requires=[
-        'cryptography >= 2.1',
-        'requests',
-    ],
-
+    packages=["automatoes"],
+    install_requires=resolve_requires("requirements/basic.txt"),
     entry_points={
         'console_scripts': [
-            'manuale = manuale.cli:main',
+            "automatoes = automatoes.cli:main",
+            "manuale = automatoes.cli:main",
         ],
     },
 )

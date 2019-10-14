@@ -9,7 +9,7 @@ import logging
 from cryptography.hazmat.primitives.hashes import SHA256
 
 from .acme import Acme
-from .errors import ManualeError
+from .errors import AutomatoesError
 from .crypto import (
     generate_rsa_key,
     load_private_key,
@@ -37,7 +37,7 @@ def issue(server, account, domains, key_size, key_file=None, csr_file=None, outp
                 certificate_key = load_private_key(f.read())
         except (ValueError, AttributeError, TypeError, IOError) as e:
             logger.error("Couldn't read certificate key.")
-            raise ManualeError(e)
+            raise AutomatoesError(e)
     else:
         certificate_key = None
 
@@ -48,7 +48,7 @@ def issue(server, account, domains, key_size, key_file=None, csr_file=None, outp
                 csr = export_csr_for_acme(load_csr(f.read()))
         except (ValueError, AttributeError, TypeError, IOError) as e:
             logger.error("Couldn't read CSR.")
-            raise ManualeError(e)
+            raise AutomatoesError(e)
     else:
         # Generate key
         if not key_file:
@@ -66,7 +66,7 @@ def issue(server, account, domains, key_size, key_file=None, csr_file=None, outp
         logger.info("Certificate issued.")
     except IOError as e:
         logger.error("Connection or service request failed. Aborting.")
-        raise ManualeError(e)
+        raise AutomatoesError(e)
 
     try:
         certificate = load_der_certificate(result.certificate)
@@ -112,4 +112,4 @@ def issue(server, account, domains, key_size, key_file=None, csr_file=None, outp
                 logger.error(line)
         for line in export_pem_certificate(certificate).decode('ascii').split('\n'):
             logger.error(line)
-        raise ManualeError(e)
+        raise AutomatoesError(e)

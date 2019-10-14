@@ -1,4 +1,4 @@
-class ManualeError(Exception):
+class AutomatoesError(Exception):
     pass
 
 

@@ -29,6 +29,7 @@ def deserialize(data):
         data = json.loads(data)
         if 'key' not in data or 'uri' not in data:
             raise ValueError("Missing 'key' or 'uri' fields.")
-        return Account(key=load_private_key(data['key'].encode('utf8')), uri=data['uri'])
+        return Account(key=load_private_key(data['key'].encode('utf8')),
+                       uri=data['uri'])
     except (TypeError, ValueError, AttributeError) as e:
         raise IOError("Invalid account structure: {}".format(e))

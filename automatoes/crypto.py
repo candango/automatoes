@@ -27,17 +27,20 @@ from cryptography.hazmat.primitives import hashes
 
 logger = logging.getLogger(__name__)
 
+
 def jose_b64(data):
     """
     Encodes data with JOSE/JWS base 64 encoding.
     """
     return base64.urlsafe_b64encode(data).decode('ascii').replace('=', '')
 
+
 def generate_rsa_key(size=2048):
     """
     Generates a new RSA private key.
     """
     return generate_private_key(65537, size, default_backend())
+
 
 def generate_header(account_key):
     """
@@ -57,6 +60,7 @@ def generate_header(account_key):
         },
     }
 
+
 def generate_jwk_thumbprint(account_key):
     """
     Generates a JWK thumbprint for the specified account key.
@@ -69,6 +73,7 @@ def generate_jwk_thumbprint(account_key):
 
     return jose_b64(sha256.finalize())
 
+
 def sign_request(key, header, protected_header, payload):
     """
     Creates a JSON Web Signature for the request header and payload using the
@@ -76,7 +81,6 @@ def sign_request(key, header, protected_header, payload):
     """
     protected = jose_b64(json.dumps(protected_header).encode('utf8'))
     payload = jose_b64(json.dumps(payload).encode('utf8'))
-
     signer = key.signer(padding.PKCS1v15(), hashes.SHA256())
     signer.update(protected.encode('ascii'))
     signer.update(b'.')
@@ -88,6 +92,7 @@ def sign_request(key, header, protected_header, payload):
         'payload': payload,
         'signature': jose_b64(signer.finalize()),
     })
+
 
 def load_private_key(data):
     """
@@ -101,11 +106,13 @@ def load_private_key(data):
 
     return key
 
+
 def export_private_key(key):
     """
     Exports a private key in OpenSSL PEM format.
     """
     return key.private_bytes(Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption())
+
 
 def create_csr(key, domains, must_staple=False):
     """
@@ -119,10 +126,12 @@ def create_csr(key, domains, must_staple=False):
     csr = x509.CertificateSigningRequestBuilder().subject_name(name) \
         .add_extension(san, critical=False)
     if must_staple:
-        ocsp_must_staple = x509.TLSFeature(features=[x509.TLSFeatureType.status_request])
+        ocsp_must_staple = x509.TLSFeature(
+            features=[x509.TLSFeatureType.status_request])
         csr = csr.add_extension(ocsp_must_staple, critical=False)
     csr = csr.sign(key, hashes.SHA256(), default_backend())
     return export_csr_for_acme(csr)
+
 
 def export_csr_for_acme(csr):
     """
@@ -130,11 +139,13 @@ def export_csr_for_acme(csr):
     """
     return jose_b64(csr.public_bytes(Encoding.DER))
 
+
 def load_csr(data):
     """
     Loads a PEM X.509 CSR.
     """
     return x509.load_pem_x509_csr(data, default_backend())
+
 
 def load_der_certificate(data):
     """
@@ -142,11 +153,13 @@ def load_der_certificate(data):
     """
     return x509.load_der_x509_certificate(data, default_backend())
 
+
 def load_pem_certificate(data):
     """
     Loads a PEM X.509 certificate.
     """
     return x509.load_pem_x509_certificate(data, default_backend())
+
 
 def get_certificate_domains(cert):
     """
@@ -158,11 +171,13 @@ def get_certificate_domains(cert):
             return ext.get_values_for_type(x509.DNSName)
     return []
 
+
 def export_pem_certificate(cert):
     """
     Exports a X.509 certificate as PEM.
     """
     return cert.public_bytes(Encoding.PEM)
+
 
 def export_certificate_for_acme(cert):
     """

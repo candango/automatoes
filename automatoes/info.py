@@ -7,9 +7,10 @@ import logging
 import sys
 
 from .acme import Acme
-from .errors import ManualeError
+from .errors import AutomatoesError
 
 logger = logging.getLogger(__name__)
+
 
 def info(server, account):
     acme = Acme(server, account)
@@ -20,4 +21,4 @@ def info(server, account):
         sys.stdout.write(json.dumps(reg, indent=4, sort_keys=True))
         sys.stdout.flush()
     except IOError as e:
-        raise ManualeError(e)
+        raise AutomatoesError(e)

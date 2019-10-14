@@ -9,22 +9,24 @@ import os
 
 from .acme import Acme
 from .crypto import generate_jwk_thumbprint, jose_b64
-from .errors import ManualeError, AcmeError
-from .helpers import confirm
+from .errors import AutomatoesError
 
 logger = logging.getLogger(__name__)
 
 
 def get_challenge(auth, auth_type):
     try:
-        return [ch for ch in auth.get('challenges', []) if ch.get('type') == auth_type][0]
+        return [ch for ch in auth.get('challenges', [])
+                if ch.get('type') == auth_type][0]
     except IndexError:
-        raise ManualeError("The server didn't return a '{}' challenge.".format(auth_type))
+        raise AutomatoesError("The server didn't return a '{}' "
+                           "challenge.".format(auth_type))
 
 
 def retrieve_verification(acme, domain, auth, method):
     while True:
-        logger.info("{}: waiting for verification. Checking in 5 seconds.".format(domain))
+        logger.info("{}: waiting for verification. Checking in 5 "
+                    "seconds.".format(domain))
         time.sleep(5)
 
         response = acme.get_authorization(auth['uri'])
@@ -39,7 +41,8 @@ def retrieve_verification(acme, domain, auth, method):
                 challenge = get_challenge(response, method)
                 error_type = challenge.get('error').get('type')
                 error_reason = challenge.get('error').get('detail')
-            except (ManualeError, ValueError, IndexError, AttributeError, TypeError):
+            except (AutomatoesError, ValueError, IndexError, AttributeError,
+                    TypeError):
                 pass
 
             logger.info("{}: {} ({})".format(domain, error_reason, error_type))
@@ -137,4 +140,4 @@ def authorize(server, account, domains, method):
                 logger.exception("Couldn't delete challenge file {}".format(path))
     except IOError as e:
         logger.error("A connection or service error occurred. Aborting.")
-        raise ManualeError(e)
+        raise AutomatoesError(e)

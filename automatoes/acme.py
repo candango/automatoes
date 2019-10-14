@@ -8,13 +8,15 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 
-from . import __version__
+from . import get_version
 from .crypto import generate_header, sign_request
 from .errors import *
 
 DEFAULT_HEADERS = {
-    'User-Agent': "manuale {} (https://github.com/veeti/manuale)".format(__version__),
+    'User-Agent': "automatoes {} (https://candango.org/p/automatoes)".format(
+        get_version()),
 }
+
 
 class Acme:
 
@@ -22,6 +24,9 @@ class Acme:
         self.url = url
         self.account = account
         self.key = account.key
+
+    def get_directory(self):
+        return self.get("/directory")
 
     def get_nonce(self):
         """
@@ -42,18 +47,18 @@ class Acme:
         """
         Registers the current account on the server.
         """
-        response = self.post('/acme/new-reg', {
-            'resource': 'new-reg',
+        response = self.post("/acme/new-reg", {
+            'resource': "new-reg",
             'contact': [
                 "mailto:{}".format(email)
             ],
         })
-        uri = response.headers.get('Location')
+        uri = response.headers.get("Location")
         if response.status_code == 201:
             self.account.uri = uri
 
             # Find terms of service from link headers
-            terms = response.links.get('terms-of-service')
+            terms = response.links.get("terms-of-service")
 
             return RegistrationResult(
                 contents=_json(response),
@@ -69,9 +74,9 @@ class Acme:
         Gets available account information from the server.
         """
         response = self.post(self.account.uri, {
-            'resource': 'reg',
+            'resource': "reg",
         })
-        if str(response.status_code).startswith('2'):
+        if str(response.status_code).startswith("2"):
             return _json(response)
         raise AcmeError(response)
 
@@ -80,10 +85,10 @@ class Acme:
         Updates registration information on the server.
         """
         params = params or {}
-        params['resource'] = 'reg'
+        params['resource'] = "reg"
 
         response = self.post(self.account.uri, params)
-        if str(response.status_code).startswith('2'):
+        if str(response.status_code).startswith("2"):
             return True
         raise AcmeError(response)
 
@@ -92,8 +97,8 @@ class Acme:
         Requests a new authorization for the specified domain.
         """
         response = self.post('/acme/new-authz', {
-            'resource': 'new-authz',
-            'identifier': { 'type': 'dns', 'value': domain }
+            'resource': "new-authz",
+            'identifier': {'type': "dns", 'value': domain}
         })
         if response.status_code == 201:
             return NewAuthorizationResult(_json(response), response.headers.get('Location'))
@@ -104,7 +109,7 @@ class Acme:
         Marks the specified validation as complete.
         """
         response = self.post(uri, {
-            'resource': 'challenge',
+            'resource': "challenge",
             'type': _type,
             'keyAuthorization': key_authorization,
         })
@@ -123,27 +128,27 @@ class Acme:
             raise AcmeError(e)
 
     def issue_certificate(self, csr):
-        http_headers = { 'Accept': 'application/pkix-cert' }
+        http_headers = {'Accept': "application/pkix-cert"}
         response = self.post('/acme/new-cert', {
-            'resource': 'new-cert',
+            'resource': "new-cert",
             'csr': csr,
         }, headers=http_headers)
         if response.status_code == 201:
             # Get the issuer certificate
-            chain = response.links.get('up')
+            chain = response.links.get("up")
             if chain:
-                chain = requests.get(chain['url'], headers=DEFAULT_HEADERS).content
-
+                chain = requests.get(chain['url'],
+                                     headers=DEFAULT_HEADERS).content
             return IssuanceResult(
                 response.content,
-                response.headers.get('Location'),
+                response.headers.get("Location"),
                 chain,
             )
         raise AcmeError(response)
 
     def revoke_certificate(self, cert):
         response = self.post('/acme/revoke-cert', {
-            'resource': 'revoke-cert',
+            'resource': "revoke-cert",
             'certificate': cert,
         })
         if response.status_code == 200:
@@ -158,7 +163,7 @@ class Acme:
 
     def post(self, path, body, headers=None):
         _headers = DEFAULT_HEADERS.copy()
-        _headers['Content-Type'] = 'application/json'
+        _headers['Content-Type'] = "application/json"
         if headers:
             _headers.update(headers)
 
@@ -169,18 +174,20 @@ class Acme:
 
     def path(self, path):
         # Make sure path is relative
-        if path.startswith('http'):
+        if path.startswith("http"):
             path = urlparse(path).path
         return urljoin(self.url, path)
 
 
-RegistrationResult = namedtuple('RegistrationResult', 'contents uri terms')
-NewAuthorizationResult = namedtuple('NewAuthorizationResult', 'contents uri')
-IssuanceResult = namedtuple('IssuanceResult', 'certificate location intermediate')
+RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
+NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
+IssuanceResult = namedtuple("IssuanceResult",
+                            "certificate location intermediate")
 
 
 def _json(response):
     try:
+        print(response)
         return response.json()
     except ValueError as e:
         raise AcmeError("Invalid JSON response. {}".format(e))
