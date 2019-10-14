@@ -8,4 +8,5 @@ install:
   - "pip install -r requirements/basic.txt"
   - "pip install -r requirements/tests.txt"
 script:
-  - "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
+  #- "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
+  - behave tests/features
