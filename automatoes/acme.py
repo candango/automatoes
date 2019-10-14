@@ -185,6 +185,28 @@ IssuanceResult = namedtuple("IssuanceResult",
                             "certificate location intermediate")
 
 
+class AcmeV2(Acme):
+
+    def __init__(self, url, account):
+        self.url = url
+        self.account = account
+        self.key = account.key
+
+    def head(self, path, headers=None):
+        _headers = DEFAULT_HEADERS.copy()
+        if headers:
+            _headers.update(headers)
+        return requests.head(self.path(path), headers=_headers)
+
+    def get_nonce(self):
+        """ Gets a new nonce.
+        """
+        return self.head("/acme/new-nonce", {
+            'resource': "new-reg",
+            'payload': None,
+        }).headers.get('Replay-Nonce')
+
+
 def _json(response):
     try:
         print(response)
