@@ -11,6 +11,7 @@ install:
   - "cd $GOPATH/src/github.com/letsencrypt/pebble && go install ./..."
 script:
   #- "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
+  - "pwd"
   - "sh scripts/pebble_service.sh start tests/conf/pebble-config.json"
   - behave tests/features
   - "sh scripts/pebble_service.sh stop tests/conf/pebble-config.json"
