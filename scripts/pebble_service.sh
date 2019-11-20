@@ -21,7 +21,7 @@
 
 ## Author: Flavio Garcia <piraz@cadnango.org>
 
-AWK_CMD="/bin/awk"
+AWK_CMD="/usr/bin/awk"
 CURL_CMD="/usr/bin/curl"
 PWD_PATH="/usr/bin/pwd"
 
