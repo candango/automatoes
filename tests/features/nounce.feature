@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: Get Replay Nounce
+Feature: Replay Nounce
 
-  Scenario: ACME V2 server compliance
+  Scenario: Get ACME V2 Replay Nounce
     # Enter steps here
-    Given ACME V2 server is accessible
+    Given We have a newNonce url from ACME V2 directory
     When We request nounce from ACME V2 server
     Then ACME V2 server provides nounce in response headers
