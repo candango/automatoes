@@ -24,7 +24,7 @@ from automatoes.crypto import generate_rsa_key
 def step_v2_server_is_accessible(context, what_url):
     new_nounce_url = context.acme_v2.url_from_directory(what_url)
     context.tester.assertEqual(
-        context.staging_url, "/".join(new_nounce_url.split("/")[0:3]))
+        context.peeble_url, "/".join(new_nounce_url.split("/")[0:3]))
 
 
 @when("We request nounce from ACME V2 server")
@@ -48,7 +48,7 @@ def step_we_ask_to_create_an_ACME_V2_user(context):
     context.tester.assertEqual(peeble_term, response.terms)
     context.tester.assertEqual("valid", response.contents['status'])
     context.tester.assertEqual(
-        context.staging_url, "/".join(response.uri.split("/")[0:3]))
+        context.peeble_url, "/".join(response.uri.split("/")[0:3]))
     context.tester.assertEqual(
         "my-account", "/".join(response.uri.split("/")[3:4]))
     context.tester.assertIsInstance(int(response.uri.split("/")[4:5][0]), int)
