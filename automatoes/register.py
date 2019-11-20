@@ -43,7 +43,8 @@ def register(server, account_path, email, key_file):
             raise AutomatoesError("Aborting.")
 
     # Confirm e-mail
-    if not confirm("You're about to register a new account with the e-mail {}. Continue?".format(email)):
+    if not confirm("You're about to register a new account with the e-mail "
+                   "{}. Continue?".format(email)):
         raise AutomatoesError("Aborting.")
 
     # Load key or generate
@@ -72,14 +73,16 @@ def register(server, account_path, email, key_file):
             logger.info("This server requires you to agree to these terms:")
             logger.info("  {}".format(registration.terms))
             if not confirm("Agreed?"):
-                logger.error("Aborting. Your account was still created, but it won't be usable before agreeing to terms.")
+                logger.error("Aborting. Your account was still created, but it"
+                             " won't be usable before agreeing to terms.")
                 raise AutomatoesError()
-            acme.update_registration({ 'agreement': registration.terms })
+            acme.update_registration({'agreement': registration.terms})
             logger.info("Updated account with agreement.")
 
         logger.info("Account {} created.".format(account.uri))
     except IOError as e:
-        logger.error("Registration failed due to a connection or request error.")
+        logger.error("Registration failed due to a connection or request "
+                     "error.")
         raise AutomatoesError(e)
 
     # Write account
@@ -91,4 +94,5 @@ def register(server, account_path, email, key_file):
 
     logger.info("Wrote account to {}.".format(account_path))
     logger.info("")
-    logger.info("What next? Verify your domains with 'authorize' and use 'issue' to get new certificates.")
+    logger.info("What next? Verify your domains with 'authorize' and use "
+                "'issue' to get new certificates.")

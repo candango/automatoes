@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # Copyright 2019 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
@@ -13,11 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: User Management
+from behave import when
 
-  Scenario: Create a new ACME V2 user
 
-    Given We have a newAccount url from ACME V2 directory
-    When We have permission to create the user file at features/sandbox
-    And We ask to create an ACME V2 user
-    Then User file is created successfully at features/sandbox/account.json
