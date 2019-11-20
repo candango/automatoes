@@ -37,9 +37,11 @@ DEFAULT_HEADERS = {
 
 class Acme:
 
-    def __init__(self, url, account):
+    def __init__(self, url, account, directory="directory", verify=None):
         self.url = url
         self.account = None
+        self.directory = directory
+        self.verify = verify
         self.set_account(account)
 
     def set_account(self, account):
@@ -185,7 +187,14 @@ class Acme:
         _headers = DEFAULT_HEADERS.copy()
         if headers:
             _headers.update(headers)
-        return requests.get(self.path(path), headers=_headers)
+        kwargs = {
+            'headers': _headers
+        }
+
+        if self.verify:
+            kwargs['verify'] = self.verify
+
+        return requests.get(self.path(path), **kwargs)
 
     def post(self, path, body, headers=None):
         _headers = DEFAULT_HEADERS.copy()
@@ -196,7 +205,14 @@ class Acme:
         header, protected = self.get_headers()
         body = sign_request(self.account.key, header, protected, body)
 
-        return requests.post(self.path(path), data=body, headers=_headers)
+        kwargs = {
+            'headers': _headers
+        }
+
+        if self.verify:
+            kwargs['verify'] = self.verify
+
+        return requests.post(self.path(path), data=body, **kwargs)
 
     def path(self, path):
         # Make sure path is relative
@@ -213,15 +229,19 @@ IssuanceResult = namedtuple("IssuanceResult",
 
 class AcmeV2(Acme):
 
-    def __init__(self, url, account):
-        self.url = url
-        self.account = account
-
     def head(self, path, headers=None):
         _headers = DEFAULT_HEADERS.copy()
         if headers:
             _headers.update(headers)
-        return requests.head(self.path(path), headers=_headers)
+
+        kwargs = {
+            'headers': _headers
+        }
+
+        if self.verify:
+            kwargs['verify'] = self.verify
+
+        return requests.head(self.path(path), **kwargs)
 
     def get_headers(self, url=None):
         """
@@ -234,10 +254,21 @@ class AcmeV2(Acme):
             protected_header['url'] = url
         return protected_header
 
+    def get_directory(self):
+        return self.get("/{}".format(self.directory))
+
     def url_from_directory(self, what_url):
         response = self.get_directory()
         if response.status_code == 200:
             return response.json()[what_url]
+        return None
+
+    def terms_from_directory(self):
+        response = self.get_directory()
+        if response.status_code == 200:
+            if "meta" in response.json():
+                if "termsOfService" in response.json()['meta']:
+                    return response.json()['meta']['termsOfService']
         return None
 
     def get_nonce(self):
@@ -268,12 +299,12 @@ class AcmeV2(Acme):
             self.account.uri = uri
 
             # Find terms of service from link headers
-            terms = response.links.get("terms-of-service")
+            terms = self.terms_from_directory()
 
             return RegistrationResult(
                 contents=_json(response),
                 uri=uri,
-                terms=(terms['url'] if terms else None)
+                terms=terms
             )
         elif response.status_code == 409:
             raise AccountAlreadyExistsError(response, uri)
@@ -288,7 +319,14 @@ class AcmeV2(Acme):
         protected = self.get_headers(url=self.path(path))
         body = sign_request_v2(self.account.key, protected, body)
 
-        return requests.post(self.path(path), data=body, headers=_headers)
+        kwargs = {
+            'headers': _headers
+        }
+
+        if self.verify:
+            kwargs['verify'] = self.verify
+
+        return requests.post(self.path(path), data=body, **kwargs)
 
 
 def _json(response):
