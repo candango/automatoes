@@ -45,8 +45,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/candango/automatoes",
-    author="Flavio Garcia",
-    author_email="piraz@candango.org",
+    author=automatoes.get_author(),
+    author_email=automatoes.get_author_email(),
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: Apache Software License",

@@ -22,3 +22,12 @@ __licence__ = "Apache License V2.0"
 
 def get_version():
     return ".".join(map(str, __version__))
+
+
+def get_author():
+    return __author__.split(" <")[0]
+
+
+def get_author_email():
+    return __author__.split(" <")[1][:-1]
+

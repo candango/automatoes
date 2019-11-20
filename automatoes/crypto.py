@@ -109,6 +109,23 @@ def sign_request(key, header, protected_header, payload):
     })
 
 
+def sign_request_v2(key, protected_header, payload):
+    """
+    Creates a JSON Web Signature for the request header and payload using the
+    specified account key.
+    """
+    protected = jose_b64(json.dumps(protected_header).encode('utf8'))
+    payload = jose_b64(json.dumps(payload).encode('utf8'))
+    data = "{protected}.{payload}".format(protected=protected, payload=payload)
+    signed_data = key.sign(data.encode("ascii"), padding.PKCS1v15(),
+                           hashes.SHA256())
+    return json.dumps({
+        'protected': protected,
+        'payload': payload,
+        'signature': jose_b64(signed_data),
+    })
+
+
 def load_private_key(data):
     """
     Loads a PEM-encoded private key.

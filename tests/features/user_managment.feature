@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#Feature: Create a new user
-#
-#  Scenario: ACME V2 server compliance
-#    # Enter steps here
-#    Given We have permission to create the user file
-#    When We ask to create the user
-#    Then User file permission is created successfully
+Feature: User Management
+
+  Scenario: Create a new ACME V2 user
+
+    Given We have a newAccount url from ACME V2 directory
+    When We have permission to create the user file at features/sandbox
+    And We ask to create an ACME V2 user
+    Then User file is created successfully at features/sandbox/account.json

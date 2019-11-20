@@ -26,8 +26,8 @@ from urllib.parse import urljoin, urlparse
 import requests
 
 from . import get_version
-from .crypto import generate_header, sign_request
-from .errors import *
+from .crypto import generate_header, sign_request, sign_request_v2
+from .errors import AccountAlreadyExistsError, AcmeError
 
 DEFAULT_HEADERS = {
     'User-Agent': "automatoes {} (https://candango.org/p/automatoes)".format(
@@ -39,8 +39,17 @@ class Acme:
 
     def __init__(self, url, account):
         self.url = url
+        self.account = None
+        self.set_account(account)
+
+    def set_account(self, account):
         self.account = account
-        self.key = account.key
+
+    @property
+    def key(self):
+        if self.account is None:
+            return None
+        return self.account.key
 
     def get_directory(self):
         return self.get("/directory")
@@ -55,7 +64,7 @@ class Acme:
         """
         Builds a new pair of headers for signed requests.
         """
-        header = generate_header(self.key)
+        header = generate_header(self.account.key)
         protected_header = copy.deepcopy(header)
         protected_header['nonce'] = self.get_nonce()
         return header, protected_header
@@ -207,7 +216,6 @@ class AcmeV2(Acme):
     def __init__(self, url, account):
         self.url = url
         self.account = account
-        self.key = account.key
 
     def head(self, path, headers=None):
         _headers = DEFAULT_HEADERS.copy()
@@ -215,18 +223,76 @@ class AcmeV2(Acme):
             _headers.update(headers)
         return requests.head(self.path(path), headers=_headers)
 
+    def get_headers(self, url=None):
+        """
+        Builds a new pair of headers for signed requests.
+        """
+        header = generate_header(self.account.key)
+        protected_header = copy.deepcopy(header)
+        protected_header['nonce'] = self.get_nonce()
+        if url is not None:
+            protected_header['url'] = url
+        return protected_header
+
+    def url_from_directory(self, what_url):
+        response = self.get_directory()
+        if response.status_code == 200:
+            return response.json()[what_url]
+        return None
+
     def get_nonce(self):
         """ Gets a new nonce.
         """
-        return self.head("/acme/new-nonce", {
+        return self.head(self.url_from_directory('newNonce'), {
             'resource': "new-reg",
             'payload': None,
         }).headers.get('Replay-Nonce')
 
+    def register(self, email):
+        """Registers the current account on the server.
+        """
+        payload = {
+           "termsOfServiceAgreed": True,
+           "contact": [
+             "mailto:{email}".format(email=email)
+           ]
+         }
+        response = self.post(
+            self.url_from_directory('newAccount'),
+            payload
+        )
+
+        uri = response.headers.get("Location")
+
+        if response.status_code == 201:
+            self.account.uri = uri
+
+            # Find terms of service from link headers
+            terms = response.links.get("terms-of-service")
+
+            return RegistrationResult(
+                contents=_json(response),
+                uri=uri,
+                terms=(terms['url'] if terms else None)
+            )
+        elif response.status_code == 409:
+            raise AccountAlreadyExistsError(response, uri)
+        raise AcmeError(response)
+
+    def post(self, path, body, headers=None):
+        _headers = DEFAULT_HEADERS.copy()
+        _headers['Content-Type'] = "application/jose+json"
+        if headers:
+            _headers.update(headers)
+
+        protected = self.get_headers(url=self.path(path))
+        body = sign_request_v2(self.account.key, protected, body)
+
+        return requests.post(self.path(path), data=body, headers=_headers)
+
 
 def _json(response):
     try:
-        print(response)
         return response.json()
     except ValueError as e:
         raise AcmeError("Invalid JSON response. {}".format(e))

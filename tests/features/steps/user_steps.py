@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#
 # Copyright 2019 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
@@ -13,10 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: Replay Nounce
+from behave import when
 
-  Scenario: Get ACME V2 Replay Nounce
-    # Enter steps here
-    Given We have a newNonce url from ACME V2 directory
-    When We request nounce from ACME V2 server
-    Then ACME V2 server provides nounce in response headers
+

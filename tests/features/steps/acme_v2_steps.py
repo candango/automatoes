@@ -16,12 +16,15 @@
 # limitations under the License.
 
 from behave import given, when, then
+from automatoes.account import Account
+from automatoes.crypto import generate_rsa_key
 
 
-@given("ACME V2 server is accessible")
-def step_v2_server_is_accessible(context):
-    response = context.acme_v2.get_directory()
-    assert response.status_code == 200
+@given("We have a {what_url} url from ACME V2 directory")
+def step_v2_server_is_accessible(context, what_url):
+    new_nounce_url = context.acme_v2.url_from_directory(what_url)
+    context.tester.assertEqual(
+        context.staging_url, "/".join(new_nounce_url.split("/")[0:3]))
 
 
 @when("We request nounce from ACME V2 server")
@@ -31,4 +34,24 @@ def step_we_request_nounce_from_acme_v2_server(context):
 
 @then("ACME V2 server provides nounce in response headers")
 def step_acme_v2_server_provides_nounce_in_response_headers(context):
-    assert not context.nounce is None
+    context.tester.assertFalse(context.nounce is None)
+
+@when("We ask to create an ACME V2 user")
+def step_we_ask_to_create_an_ACME_V2_user(context):
+    user_name = "candango_{}_{}@candango.org".format(
+        context.random_string(5, False, False),
+        context.random_string(5, False, False)
+    )
+    last_term = ("https://letsencrypt.org/documents/"
+                 "LE-SA-v1.2-November-15-2017.pdf")
+    context.acme_v2.set_account(Account(key=generate_rsa_key(4096)))
+    response = context.acme_v2.register(user_name)
+    context.tester.assertEqual(last_term, response.terms)
+    context.tester.assertEqual("valid", response.contents['status'])
+    context.tester.assertEqual(
+        context.staging_url, "/".join(response.uri.split("/")[0:3]))
+    context.tester.assertEqual(
+        "acme/acct", "/".join(response.uri.split("/")[3:5]))
+    context.tester.assertEqual(
+        "acme/acct", "/".join(response.uri.split("/")[3:5]))
+    context.tester.assertIsInstance(int(response.uri.split("/")[5:6][0]), int)
