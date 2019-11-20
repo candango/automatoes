@@ -20,11 +20,18 @@
 from behave import fixture, use_fixture
 from automatoes.acme import AcmeV2
 from automatoes.account import Account
+import os
 import sys
 import string
 from unittest.case import TestCase
 
-staging_url = "https://acme-staging-v02.api.letsencrypt.org"
+peeble_url = "https://localhost:14000"
+
+
+def get_absolute_path(directory):
+    return os.path.realpath(
+        os.path.join(os.path.dirname(__file__), "..", directory)
+    )
 
 
 def random_string(length=5, upper_chars=True, punctuation=False):
@@ -53,7 +60,12 @@ def random_string(length=5, upper_chars=True, punctuation=False):
 
 @fixture
 def acme_v2(context, timeout=1, **kwargs):
-    context.acme_v2 = AcmeV2(staging_url, None)
+    context.acme_v2 = AcmeV2(
+        peeble_url,
+        None,
+        directory="dir",
+        verify=get_absolute_path("certs/candango.minica.pem")
+    )
     yield context.acme_v2
 
 
@@ -63,9 +75,9 @@ def random_string_function(context, timeout=1, **kwargs):
     yield context.random_string
 
 @fixture
-def staging_url_context(context, timeout=1, **kwargs):
-    context.staging_url = staging_url
-    yield context.staging_url
+def peeble_url_context(context, timeout=1, **kwargs):
+    context.peeble_url = peeble_url
+    yield context.peeble_url
 
 @fixture
 def tester(context, timeout=1, **kwargs):
@@ -76,5 +88,5 @@ def tester(context, timeout=1, **kwargs):
 def before_all(context):
     use_fixture(acme_v2, context)
     use_fixture(random_string_function, context)
-    use_fixture(staging_url_context, context)
+    use_fixture(peeble_url_context, context)
     use_fixture(tester, context)

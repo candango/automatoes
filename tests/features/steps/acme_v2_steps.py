@@ -42,16 +42,13 @@ def step_we_ask_to_create_an_ACME_V2_user(context):
         context.random_string(5, False, False),
         context.random_string(5, False, False)
     )
-    last_term = ("https://letsencrypt.org/documents/"
-                 "LE-SA-v1.2-November-15-2017.pdf")
+    peeble_term = ("data:text/plain,Do%20what%20thou%20wilt")
     context.acme_v2.set_account(Account(key=generate_rsa_key(4096)))
     response = context.acme_v2.register(user_name)
-    context.tester.assertEqual(last_term, response.terms)
+    context.tester.assertEqual(peeble_term, response.terms)
     context.tester.assertEqual("valid", response.contents['status'])
     context.tester.assertEqual(
         context.staging_url, "/".join(response.uri.split("/")[0:3]))
     context.tester.assertEqual(
-        "acme/acct", "/".join(response.uri.split("/")[3:5]))
-    context.tester.assertEqual(
-        "acme/acct", "/".join(response.uri.split("/")[3:5]))
-    context.tester.assertIsInstance(int(response.uri.split("/")[5:6][0]), int)
+        "my-account", "/".join(response.uri.split("/")[3:4]))
+    context.tester.assertIsInstance(int(response.uri.split("/")[4:5][0]), int)
