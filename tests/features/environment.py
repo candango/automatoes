@@ -58,6 +58,7 @@ def random_string(length=5, upper_chars=True, punctuation=False):
         import secrets
         return ''.join(secrets.choice(chars) for _ in range(length))
 
+
 @fixture
 def acme_v2(context, timeout=1, **kwargs):
     context.acme_v2 = AcmeV2(
@@ -74,10 +75,12 @@ def random_string_function(context, timeout=1, **kwargs):
     context.random_string = random_string
     yield context.random_string
 
+
 @fixture
 def peeble_url_context(context, timeout=1, **kwargs):
     context.peeble_url = peeble_url
     yield context.peeble_url
+
 
 @fixture
 def tester(context, timeout=1, **kwargs):

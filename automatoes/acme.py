@@ -279,11 +279,11 @@ class AcmeV2(Acme):
             'payload': None,
         }).headers.get('Replay-Nonce')
 
-    def register(self, email):
+    def register(self, email, terms_agreed=False):
         """Registers the current account on the server.
         """
         payload = {
-           "termsOfServiceAgreed": True,
+           "termsOfServiceAgreed": terms_agreed,
            "contact": [
              "mailto:{email}".format(email=email)
            ]
@@ -308,6 +308,17 @@ class AcmeV2(Acme):
             )
         elif response.status_code == 409:
             raise AccountAlreadyExistsError(response, uri)
+        raise AcmeError(response)
+
+    def get_registration(self):
+        """
+        Get available account information from the server.
+        """
+        response = self.post(
+            self.url_from_directory('newAccount'), {}
+        )
+        if str(response.status_code).startswith("2"):
+            return _json(response)
         raise AcmeError(response)
 
     def post(self, path, body, headers=None):

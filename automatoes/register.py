@@ -23,7 +23,7 @@ import logging
 import os
 
 from .account import Account
-from .acme import Acme
+from .acme import AcmeV2
 from .errors import AutomatoesError, AccountAlreadyExistsError
 from .crypto import (
     generate_rsa_key,
@@ -61,24 +61,20 @@ def register(server, account_path, email, key_file):
         logger.info("Key generated.")
 
     # Register
-    acme = Acme(server, account)
+    acmev2 = AcmeV2(server, account)
     logger.info("Registering...")
     try:
-        registration = acme.register(email)
-
-        # If the server has terms of service, prompt the user to confirm
-        # TODO: This is a really stupid flow. Keep an eye out on this issue:
-        # https://github.com/ietf-wg-acme/acme/issues/59 and hope they fix it.
-        if registration.terms:
-            logger.info("This server requires you to agree to these terms:")
-            logger.info("  {}".format(registration.terms))
-            if not confirm("Agreed?"):
-                logger.error("Aborting. Your account was still created, but it"
-                             " won't be usable before agreeing to terms.")
-                raise AutomatoesError()
-            acme.update_registration({'agreement': registration.terms})
-            logger.info("Updated account with agreement.")
-
+        terms_agreed = False
+        logger.info("Retrieving terms of agreement ...")
+        terms = acmev2.terms_from_directory()
+        logger.info("This server requires you to agree to these terms:")
+        logger.info("  {}".format(terms))
+        if confirm("Agreed?"):
+            terms_agreed = True
+        else:
+            logger.error("Your account will still be created, but it"
+                         " won't be usable before agreeing to terms.")
+        acmev2.register(email, terms_agreed)
         logger.info("Account {} created.".format(account.uri))
     except IOError as e:
         logger.error("Registration failed due to a connection or request "

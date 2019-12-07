@@ -110,3 +110,7 @@ venv.bak/
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Tests
+tests/features/sandbox/account.json
+tests/features/sandbox/user_contacts.txt
