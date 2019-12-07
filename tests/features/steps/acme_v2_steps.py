@@ -48,7 +48,7 @@ def step_we_ask_to_create_an_acme_v2_user(context):
     context.user_contacts = [user_name]
     peeble_term = ("data:text/plain,Do%20what%20thou%20wilt")
     context.acme_v2.set_account(Account(key=generate_rsa_key(4096)))
-    response = context.acme_v2.register(user_name)
+    response = context.acme_v2.register(user_name, True)
     context.tester.assertEqual(peeble_term, response.terms)
     context.tester.assertEqual("valid", response.contents['status'])
     context.tester.assertEqual(
