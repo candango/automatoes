@@ -21,3 +21,11 @@ Feature: User Management
     When We have permission to create the user file at features/sandbox
     And We ask to create an ACME V2 user
     Then User file is created successfully at features/sandbox/account.json
+      And User contacts are stored at features/sandbox/user_contacts.txt
+
+  Scenario: Retrieve existent ACME V2 user information
+
+    Given User file exists at features/sandbox/account.json
+    When We ask to get registration from ACME V2 user
+      And User contacts are read from features/sandbox/user_contacts.txt
+    Then Contacts from response match against stored ones

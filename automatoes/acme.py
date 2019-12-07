@@ -310,6 +310,17 @@ class AcmeV2(Acme):
             raise AccountAlreadyExistsError(response, uri)
         raise AcmeError(response)
 
+    def get_registration(self):
+        """
+        Get available account information from the server.
+        """
+        response = self.post(
+            self.url_from_directory('newAccount'), {}
+        )
+        if str(response.status_code).startswith("2"):
+            return _json(response)
+        raise AcmeError(response)
+
     def post(self, path, body, headers=None):
         _headers = DEFAULT_HEADERS.copy()
         _headers['Content-Type'] = "application/jose+json"

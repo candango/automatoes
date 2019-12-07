@@ -36,12 +36,16 @@ def step_we_request_nounce_from_acme_v2_server(context):
 def step_acme_v2_server_provides_nounce_in_response_headers(context):
     context.tester.assertFalse(context.nounce is None)
 
+
 @when("We ask to create an ACME V2 user")
-def step_we_ask_to_create_an_ACME_V2_user(context):
+def step_we_ask_to_create_an_acme_v2_user(context):
     user_name = "candango_{}_{}@candango.org".format(
         context.random_string(5, False, False),
         context.random_string(5, False, False)
     )
+    # To check against the get_registration method after
+    # TODO: check against more than one emails in the contacts
+    context.user_contacts = [user_name]
     peeble_term = ("data:text/plain,Do%20what%20thou%20wilt")
     context.acme_v2.set_account(Account(key=generate_rsa_key(4096)))
     response = context.acme_v2.register(user_name)
@@ -52,3 +56,19 @@ def step_we_ask_to_create_an_ACME_V2_user(context):
     context.tester.assertEqual(
         "my-account", "/".join(response.uri.split("/")[3:4]))
     context.tester.assertIsInstance(int(response.uri.split("/")[4:5][0]), int)
+    context.acme_v2.get_registration()
+
+
+@when("We ask to get registration from ACME V2 user")
+def step_we_ask_to_get_registration_from_ACME_V2_user(context):
+    response = context.acme_v2.get_registration()
+    context.tester.assertEqual("valid", response['status'])
+    context.get_registration_response = response
+
+
+@then("Contacts from response match against stored ones")
+def step_contacts_from_response_match_against_stored_ones(context):
+    context.tester.assertEqual(
+        context.stored_user_contacts,
+        context.get_registration_response['contact'][0].replace("mailto:", "")
+    )

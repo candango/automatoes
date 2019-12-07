@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from behave import when, then
+from behave import given, when, then, step
 import os
 
 
@@ -38,5 +38,32 @@ def user_file_is_created_successfully(context, account_path):
     with open(real_account_path, 'wb') as f:
         os.chmod(real_account_path, 0o600)
         f.write(context.acme_v2.account.serialize())
+    context.tester.assertTrue(os.path.exists(real_account_path))
+    context.tester.assertTrue(os.path.isfile(real_account_path))
+
+
+@then("User contacts are stored at {account_path}")
+def user_contacts_are_stored_at(context, account_path):
+    # This is for further checking against get registration
+    real_account_path = get_absolute_path(account_path)
+    with open(real_account_path, 'wb') as f:
+        os.chmod(real_account_path, 0o600)
+        f.write(",".join(context.user_contacts).encode())
+    context.tester.assertTrue(os.path.exists(real_account_path))
+    context.tester.assertTrue(os.path.isfile(real_account_path))
+
+
+@step("User contacts are read from {account_path}")
+def user_contacts_are_read_from(context, account_path):
+    user_contacts = None
+    real_account_path = get_absolute_path(account_path)
+    with open(real_account_path, 'r') as f:
+        user_contacts = f.read()
+    context.stored_user_contacts = user_contacts
+
+
+@given("User file exists at {account_path}")
+def user_file_exists_at(context, account_path):
+    real_account_path = get_absolute_path(account_path)
     context.tester.assertTrue(os.path.exists(real_account_path))
     context.tester.assertTrue(os.path.isfile(real_account_path))
