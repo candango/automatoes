@@ -279,11 +279,11 @@ class AcmeV2(Acme):
             'payload': None,
         }).headers.get('Replay-Nonce')
 
-    def register(self, email):
+    def register(self, email, terms_agreed=False):
         """Registers the current account on the server.
         """
         payload = {
-           "termsOfServiceAgreed": True,
+           "termsOfServiceAgreed": terms_agreed,
            "contact": [
              "mailto:{email}".format(email=email)
            ]
