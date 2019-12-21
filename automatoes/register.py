@@ -22,7 +22,6 @@ Account registration.
 import logging
 import os
 
-from .account import Account
 from .acme import AcmeV2
 from .errors import AutomatoesError, AccountAlreadyExistsError
 from .crypto import (
@@ -30,6 +29,7 @@ from .crypto import (
     load_private_key,
 )
 from .helpers import confirm
+from .model import Account
 
 logger = logging.getLogger(__name__)
 

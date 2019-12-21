@@ -24,10 +24,10 @@ import logging
 import sys
 import os
 
-from .account import deserialize as deserialize_account
 from .authorize import authorize
 from .issue import issue
 from .info import info
+from .model import Account
 from .register import register
 from .revoke import revoke
 from .errors import AutomatoesError
@@ -160,7 +160,7 @@ def load_account(path):
 
     try:
         with open(path, 'rb') as f:
-            return deserialize_account(f.read())
+            return Account.deserialize(f.read())
     except (ValueError, IOError) as e:
         logger.error("Couldn't read account file. Aborting.")
         raise AutomatoesError(e)
