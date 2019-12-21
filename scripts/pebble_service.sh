@@ -71,6 +71,9 @@ is_running() {
 }
 
 start_pebble(){
+    export PEBBLE_WFE_NONCEREJECT=0
+    export PEBBLE_VA_ALWAYS_VALID=1
+    export PEBBLE_VA_NOSLEEP=1
     echo "*************************************************************************************************"
     echo "* Candango automatoes Pebble Server Start Process"
     echo "* Config File: $2"
