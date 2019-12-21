@@ -16,25 +16,25 @@
 # limitations under the License.
 
 from behave import given, when, then
-from automatoes.account import Account
-from automatoes.crypto import generate_rsa_key
+from automatoes.crypto import create_csr, generate_rsa_key
+from automatoes.model import Account
 
 
 @given("We have a {what_url} url from ACME V2 directory")
 def step_v2_server_is_accessible(context, what_url):
-    new_nounce_url = context.acme_v2.url_from_directory(what_url)
+    new_nonce_url = context.acme_v2.url_from_directory(what_url)
     context.tester.assertEqual(
-        context.peeble_url, "/".join(new_nounce_url.split("/")[0:3]))
+        context.peeble_url, "/".join(new_nonce_url.split("/")[0:3]))
 
 
-@when("We request nounce from ACME V2 server")
-def step_we_request_nounce_from_acme_v2_server(context):
-    context.nounce = context.acme_v2.get_nonce()
+@when("We request nonce from ACME V2 server")
+def step_we_request_nonce_from_acme_v2_server(context):
+    context.nonce = context.acme_v2.get_nonce()
 
 
-@then("ACME V2 server provides nounce in response headers")
-def step_acme_v2_server_provides_nounce_in_response_headers(context):
-    context.tester.assertFalse(context.nounce is None)
+@then("ACME V2 server provides nonce in response headers")
+def step_acme_v2_server_provides_nonce_in_response_headers(context):
+    context.tester.assertFalse(context.nonce is None)
 
 
 @when("We ask to create an ACME V2 user")
@@ -72,3 +72,48 @@ def step_contacts_from_response_match_against_stored_ones(context):
         context.stored_user_contacts,
         context.get_registration_response['contact'][0].replace("mailto:", "")
     )
+
+
+@when("We create new order for {what_domain} by {what_type}")
+def step_we_create_new_order_for_domain_by_type(
+        context, what_domain, what_type):
+    context.order = context.acme_v2.new_order(what_domain, what_type)
+
+
+@then("Response identifiers and authorizations size must be {what_size}")
+def step_response_identifiers_and_authorizations_size_must_be_size(
+        context, what_size):
+    context.tester.assertEqual("pending",
+                               context.order.contents['status'])
+    context.tester.assertEqual(
+        int(what_size),
+        len(context.order.contents['identifiers'])
+    )
+    context.tester.assertEqual(
+        int(what_size),
+        len(context.order.contents['authorizations'])
+    )
+
+@when("We verify challenges from order for {what_domain} by {what_type}")
+def step_we_verify_challenges_from_order_for_domain_by_type(
+        context, what_domain, what_type):
+    challenges = context.acme_v2.get_order_challenges(context.order)
+    for challenge in challenges:
+        challenge_response = context.acme_v2.verify_order_challenge(
+            challenge, 1)
+        context.tester.assertEqual('valid', challenge_response['status'])
+
+
+@when("We finalize order for {what_domain} by {what_type}")
+def step_we_create_new_order_for_domain_by_type(
+        context, what_domain, what_type):
+    domains = what_domain.split(",")
+    csr = create_csr(generate_rsa_key(4096), domains)
+    context.finalize_order_response = context.acme_v2.finalize_order(
+        context.order, csr)
+
+
+@then("Finalized order response must be {status}")
+def step_finalized_order_response_must_be_status(context, status):
+    context.tester.assertEqual(status,
+                               context.finalize_order_response['status'])

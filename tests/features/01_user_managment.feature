@@ -29,3 +29,5 @@ Feature: User Management
     When We ask to get registration from ACME V2 user
       And User contacts are read from features/sandbox/user_contacts.txt
     Then Contacts from response match against stored ones
+      And File is cleaned from features/sandbox/user_contacts.txt
+      And File is cleaned from features/sandbox/account.json

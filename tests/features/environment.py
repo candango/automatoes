@@ -19,7 +19,6 @@
 # https://community.letsencrypt.org/t/staging-endpoint-for-acme-v2/49605
 from behave import fixture, use_fixture
 from automatoes.acme import AcmeV2
-from automatoes.account import Account
 import os
 import sys
 import string

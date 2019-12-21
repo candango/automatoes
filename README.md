@@ -2,17 +2,15 @@
 
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/) client for advanced users and developers. It is intended to be used by anyone because we don't care if you're a robot, a processes or a person.
 
-Automatoes can be used as a direct replacement to [ManuaLE](https://github.com/veeti/manuale).
+We will keep the `manuale` command to provide manual workflow designed by the original project and to be a direct replacement from [ManuaLE](https://github.com/veeti/manuale).
 
 ## Why?
 
-Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was refusing to add new features, fix bugs, refactor things, and [as pointed here](https://github.com/veeti/manuale/issues/41), suggested users to find a client being supported.
+Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was designed to be manual.
 
-Well, let's keep the tool being supported and add api for developers create automated processes and features.
+Automatoes will add automatic workflows and features to the users also keep maintaining bug fixes, refactor tasks.
 
-ManuaLE format and way to do things is awesome, that's why we need the this tool.
-
-## TODO: Rebuild README from here!!!
+ManuaLe was archived but it's way to do things is awesome.
 
 ## Features
 
@@ -28,25 +26,18 @@ ManuaLE format and way to do things is awesome, that's why we need the this tool
 
 ## Installation
 
-Python 3.3 or above is required.
+Python 3.5 or above is required.
 
 ### Using your package manager
 
-* Arch Linux: in the [AUR](https://aur.archlinux.org/packages/manuale).
-
-* Fedora Linux: `dnf install manuale`.
-
-* [Gentoo Linux](https://packages.gentoo.org/packages/app-crypt/manuale).
+* TO DO
 
 * Package maintainers wanted: your package here?
 
-### Using Docker
-
-There is a Docker image on the [Docker Hub](https://hub.docker.com/r/jgiannuzzi/letsencrypt-manuale/).
 
 ### Using pip
 
-You can install the package from [PyPI](https://pypi.python.org/pypi/manuale) using the `pip` tool. To do so, run `pip3 install manuale`.
+You can install the package from [PyPI](https://pypi.python.org/pypi/automatoes) using the `pip` tool. To do so, run `pip3 install automatoes`.
 
 If you're not using Windows or OS X pip may need to compile some of the dependencies. In this case, you need a compiler and development headers for Python, OpenSSL and libffi installed.
 
@@ -54,8 +45,8 @@ On Debian-based distributions, these will typically be `gcc python3-dev libssl-d
 
 ### From the git repository
 
-    git clone https://github.com/veeti/manuale ~/.manuale
-    cd ~/.manuale
+    git clone https://github.com/candango/automatoes ~/.automatoes
+    cd ~/.automatoes
     python3 -m venv env
     env/bin/python setup.py install
     ln -s env/bin/manuale ~/.bin/
@@ -118,6 +109,6 @@ There's plenty of documentation inside each command. Run `manuale -h` for a list
 
 **Apache License V2.0**
 
-Copyright © 2019 Flavio Garcia
+Copyright © 2019-2020 Flavio Garcia
 
 Copyright © 2016-2017 Veeti Paananen under MIT License

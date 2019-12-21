@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from automatoes.model import Account, Order
 from behave import given, when, then, step
 import os
 
@@ -67,3 +68,37 @@ def user_file_exists_at(context, account_path):
     real_account_path = get_absolute_path(account_path)
     context.tester.assertTrue(os.path.exists(real_account_path))
     context.tester.assertTrue(os.path.isfile(real_account_path))
+    data = None
+    with open(real_account_path, 'r') as f:
+        data = f.read()
+    context.acme_v2.account = Account.deserialize(data)
+
+
+@then("Order file is stored at {order_path}")
+def order_file_is_stored_at_path(context, order_path):
+    real_order_path = get_absolute_path(order_path)
+    with open(real_order_path, 'wb') as f:
+        os.chmod(real_order_path, 0o600)
+        f.write(context.order.serialize())
+    context.tester.assertTrue(os.path.exists(real_order_path))
+    context.tester.assertTrue(os.path.isfile(real_order_path))
+
+
+@then("File is cleaned from {path}")
+def order_file_is_stored_at_path(context, path):
+    real_path = get_absolute_path(path)
+    context.tester.assertTrue(os.path.exists(real_path))
+    context.tester.assertTrue(os.path.isfile(real_path))
+    os.remove(real_path)
+    context.tester.assertFalse(os.path.exists(real_path))
+
+
+@given("Order file exists at {order_path}")
+def order_file_exists_at_path(context, order_path):
+    real_order_path = get_absolute_path(order_path)
+    context.tester.assertTrue(os.path.exists(real_order_path))
+    context.tester.assertTrue(os.path.isfile(real_order_path))
+    data = None
+    with open(real_order_path, 'r') as f:
+        data = f.read()
+    context.order = Order.deserialize(data)

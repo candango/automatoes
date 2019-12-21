@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,7 +115,12 @@ def sign_request_v2(key, protected_header, payload):
     specified account key.
     """
     protected = jose_b64(json.dumps(protected_header).encode('utf8'))
-    payload = jose_b64(json.dumps(payload).encode('utf8'))
+    # Forced payload none for Post-as-Get
+    if payload is not None and payload != "":
+        payload = jose_b64(json.dumps(payload).encode('utf8'))
+    elif payload is None:
+
+        payload = ""
     data = "{protected}.{payload}".format(protected=protected, payload=payload)
     signed_data = key.sign(data.encode("ascii"), padding.PKCS1v15(),
                            hashes.SHA256())
@@ -154,9 +159,10 @@ def create_csr(key, domains, must_staple=False):
     name = x509.Name([
         x509.NameAttribute(NameOID.COMMON_NAME, domains[0]),
     ])
-    san = x509.SubjectAlternativeName([x509.DNSName(domain) for domain in domains])
-    csr = x509.CertificateSigningRequestBuilder().subject_name(name) \
-        .add_extension(san, critical=False)
+    san = x509.SubjectAlternativeName(
+        [x509.DNSName(domain) for domain in domains])
+    csr = (x509.CertificateSigningRequestBuilder()
+           .subject_name(name).add_extension(san, critical=False))
     if must_staple:
         ocsp_must_staple = x509.TLSFeature(
             features=[x509.TLSFeatureType.status_request])

@@ -19,15 +19,16 @@
 ACME API client.
 """
 
+from . import get_version
+from .crypto import create_csr, generate_header, sign_request, sign_request_v2
+from .errors import AccountAlreadyExistsError, AcmeError
+from .model import Order
 import copy
 from collections import namedtuple
 from urllib.parse import urljoin, urlparse
-
 import requests
+import time
 
-from . import get_version
-from .crypto import generate_header, sign_request, sign_request_v2
-from .errors import AccountAlreadyExistsError, AcmeError
 
 DEFAULT_HEADERS = {
     'User-Agent': "automatoes {} (https://candango.org/p/automatoes)".format(
@@ -41,6 +42,7 @@ class Acme:
         self.url = url
         self.account = None
         self.directory = directory
+        self.directory_cache = None
         self.verify = verify
         self.set_account(account)
 
@@ -120,19 +122,20 @@ class Acme:
             return True
         raise AcmeError(response)
 
-    def new_authorization(self, domain):
+    def new_authorization(self, domain, type='dns'):
         """
         Requests a new authorization for the specified domain.
         """
         response = self.post('/acme/new-authz', {
             'resource': "new-authz",
-            'identifier': {'type': "dns", 'value': domain}
+            'identifier': {'type': type, 'value': domain}
         })
         if response.status_code == 201:
-            return NewAuthorizationResult(_json(response), response.headers.get('Location'))
+            return NewAuthorizationResult(_json(response),
+                                          response.headers.get('Location'))
         raise AcmeError(response)
 
-    def validate_authorization(self, uri, _type, key_authorization):
+    def validate_authorization(self, uri, _type, key_authorization=None):
         """
         Marks the specified validation as complete.
         """
@@ -223,6 +226,8 @@ class Acme:
 
 RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
 NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
+OrderChallenge = namedtuple("OrderChallenge",
+                            "contents domain expires status type")
 IssuanceResult = namedtuple("IssuanceResult",
                             "certificate location intermediate")
 
@@ -237,10 +242,8 @@ class AcmeV2(Acme):
         kwargs = {
             'headers': _headers
         }
-
         if self.verify:
             kwargs['verify'] = self.verify
-
         return requests.head(self.path(path), **kwargs)
 
     def get_headers(self, url=None):
@@ -255,7 +258,9 @@ class AcmeV2(Acme):
         return protected_header
 
     def get_directory(self):
-        return self.get("/{}".format(self.directory))
+        if not self.directory_cache:
+            self.directory_cache = self.get("/{}".format(self.directory))
+        return self.directory_cache
 
     def url_from_directory(self, what_url):
         response = self.get_directory()
@@ -321,22 +326,119 @@ class AcmeV2(Acme):
             return _json(response)
         raise AcmeError(response)
 
-    def post(self, path, body, headers=None):
+    def new_order(self, domains, type='dns'):
+        """
+        Requests a new authorization for the specified domain.
+        """
+        domains_with_type = []
+        if not isinstance(domains, list):
+            domains = [domains]
+        for domain in domains:
+            domains_with_type.append({'type': 'dns', 'value': domain})
+        response = self.post(self.url_from_directory('newOrder'), {
+            'identifiers': domains_with_type
+        }, kid=self.account.uri)
+        if response.status_code == 201:
+            return Order(
+                contents=_json(response),
+                uri=response.headers.get('Location'),
+                ty_pe=type
+            )
+        raise AcmeError(response)
+
+    def get_order_challenges(self, order):
+        """ Return all challenges from an order .
+        :param Order order: order to be challenged
+        :return:
+        """
+        domains = [identifier['value'] for identifier in
+                   order.contents['identifiers']]
+        order_challenges = []
+        for auth in order.contents['authorizations']:
+            auth_response = _json(self.post_as_get(auth, self.account.uri))
+            for challenge in auth_response['challenges']:
+                if order.type in challenge['type']:
+                    order_challenges.append(OrderChallenge(
+                        contents=challenge,
+                        domain=auth_response['identifier']['value'],
+                        expires=auth_response['expires'],
+                        status=auth_response['status'],
+                        type=order.type
+                    ))
+        return order_challenges
+
+    def verify_order_challenge(self, challenge, timeout=5):
+        """ Return all challenges from an order .
+        :param OrderChallenge challenge: order to be challenged
+        :param int timeout: timeout to check challenge status
+        :return:
+        """
+
+        parsed_url = urlparse(self.url)
+        host = parsed_url.hostname
+        if parsed_url.port:
+            host = "{}:{}".format(host, parsed_url.port)
+
+        response = _json(self.post(challenge.contents['url'],
+                                   {},
+                                   {'Host': host},
+                                   kid=self.account.uri))
+
+        while response['status'] == "pending":
+            time.sleep(timeout)
+            response = _json(self.post_as_get(challenge.contents['url'],
+                                              kid=self.account.uri))
+        return response
+
+    def finalize_order(self, order, csr, iterations=5):
+        """
+        Marks the specified validation as complete.
+        :param OrderResult order: authorization to be
+        validated
+        :return:
+        """
+        domains = [identifier['value'] for identifier in
+                   order.contents['identifiers']]
+        response = self.post(order.contents['finalize'], {
+            'csr': csr,
+        }, kid=self.account.uri)
+        if response.status_code == 200:
+            return _json(response)
+        raise AcmeError(response)
+
+    def post(self, path, body, headers=None, kid=None):
         _headers = DEFAULT_HEADERS.copy()
         _headers['Content-Type'] = "application/jose+json"
         if headers:
             _headers.update(headers)
 
         protected = self.get_headers(url=self.path(path))
+        if kid:
+            protected['kid'] = kid
+            protected.pop('jwk')
         body = sign_request_v2(self.account.key, protected, body)
-
         kwargs = {
             'headers': _headers
         }
-
         if self.verify:
             kwargs['verify'] = self.verify
+        return requests.post(self.path(path), data=body, **kwargs)
 
+    def post_as_get(self, path, kid, headers=None):
+        _headers = DEFAULT_HEADERS.copy()
+        _headers['Content-Type'] = "application/jose+json"
+        if headers:
+            _headers.update(headers)
+
+        protected = self.get_headers(url=self.path(path))
+        protected['kid'] = kid
+        protected.pop('jwk')
+        body = sign_request_v2(self.account.key, protected, None)
+        kwargs = {
+            'headers': _headers
+        }
+        if self.verify:
+            kwargs['verify'] = self.verify
         return requests.post(self.path(path), data=body, **kwargs)
 
 
