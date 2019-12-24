@@ -390,20 +390,45 @@ class AcmeV2(Acme):
                                               kid=self.account.uri))
         return response
 
-    def finalize_order(self, order, csr, iterations=5):
+    def finalize_order(self, order, csr):
         """
         Marks the specified validation as complete.
         :param OrderResult order: authorization to be
         validated
         :return:
         """
-        domains = [identifier['value'] for identifier in
-                   order.contents['identifiers']]
         response = self.post(order.contents['finalize'], {
             'csr': csr,
         }, kid=self.account.uri)
+
         if response.status_code == 200:
             return _json(response)
+        raise AcmeError(response)
+
+    def await_for_order_fulfillment(self, order, timeout=5, iterations=5):
+        response = self.post_as_get(order.uri, kid=self.account.uri)
+        iteration_count = 0
+        while _json(response)['status'] != "valid":
+            if iteration_count == iterations:
+                break
+            time.sleep(5)
+            response = self.post_as_get(order.uri,
+                                        kid=self.account.uri)
+            iteration_count += 1
+
+        if _json(response)['status'] == "valid":
+            order.certificate_uri = _json(response)['certificate']
+
+        if response.status_code == 200:
+            return _json(response)
+        raise AcmeError(response)
+
+    def download_order_certificate(self, order):
+        response = self.post_as_get(order.certificate_uri,
+                                    kid=self.account.uri)
+        if response.status_code == 200:
+            order.certificate = response.content
+            return response
         raise AcmeError(response)
 
     def post(self, path, body, headers=None, kid=None):

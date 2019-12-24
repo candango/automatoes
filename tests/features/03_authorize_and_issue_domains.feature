@@ -33,7 +33,17 @@ Feature: ACME V2 Authorize domains and issue certificates
       And Order file exists at features/sandbox/testdns.candango.org.order.json
     When We verify challenges from order for testdns.candango.org by dns
       And We finalize order for testdns.candango.org by dns
-    Then Finalized order response must be processing
+    Then Finalized order response status must be processing
+      And We wait for fulfillment to be valid
+      And Order file is stored at features/sandbox/testdns.candango.org.order.json
+
+  Scenario: Issue a certificate for one domain by dns
+
+    Given User file exists at features/sandbox/account.json
+      And Order file exists at features/sandbox/testdns.candango.org.order.json
+    When Order has a certificate uri
+      And We download testdns.candango.org certificate
+    Then Order has a certificate with testdns.candango.org domain
       And File is cleaned from features/sandbox/testdns.candango.org.order.json
 
   Scenario: Creating order for one domain by http
@@ -49,6 +59,6 @@ Feature: ACME V2 Authorize domains and issue certificates
       And Order file exists at features/sandbox/testhttp.candango.org.order.json
     When We verify challenges from order for testhttp.candango.org by http
       And We finalize order for testhttp.candango.org by http
-    Then Finalized order response must be processing
+    Then Finalized order response status must be processing
       And File is cleaned from features/sandbox/testhttp.candango.org.order.json
       And File is cleaned from features/sandbox/account.json
