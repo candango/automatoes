@@ -16,7 +16,9 @@
 # limitations under the License.
 
 from behave import given, when, then
-from automatoes.crypto import create_csr, generate_rsa_key
+from automatoes.crypto import (create_csr, generate_rsa_key,
+                               strip_certificates, load_pem_certificate,
+                               get_certificate_domain_name)
 from automatoes.model import Account
 
 
@@ -113,7 +115,44 @@ def step_we_create_new_order_for_domain_by_type(
         context.order, csr)
 
 
-@then("Finalized order response must be {status}")
-def step_finalized_order_response_must_be_status(context, status):
+@then("Finalized order response status must be {status}")
+def step_finalized_order_response_status_must_be_status(context, status):
     context.tester.assertEqual(status,
                                context.finalize_order_response['status'])
+
+
+@then("We wait for fulfillment to be {status}")
+def step_finalized_order_response_must_be_status(context, status):
+    context.order_fulfillment_response = (
+        context.acme_v2.await_for_order_fulfillment(context.order))
+    context.tester.assertEqual(status,
+                               context.order_fulfillment_response['status'])
+
+
+@when("Order has a certificate uri")
+def step_order_has_a_certificate_uri(context):
+    context.tester.assertFalse(context.order.certificate_uri is None)
+
+
+@when("We download {what_domain} certificate")
+def step_we_download_domain_certificate(context, what_domain):
+    context.order_certificate_response = (
+        context.acme_v2.download_order_certificate(context.order))
+    context.tester.assertFalse(context.order.certificate is None)
+
+
+@then("Order has a certificate with {what_domain} domain")
+def step_order_has_a_certificate_with_domain(context, what_domain):
+    context.tester.assertFalse(context.order.certificate is None)
+    certificates = strip_certificates(context.order.certificate)
+    entity_certificate = load_pem_certificate(certificates[0])
+    context.tester.assertEqual(
+        what_domain,
+        get_certificate_domain_name(entity_certificate)
+    )
+    issuer_certificate = load_pem_certificate(certificates[1])
+    context.tester.assertTrue(
+        get_certificate_domain_name(
+            issuer_certificate
+        ).startswith("Pebble Intermediate CA")
+    )
