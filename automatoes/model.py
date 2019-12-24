@@ -53,12 +53,15 @@ class Order:
         self.contents = contents
         self.uri = uri
         self.type = ty_pe
+        self.certificate_uri = None
+        self.certificate = {}
 
     def serialize(self):
         return json.dumps({
             'contents': self.contents,
             'uri': self.uri,
-            'type': self.type
+            'type': self.type,
+            'certificate_uri': self.certificate_uri
         }).encode('utf-8')
 
     @staticmethod
@@ -73,8 +76,11 @@ class Order:
                 raise ValueError("Missing 'uri' field.")
             if 'type' not in data:
                 raise ValueError("Missing 'type' field.")
-            return Order(contents=data['contents'],
-                         uri=data['uri'],
-                         ty_pe=data['type'])
+            order = Order(contents=data['contents'],
+                          uri=data['uri'],
+                          ty_pe=data['type'])
+            if data['certificate_uri']:
+                order.certificate_uri = data['certificate_uri']
+            return order
         except (TypeError, ValueError, AttributeError) as e:
             raise IOError("Invalid account structure: {}".format(e))
