@@ -42,6 +42,8 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from cryptography.hazmat.primitives import hashes
 
+import re
+
 logger = logging.getLogger(__name__)
 
 
@@ -199,6 +201,10 @@ def load_pem_certificate(data):
     return x509.load_pem_x509_certificate(data, default_backend())
 
 
+def get_certificate_domain_name(cert):
+    return cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+
+
 def get_certificate_domains(cert):
     """
     Gets a list of all Subject Alternative Names in the specified certificate.
@@ -222,3 +228,12 @@ def export_certificate_for_acme(cert):
     Exports a X.509 certificate for the ACME protocol (JOSE Base64 DER).
     """
     return jose_b64(cert.public_bytes(Encoding.DER))
+
+
+def strip_certificates(data):
+    p = re.compile("-----BEGIN CERTIFICATE-----\n(?s).+?"
+                   "-----END CERTIFICATE-----\n")
+    stripped_data = []
+    for cert in p.findall(data.decode()):
+        stripped_data.append(cert.encode())
+    return stripped_data
