@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,14 @@ import logging
 import time
 import hashlib
 import os
+import sys
+from cartola import fs, sysexits
 
-from .acme import Acme
+from . import get_version
+from .acme import AcmeV2
 from .crypto import generate_jwk_thumbprint, jose_b64
 from .errors import AutomatoesError
+from .model import Order
 
 logger = logging.getLogger(__name__)
 
@@ -66,15 +70,134 @@ def retrieve_verification(acme, domain, auth, method):
             return False
 
 
-def authorize(server, account, domains, method):
-    method = method + '-01'
-    acme = Acme(server, account)
-    thumbprint = generate_jwk_thumbprint(account.key)
+def create_order(acme, domains, method, order_file):
+    order = acme.new_order(domains, method)
+    update_order(order, order_file)
+    return order
+
+
+def update_order(order, order_file):
+    fs.write(order_file, order.serialize().decode())
+
+
+def authorize(server, paths, account, domains, method, verbose=False):
+    print("Candango Automatoes {}. Manuale replacement."
+          "\n\n".format(get_version()))
+
+    current_path = paths['current']
+    orders_path = paths['orders']
+    authorizations_path = paths['authorizations']
+    domains_hash = hashlib.sha256(
+        "_".join(domains).encode('ascii')).hexdigest()
+    order_path = os.path.join(orders_path, domains_hash)
+    order_file = os.path.join(order_path, "order.json".format(domains_hash))
+
+    if not os.path.exists(orders_path):
+        if verbose:
+            print("Orders path not found creating it at {}."
+                  "".format(orders_path))
+        os.mkdir(orders_path)
+        os.chmod(orders_path, 0o770)
+    else:
+        if verbose:
+            print("Orders path found at {}.".format(orders_path))
+
+    if not os.path.exists(order_path):
+        if verbose:
+            print("Current order {} path not found creating it at orders "
+                  "path.\n".format(domains_hash))
+        os.mkdir(order_path)
+        os.chmod(order_path, 0o770)
+    else:
+        if verbose:
+            print("Current order {} path found at orders path.\n".format(
+                domains_hash))
+
+    method = method
+    acme = AcmeV2(server, account)
 
     try:
-        # Get pending authorizations for each domain
-        authz = {}
+        print("Authorizing {}.\n".format(", ".join(domains)))
+        # Creating orders for domains if not existent
+        if not os.path.exists(order_file):
+            if verbose:
+                print("  Order file not found creating it.")
+            order = create_order(acme, domains, method, order_file)
+        else:
+            if verbose:
+                logger.info(
+                    "  Found order file. Querying ACME server for current "
+                    "status."
+                )
+            order = Order.deserialize(fs.read(order_file))
+            server_order = acme.query_order(order)
+            order.contents = server_order.contents
+            update_order(order, order_file)
+
+            if not order.expired and not order.invalid:
+                if verbose:
+                    print("    Order still valid and expires at {}.\n".format(
+                        order.contents['expires']))
+            else:
+                if order.invalid:
+                    print("    WARNING: Invalid order, renewing it.\n    Just "
+                          "continue with the authorization when all "
+                          "verifications are in place.\n")
+                else:
+                    print("  WARNING: Expired order. Renewing order.\n")
+                os.remove(order_file)
+                order = create_order(acme, domains, method, order_file)
+                update_order(order, order_file)
+
+        pending_challenges = []
+
+        for challenge in acme.get_order_challenges(order):
+            logger.info("  Requesting challenge for {}.".format(
+                challenge.domain))
+            if challenge.status == 'valid':
+                print("    {} is already authorized until {}.".format(
+                    challenge.domain, challenge.expires))
+                continue
+            else:
+                pending_challenges.append(challenge)
+
+        # Quit if nothing to authorize
+        if not pending_challenges:
+            print("\nAll domains are already authorized, exiting.")
+            sys.exit(sysexits.EX_OK)
+
+        files = set()
+        if method == 'dns':
+            print("\n  DNS verification required. Make sure these TXT records"
+                  " are in place:\n")
+            for challenge in pending_challenges:
+                print("    _acme-challenge.{}.  IN TXT  "
+                      "\"{}\"".format(challenge.domain, challenge.key))
+        elif method == 'http':
+            print("\n  HTTP verification required. Make sure these files are "
+                  "in place:\n")
+            for challenge in pending_challenges:
+                token = challenge.contents['token']
+
+                # path sanity check
+                assert (token and os.path.sep not in token and '.' not in token)
+                files.add(token)
+                fs.write(os.path.join(current_path, token), challenge.key)
+                print("    http://{}/.well-known/acme-challenge/{}".format(
+                    challenge.domain, token))
+
+            print("\n  The necessary files have been written to the current "
+                  "directory.\n")
+        # Wait for the user to complete the challenges
+        input("\nPress Enter to continue.")
+        for challenge in pending_challenges:
+            response = acme.verify_order_challenge(challenge, 1)
+            print(response)
+        sys.exit(sysexits.EX_OK)
+
+
         for domain in domains:
+
             logger.info("Requesting challenge for {}.".format(domain))
             created = acme.new_authorization(domain)
             auth = created.contents
