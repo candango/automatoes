@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,8 +118,12 @@ def _register(args):
 
 
 def _authorize(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
-    authorize(args.server, account, args.domain, args.method)
+    verbose = False
+    if args.verbose > 0:
+        verbose = True
+    authorize(args.server, paths, account, args.domain, args.method, verbose)
 
 
 def _issue(args):
@@ -146,9 +150,25 @@ def _revoke(args):
 
 
 def _info(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
-    info(args.server, account)
+    info(args.server, account, paths)
 
+
+def get_paths(account_file):
+    current_path = os.path.dirname(os.path.abspath(account_file))
+    return {
+        'authorizations': os.path.join(current_path, "authorizations"),
+        'current': current_path,
+        'orders': os.path.join(current_path, "orders"),
+    }
+
+
+def get_meta_paths(path):
+    return {
+        'orders': os.path.join(path, "orders"),
+        'authorizations': os.path.join(path, "authorizations"),
+    }
 
 def load_account(path):
     # Show a more descriptive message if the file doesn't exist.
@@ -181,6 +201,10 @@ def main():
     # Server switch
     parser.add_argument('--server', '-s', help="The ACME server to use", default=LETS_ENCRYPT_PRODUCTION)
     parser.add_argument('--account', '-a', help="The account file to use or create", default=DEFAULT_ACCOUNT_PATH)
+
+    # Verbosity
+    parser.add_argument('--verbose', '-v', action="count",
+                        help="Set verbose mode", default=0)
 
     # Account creation
     register = subparsers.add_parser(
