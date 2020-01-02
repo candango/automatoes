@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,23 +20,43 @@
 The account info command.
 """
 
-import json
 import logging
+import os
 import sys
 
+
+from . import get_version
 from .acme import AcmeV2
 from .errors import AutomatoesError
 
 logger = logging.getLogger(__name__)
 
 
-def info(server, account):
+def info(server, account, paths):
     acme_v2 = AcmeV2(server, account)
+    print("Candango Automatoes {}. Manuale replacement."
+          "\n\n".format(get_version()))
 
     try:
-        logger.info("Requesting account data...")
-        reg = acme_v2.get_registration()
-        sys.stdout.write(json.dumps(reg, indent=4, sort_keys=True))
-        sys.stdout.flush()
+        print("Requesting account data...\n")
+
+        response = acme_v2.get_registration()
+        print("  Account contacts:")
+        for contact in response['contact']:
+            print("    {}".format(contact[7:]))
+        print("  Creation: {}".format(response['createdAt']))
+        print("  Initial Ip: {}".format(response['initialIp']))
+        print("  Key Data:")
+        print("    Type: {}".format(response['key']['kty']))
+        print("    Public key (part I) n: {}".format(response['key']['n']))
+        print("    Public key (part II) e: {}\n".format(response['key']['e']))
+
+        print(response[''])
+
+        print("    Private key stored at {}".format(
+            os.path.join(paths['current'], "account.json")))
+
+        orders_response = acme_v2.query_orders()
+
     except IOError as e:
         raise AutomatoesError(e)
