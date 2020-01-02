@@ -1,1 +1,4 @@
-include README.md CHANGELOG.md LICENSE
+include CHANGELOG.md
+include README.md
+include LICENSE
+include requirements/basic.txt
