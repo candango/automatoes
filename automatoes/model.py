@@ -18,7 +18,9 @@
 
 import json
 
-from .crypto import (load_private_key, export_private_key)
+from .crypto import (generate_jwk_thumbprint, load_private_key,
+                     export_private_key)
+from datetime import datetime
 
 
 class Account:
@@ -32,6 +34,10 @@ class Account:
             'key': export_private_key(self.key).decode('utf-8'),
             'uri': self.uri,
         }).encode('utf-8')
+
+    @property
+    def thumbprint(self):
+        return generate_jwk_thumbprint(self.key)
 
     @staticmethod
     def deserialize(data):
@@ -47,6 +53,16 @@ class Account:
             raise IOError("Invalid account structure: {}".format(e))
 
 
+class Authorization:
+
+    def __init__(self, contents, uri, ty_pe):
+        self.contents = contents
+        self.uri = uri
+        self.type = ty_pe
+        self.certificate_uri = None
+        self.certificate = {}
+
+
 class Order:
 
     def __init__(self, contents, uri, ty_pe):
@@ -55,6 +71,16 @@ class Order:
         self.type = ty_pe
         self.certificate_uri = None
         self.certificate = {}
+
+    @property
+    def expired(self):
+        order_timestamp = datetime.strptime(self.contents['expires'],
+                                            "%Y-%m-%dT%H:%M:%SZ")
+        return order_timestamp < datetime.now()
+
+    @property
+    def invalid(self):
+        return self.contents['status'] == "invalid"
 
     def serialize(self):
         return json.dumps({

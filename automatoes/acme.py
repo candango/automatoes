@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +20,15 @@ ACME API client.
 """
 
 from . import get_version
-from .crypto import create_csr, generate_header, sign_request, sign_request_v2
+from .crypto import generate_header, jose_b64, sign_request, sign_request_v2
 from .errors import AccountAlreadyExistsError, AcmeError
 from .model import Order
-import copy
 from collections import namedtuple
-from urllib.parse import urljoin, urlparse
+import copy
+import hashlib
 import requests
 import time
+from urllib.parse import urljoin, urlparse
 
 
 DEFAULT_HEADERS = {
@@ -125,6 +126,7 @@ class Acme:
     def new_authorization(self, domain, type='dns'):
         """
         Requests a new authorization for the specified domain.
+        :return Order
         """
         response = self.post('/acme/new-authz', {
             'resource': "new-authz",
@@ -227,7 +229,7 @@ class Acme:
 RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
 NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
 OrderChallenge = namedtuple("OrderChallenge",
-                            "contents domain expires status type")
+                            "contents domain expires status type key")
 IssuanceResult = namedtuple("IssuanceResult",
                             "certificate location intermediate")
 
@@ -319,16 +321,13 @@ class AcmeV2(Acme):
         """
         Get available account information from the server.
         """
-        response = self.post(
-            self.url_from_directory('newAccount'), {}
-        )
+        response = self.post_as_get(self.account.uri, kid=self.account.uri)
         if str(response.status_code).startswith("2"):
             return _json(response)
         raise AcmeError(response)
 
     def new_order(self, domains, type='dns'):
-        """
-        Requests a new authorization for the specified domain.
+        """ Requests a new authorization for the specified domain.
         """
         domains_with_type = []
         if not isinstance(domains, list):
@@ -346,10 +345,33 @@ class AcmeV2(Acme):
             )
         raise AcmeError(response)
 
+    def query_orders(self):
+        """ Query existent order status
+
+
+        :param Order order: order to be challenged
+        :return: Order
+        """
+        raise NotImplementedError
+
+    def query_order(self, order):
+        """ Query existent order status
+        :param Order order: order to be challenged
+        :return: Order
+        """
+        response = self.post_as_get(order.uri, kid=self.account.uri)
+        if response.status_code == 200:
+            return Order(
+                contents=_json(response),
+                uri=order.uri,
+                ty_pe=order.type
+            )
+        raise AcmeError(response)
+
     def get_order_challenges(self, order):
         """ Return all challenges from an order .
         :param Order order: order to be challenged
-        :return:
+        :return: Order
         """
         domains = [identifier['value'] for identifier in
                    order.contents['identifiers']]
@@ -357,23 +379,28 @@ class AcmeV2(Acme):
         for auth in order.contents['authorizations']:
             auth_response = _json(self.post_as_get(auth, self.account.uri))
             for challenge in auth_response['challenges']:
+                key_authorization = "{}.{}".format(
+                    challenge['token'], self.account.thumbprint)
+                digest = hashlib.sha256()
+                digest.update(key_authorization.encode('ascii'))
                 if order.type in challenge['type']:
                     order_challenges.append(OrderChallenge(
                         contents=challenge,
                         domain=auth_response['identifier']['value'],
                         expires=auth_response['expires'],
                         status=auth_response['status'],
-                        type=order.type
+                        type=order.type,
+                        key=jose_b64(digest.digest())
                     ))
         return order_challenges
 
-    def verify_order_challenge(self, challenge, timeout=5):
+    def verify_order_challenge(self, challenge, timeout=5, retry_limit=5):
         """ Return all challenges from an order .
         :param OrderChallenge challenge: order to be challenged
-        :param int timeout: timeout to check challenge status
+        :param int timeout: timeout before check challenge status
+        :param retry_limit: retry limit of checks of a challenge
         :return:
         """
-
         parsed_url = urlparse(self.url)
         host = parsed_url.hostname
         if parsed_url.port:
@@ -383,11 +410,12 @@ class AcmeV2(Acme):
                                    {},
                                    {'Host': host},
                                    kid=self.account.uri))
-
+        retries = 0
         while response['status'] == "pending":
-            time.sleep(timeout)
-            response = _json(self.post_as_get(challenge.contents['url'],
-                                              kid=self.account.uri))
+            if retries < retry_limit:
+                time.sleep(timeout)
+                response = _json(self.post_as_get(challenge.contents['url'],
+                                                  kid=self.account.uri))
         return response
 
     def finalize_order(self, order, csr):
@@ -411,7 +439,7 @@ class AcmeV2(Acme):
         while _json(response)['status'] != "valid":
             if iteration_count == iterations:
                 break
-            time.sleep(5)
+            time.sleep(timeout)
             response = self.post_as_get(order.uri,
                                         kid=self.account.uri)
             iteration_count += 1

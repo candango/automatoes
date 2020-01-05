@@ -79,6 +79,10 @@ def step_contacts_from_response_match_against_stored_ones(context):
 @when("We create new order for {what_domain} by {what_type}")
 def step_we_create_new_order_for_domain_by_type(
         context, what_domain, what_type):
+    what_domains = what_domain.split(" ")
+    if len(what_domains) > 1:
+        what_domain = what_domains
+
     context.order = context.acme_v2.new_order(what_domain, what_type)
 
 
@@ -101,15 +105,16 @@ def step_we_verify_challenges_from_order_for_domain_by_type(
         context, what_domain, what_type):
     challenges = context.acme_v2.get_order_challenges(context.order)
     for challenge in challenges:
-        challenge_response = context.acme_v2.verify_order_challenge(
-            challenge, 1)
-        context.tester.assertEqual('valid', challenge_response['status'])
+        if challenge.domain == what_domain:
+            challenge_response = context.acme_v2.verify_order_challenge(
+                challenge, 1)
+            context.tester.assertEqual('valid', challenge_response['status'])
 
 
 @when("We finalize order for {what_domain} by {what_type}")
 def step_we_create_new_order_for_domain_by_type(
         context, what_domain, what_type):
-    domains = what_domain.split(",")
+    domains = what_domain.split(" ")
     csr = create_csr(generate_rsa_key(4096), domains)
     context.finalize_order_response = context.acme_v2.finalize_order(
         context.order, csr)
