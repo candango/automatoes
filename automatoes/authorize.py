@@ -218,14 +218,12 @@ def authorize(server, paths, account, domains, method, verbose=False):
 
         # Print results
         if failed:
-            print("  {} domain(s) authorized, {} failed, {} pending.".format(
+            print("  {} domain(s) authorized, {} failed.".format(
                     len(done),
                     len(failed),
-                    len(pending),
             ))
             print("  Authorized: {}".format(' '.join(done) or "N/A"))
             print("  Failed: {}".format(' '.join(failed)))
-            print("  Pending: {}".format(' '.join(pending) or "N/A"))
             print("  The current order will be invalidated. Try again.")
             os.remove(order_file)
             os.rmdir(order_path)
