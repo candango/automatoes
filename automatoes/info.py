@@ -51,12 +51,7 @@ def info(server, account, paths):
         print("    Public key (part I) n: {}".format(response['key']['n']))
         print("    Public key (part II) e: {}\n".format(response['key']['e']))
 
-        print(response[''])
-
         print("    Private key stored at {}".format(
             os.path.join(paths['current'], "account.json")))
-
-        orders_response = acme_v2.query_orders()
-
     except IOError as e:
         raise AutomatoesError(e)
