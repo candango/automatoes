@@ -53,7 +53,8 @@ def retrieve_verification(acme, domain, auth, method):
         response = acme.get_authorization(auth['uri'])
         status = response.get('status')
         if status == 'valid':
-            logger.info("{}: OK! Authorization lasts until {}.".format(domain, response.get('expires', '(not provided)')))
+            logger.info("{}: OK! Authorization lasts until {}.".format(
+                domain, response.get('expires', '(not provided)')))
             return True
         elif status != 'pending':
             # Failed, dig up details
@@ -189,10 +190,58 @@ def authorize(server, paths, account, domains, method, verbose=False):
             print("\n  The necessary files have been written to the current "
                   "directory.\n")
         # Wait for the user to complete the challenges
-        input("\nPress Enter to continue.")
+        input("\nPress Enter to continue.\n")
+
+        # Validate challenges
+        done, failed, pending = set(), set(), set()
         for challenge in pending_challenges:
-            response = acme.verify_order_challenge(challenge, 1)
-            print(response)
+            print("  {}: waiting for verification. Checking in 5 "
+                  "seconds.".format(challenge.domain))
+            response = acme.verify_order_challenge(challenge, 5, 1)
+            if response['status'] == "valid":
+                print(response)
+                print("{}: OK! Authorization lasts until {}.".format(
+                    challenge.domain, response['expires']))
+                done.add(challenge.domain)
+            elif response['status'] == 'invalid':
+                print("  {}: {} ({})".format(
+                    challenge.domain,
+                    response['error']['detail'],
+                    response['error']['type'])
+                )
+                failed.add(challenge.domain)
+                break
+            else:
+                print("{}: Pending!".format(challenge.domain))
+                pending.add(challenge.domain)
+                break
+
+        # Print results
+        if failed:
+            print("  {} domain(s) authorized, {} failed, {} pending.".format(
+                    len(done),
+                    len(failed),
+                    len(pending),
+            ))
+            print("  Authorized: {}".format(' '.join(done) or "N/A"))
+            print("  Failed: {}".format(' '.join(failed)))
+            print("  Pending: {}".format(' '.join(pending) or "N/A"))
+            print("  The current order will be invalidated. Try again.")
+            os.remove(order_file)
+            os.rmdir(order_path)
+            sys.exit(sysexits.EX_FATAL_ERROR)
+        else:
+            if pending:
+                print("  {} domain(s) authorized, {} pending.".format(
+                    len(done),
+                    len(pending)))
+                print("  Authorized: {}".format(' '.join(done) or "N/A"))
+                print("  Pending: {}".format(' '.join(pending)))
+                print("  Try again.")
+                sys.exit(sysexits.EX_CANNOT_EXECUTE)
+            else:
+                logger.info("  {} domain(s) authorized. Let's Encrypt!".format(
+                    len(done)))
         sys.exit(sysexits.EX_OK)
 
 
