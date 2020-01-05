@@ -347,15 +347,12 @@ class AcmeV2(Acme):
 
     def query_orders(self):
         """ Query existent order status
+
+
         :param Order order: order to be challenged
         :return: Order
         """
-        #response = self.post_as_get(self.account.uri.replace("acct", "orders"),
-        #                            kid=self.account.uri)
-        print(self.account.uri.replace("acct", "orders"))
-        #if response.status_code == 200:
-        #    return _json(response)
-        #raise AcmeError(response)
+        raise NotImplementedError
 
     def query_order(self, order):
         """ Query existent order status
@@ -397,14 +394,13 @@ class AcmeV2(Acme):
                     ))
         return order_challenges
 
-    def verify_order_challenge(self, challenge, timeout=5, retries=5):
+    def verify_order_challenge(self, challenge, timeout=5, retry_limit=5):
         """ Return all challenges from an order .
         :param OrderChallenge challenge: order to be challenged
-        :param int timeout: timeout to check challenge status
-        :param retries:
+        :param int timeout: timeout before check challenge status
+        :param retry_limit: retry limit of checks of a challenge
         :return:
         """
-
         parsed_url = urlparse(self.url)
         host = parsed_url.hostname
         if parsed_url.port:
@@ -414,11 +410,12 @@ class AcmeV2(Acme):
                                    {},
                                    {'Host': host},
                                    kid=self.account.uri))
-
+        retries = 0
         while response['status'] == "pending":
-            time.sleep(timeout)
-            response = _json(self.post_as_get(challenge.contents['url'],
-                                              kid=self.account.uri))
+            if retries < retry_limit:
+                time.sleep(timeout)
+                response = _json(self.post_as_get(challenge.contents['url'],
+                                                  kid=self.account.uri))
         return response
 
     def finalize_order(self, order, csr):
@@ -442,7 +439,7 @@ class AcmeV2(Acme):
         while _json(response)['status'] != "valid":
             if iteration_count == iterations:
                 break
-            time.sleep(5)
+            time.sleep(timeout)
             response = self.post_as_get(order.uri,
                                         kid=self.account.uri)
             iteration_count += 1
