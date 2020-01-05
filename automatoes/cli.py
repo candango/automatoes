@@ -102,7 +102,7 @@ Shows raw registration info for the current account.
 """
 
 # Defaults
-LETS_ENCRYPT_PRODUCTION = "https://acme-v01.api.letsencrypt.org/"
+LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/"
 DEFAULT_ACCOUNT_PATH = 'account.json'
 DEFAULT_CERT_KEY_SIZE = 2048
 
@@ -239,11 +239,19 @@ def main():
         description=DESCRIPTION_ISSUE,
         formatter_class=Formatter,
     )
-    issue.add_argument('domain', help="One or more domain names to include in the certificate", nargs='+')
-    issue.add_argument('--key-size', '-b', help="The key size to use for the certificate", type=int, default=DEFAULT_CERT_KEY_SIZE)
-    issue.add_argument('--key-file', '-k', help="Existing key file to use for the certificate")
+    issue.add_argument(
+        'domain',
+        help="One or more domain names to include in the certificate",
+        nargs='+')
+    issue.add_argument('--key-size', '-b',
+                       help="The key size to use for the certificate",
+                       type=int, default=DEFAULT_CERT_KEY_SIZE)
+    issue.add_argument('--key-file', '-k',
+                       help="Existing key file to use for the certificate")
     issue.add_argument('--csr-file', help="Existing signing request to use")
-    issue.add_argument('--output', '-o', help="The output directory for created objects", default='.')
+    issue.add_argument('--output', '-o',
+                       help="The output directory for created objects",
+                       default='.')
     issue.add_argument('--ocsp-must-staple',
                        dest='ocsp_must_staple',
                        help="CSR: Request OCSP Must-Staple extension",
