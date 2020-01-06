@@ -19,18 +19,15 @@
 The domain authorization command.
 """
 
-import logging
-import hashlib
-import os
-import sys
-from cartola import fs, sysexits
-
 from . import get_version
 from .acme import AcmeV2
 from .errors import AutomatoesError
 from .model import Order
 
-logger = logging.getLogger(__name__)
+from cartola import fs, sysexits
+import hashlib
+import os
+import sys
 
 
 def create_order(acme, domains, method, order_file):
@@ -49,16 +46,22 @@ def clean_http_challenges(files):
         try:
             os.remove(path)
         except:
-            print("Couldn't delete challenge file {}".format(path))
+            print("Couldn't delete http challenge file {}".format(path))
+
+
+def clean_challenge_file(challenge_file):
+    try:
+        os.remove(challenge_file)
+    except:
+        print("Couldn't delete challenge file {}".format(challenge_file))
 
 
 def authorize(server, paths, account, domains, method, verbose=False):
-    print("Candango Automatoes {}. Manuale replacement."
-          "\n\n".format(get_version()))
+    print("Candango Automatoes {}. Manuale replacement.\n\n".format(
+        get_version()))
 
     current_path = paths['current']
     orders_path = paths['orders']
-    authorizations_path = paths['authorizations']
     domains_hash = hashlib.sha256(
         "_".join(domains).encode('ascii')).hexdigest()
     order_path = os.path.join(orders_path, domains_hash)
@@ -97,10 +100,8 @@ def authorize(server, paths, account, domains, method, verbose=False):
             order = create_order(acme, domains, method, order_file)
         else:
             if verbose:
-                logger.info(
-                    "  Found order file. Querying ACME server for current "
-                    "status."
-                )
+                print("  Found order file. Querying ACME server for current "
+                      "status.")
             order = Order.deserialize(fs.read(order_file))
             server_order = acme.query_order(order)
             order.contents = server_order.contents
@@ -124,13 +125,17 @@ def authorize(server, paths, account, domains, method, verbose=False):
         pending_challenges = []
 
         for challenge in acme.get_order_challenges(order):
-            logger.info("  Requesting challenge for {}.".format(
-                challenge.domain))
+            print("  Requesting challenge for {}.".format(challenge.domain))
             if challenge.status == 'valid':
                 print("    {} is already authorized until {}.".format(
                     challenge.domain, challenge.expires))
                 continue
             else:
+                challenge_file = os.path.join(order_path, challenge.file_name)
+                if verbose:
+                    print("    Creating challenge file {}.\n".format(
+                        challenge.file_name))
+                fs.write(challenge_file, challenge.serialize().decode())
                 pending_challenges.append(challenge)
 
         # Quit if nothing to authorize
@@ -152,7 +157,8 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 token = challenge.contents['token']
 
                 # path sanity check
-                assert (token and os.path.sep not in token and '.' not in token)
+                assert (token and os.path.sep not in token and '.' not in
+                        token)
                 files.add(token)
                 fs.write(os.path.join(current_path, token), challenge.key)
                 print("    http://{}/.well-known/acme-challenge/{}".format(
@@ -186,6 +192,7 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 pending.add(challenge.domain)
                 break
 
+        challenge_file = os.path.join(order_path, challenge.file_name)
         # Print results
         if failed:
             print("  {} domain(s) authorized, {} failed.".format(
@@ -196,6 +203,10 @@ def authorize(server, paths, account, domains, method, verbose=False):
             print("  Failed: {}".format(' '.join(failed)))
             print("  WARNING: The current order will be invalidated. "
                   "Try again.")
+            if verbose:
+                print("    Deleting invalid challenge file {}.\n".format(
+                    challenge.file_name))
+            clean_challenge_file(challenge_file)
             os.remove(order_file)
             os.rmdir(order_path)
             if method == 'http':
@@ -212,7 +223,11 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 print("  Try again.")
                 sys.exit(sysexits.EX_CANNOT_EXECUTE)
             else:
-                logger.info("  {} domain(s) authorized. Let's Encrypt!".format(
+                if verbose:
+                    print("    Deleting valid challenge file {}.\n".format(
+                        challenge.file_name))
+                clean_challenge_file(challenge_file)
+                print("  {} domain(s) authorized. Let's Encrypt!".format(
                     len(done)))
         if method == 'http':
             clean_http_challenges(files)

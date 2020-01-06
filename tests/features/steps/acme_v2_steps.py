@@ -20,6 +20,7 @@ from automatoes.crypto import (create_csr, generate_rsa_key,
                                strip_certificates, load_pem_certificate,
                                get_certificate_domain_name)
 from automatoes.model import Account
+from cartola import security
 
 
 @given("We have a {what_url} url from ACME V2 directory")
@@ -42,8 +43,8 @@ def step_acme_v2_server_provides_nonce_in_response_headers(context):
 @when("We ask to create an ACME V2 user")
 def step_we_ask_to_create_an_acme_v2_user(context):
     user_name = "candango_{}_{}@candango.org".format(
-        context.random_string(5, False, False),
-        context.random_string(5, False, False)
+        security.random_string(5, False, False),
+        security.random_string(5, False, False)
     )
     # To check against the get_registration method after
     # TODO: check against more than one emails in the contacts

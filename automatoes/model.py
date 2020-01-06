@@ -63,6 +63,31 @@ class Authorization:
         self.certificate = {}
 
 
+class Challenge:
+
+    def __init__(self, contents, domain, expires, status, ty_pe, key):
+        self.contents = contents
+        self.domain = domain
+        self.expires = expires
+        self.status = status
+        self.type = ty_pe
+        self.key = key
+
+    def serialize(self):
+        return json.dumps({
+            'contents': self.contents,
+            'domain': self.domain,
+            'expires': self.expires,
+            'status': self.status,
+            'type': self.type,
+            'key': self.key
+        }).encode('utf-8')
+
+    @property
+    def file_name(self):
+        return "{}_challenge.json".format(self.domain)
+
+
 class Order:
 
     def __init__(self, contents, uri, ty_pe):
