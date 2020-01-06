@@ -22,7 +22,7 @@ ACME API client.
 from . import get_version
 from .crypto import generate_header, jose_b64, sign_request, sign_request_v2
 from .errors import AccountAlreadyExistsError, AcmeError
-from .model import Order
+from .model import Order, Challenge
 from collections import namedtuple
 import copy
 import hashlib
@@ -228,8 +228,6 @@ class Acme:
 
 RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
 NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
-OrderChallenge = namedtuple("OrderChallenge",
-                            "contents domain expires status type key")
 IssuanceResult = namedtuple("IssuanceResult",
                             "certificate location intermediate")
 
@@ -384,19 +382,19 @@ class AcmeV2(Acme):
                 digest = hashlib.sha256()
                 digest.update(key_authorization.encode('ascii'))
                 if order.type in challenge['type']:
-                    order_challenges.append(OrderChallenge(
+                    order_challenges.append(Challenge(
                         contents=challenge,
                         domain=auth_response['identifier']['value'],
                         expires=auth_response['expires'],
                         status=auth_response['status'],
-                        type=order.type,
+                        ty_pe=order.type,
                         key=jose_b64(digest.digest())
                     ))
         return order_challenges
 
     def verify_order_challenge(self, challenge, timeout=5, retry_limit=5):
         """ Return all challenges from an order .
-        :param OrderChallenge challenge: order to be challenged
+        :param Challenge challenge: A challenge from the order
         :param int timeout: timeout before check challenge status
         :param retry_limit: retry limit of checks of a challenge
         :return:
