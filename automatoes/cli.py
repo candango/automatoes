@@ -127,9 +127,14 @@ def _authorize(args):
 
 
 def _issue(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
+    verbose = False
+    if args.verbose > 0:
+        verbose = True
     issue(
         server=args.server,
+        paths=paths,
         account=account,
         domains=args.domain,
         key_size=args.key_size,
@@ -137,6 +142,7 @@ def _issue(args):
         csr_file=args.csr_file,
         output_path=args.output,
         must_staple=args.ocsp_must_staple,
+        verbose=verbose
     )
 
 

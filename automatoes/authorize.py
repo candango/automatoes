@@ -26,11 +26,8 @@ from .model import Order
 
 from cartola import fs, sysexits
 import hashlib
-import logging
 import os
 import sys
-
-logger = logging.getLogger(__name__)
 
 
 def create_order(acme, domains, method, order_file):
@@ -60,12 +57,11 @@ def clean_challenge_file(challenge_file):
 
 
 def authorize(server, paths, account, domains, method, verbose=False):
-    print("Candango Automatoes {}. Manuale replacement."
-          "\n\n".format(get_version()))
+    print("Candango Automatoes {}. Manuale replacement.\n\n".format(
+        get_version()))
 
     current_path = paths['current']
     orders_path = paths['orders']
-    authorizations_path = paths['authorizations']
     domains_hash = hashlib.sha256(
         "_".join(domains).encode('ascii')).hexdigest()
     order_path = os.path.join(orders_path, domains_hash)
@@ -104,10 +100,8 @@ def authorize(server, paths, account, domains, method, verbose=False):
             order = create_order(acme, domains, method, order_file)
         else:
             if verbose:
-                logger.info(
-                    "  Found order file. Querying ACME server for current "
-                    "status."
-                )
+                print("  Found order file. Querying ACME server for current "
+                      "status.")
             order = Order.deserialize(fs.read(order_file))
             server_order = acme.query_order(order)
             order.contents = server_order.contents
@@ -131,8 +125,7 @@ def authorize(server, paths, account, domains, method, verbose=False):
         pending_challenges = []
 
         for challenge in acme.get_order_challenges(order):
-            logger.info("  Requesting challenge for {}.".format(
-                challenge.domain))
+            print("  Requesting challenge for {}.".format(challenge.domain))
             if challenge.status == 'valid':
                 print("    {} is already authorized until {}.".format(
                     challenge.domain, challenge.expires))
@@ -164,7 +157,8 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 token = challenge.contents['token']
 
                 # path sanity check
-                assert (token and os.path.sep not in token and '.' not in token)
+                assert (token and os.path.sep not in token and '.' not in
+                        token)
                 files.add(token)
                 fs.write(os.path.join(current_path, token), challenge.key)
                 print("    http://{}/.well-known/acme-challenge/{}".format(
@@ -233,7 +227,7 @@ def authorize(server, paths, account, domains, method, verbose=False):
                     print("    Deleting valid challenge file {}.\n".format(
                         challenge.file_name))
                 clean_challenge_file(challenge_file)
-                logger.info("  {} domain(s) authorized. Let's Encrypt!".format(
+                print("  {} domain(s) authorized. Let's Encrypt!".format(
                     len(done)))
         if method == 'http':
             clean_http_challenges(files)

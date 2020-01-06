@@ -442,7 +442,7 @@ class AcmeV2(Acme):
                                         kid=self.account.uri)
             iteration_count += 1
 
-        if _json(response)['status'] == "valid":
+        if _json(response)['status'] in ["valid", "ready"]:
             order.certificate_uri = _json(response)['certificate']
 
         if response.status_code == 200:
