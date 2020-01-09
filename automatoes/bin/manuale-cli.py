@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from automatoes.cli import automatoes_main
+from automatoes.cli import manuale_main
 
 if __name__ == "__main__":
-    automatoes_main()
+    manuale_main()
