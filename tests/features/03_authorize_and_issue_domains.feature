@@ -1,4 +1,4 @@
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -126,4 +126,3 @@ Scenario: Issue a certificate for multiple domains by dns
       And We download testhttp.candango.org certificate
     Then Order has a certificate with testhttp.candango.org domain
       And File is cleaned from features/sandbox/testhttp.candango.org.order.json
-      And File is cleaned from features/sandbox/account.json

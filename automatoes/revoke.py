@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,8 @@ The certificate revocation command.
 
 import logging
 
-from .acme import Acme
+from . import get_version
+from .acme import AcmeV2
 from .errors import AutomatoesError
 from .crypto import (
     load_pem_certificate,
@@ -34,27 +35,30 @@ logger = logging.getLogger(__name__)
 
 
 def revoke(server, account, certificate):
+    print("Candango Automatoes {}. Manuale replacement.\n\n".format(
+        get_version()))
+
     # Load the certificate
     try:
         with open(certificate, 'rb') as f:
             certificate = load_pem_certificate(f.read())
     except IOError as e:
-        logger.error("Couldn't read the certificate.")
+        print("ERROR: Couldn't read the certificate.")
         raise AutomatoesError(e)
 
     # Confirm
-    logger.info("Are you sure you want to revoke this certificate? It includes"
-                " the following domains:")
+    print("Are you sure you want to revoke this certificate? It includes the "
+          "following domains:")
     for domain in get_certificate_domains(certificate):
-        logger.info("  {}".format(domain))
+        print("  {}".format(domain))
     if not confirm("This can't be undone. Confirm?", default=False):
         raise AutomatoesError("Aborting.")
 
     # Revoke.
-    acme = Acme(server, account)
+    acme = AcmeV2(server, account)
     try:
         acme.revoke_certificate(export_certificate_for_acme(certificate))
     except IOError as e:
         raise AutomatoesError(e)
 
-    logger.info("Certificate revoked.")
+    print("Certificate revoked.")

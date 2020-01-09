@@ -121,7 +121,6 @@ def sign_request_v2(key, protected_header, payload):
     if payload is not None and payload != "":
         payload = jose_b64(json.dumps(payload).encode('utf8'))
     elif payload is None:
-
         payload = ""
     data = "{protected}.{payload}".format(protected=protected, payload=payload)
     signed_data = key.sign(data.encode("ascii"), padding.PKCS1v15(),

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -147,11 +147,20 @@ def step_we_download_domain_certificate(context, what_domain):
     context.tester.assertFalse(context.order.certificate is None)
 
 
+@when("We revoke a certificate")
+def step_we_revoke_certificate(context):
+    certificate = load_pem_certificate(context.certificate.encode("ascii"))
+    revoke_certificate_response = (
+        context.acme_v2.revoke_certificate(certificate))
+    context.tester.assertEqual(200, revoke_certificate_response.status_code)
+
+
 @then("Order has a certificate with {what_domain} domain")
 def step_order_has_a_certificate_with_domain(context, what_domain):
     context.tester.assertFalse(context.order.certificate is None)
     certificates = strip_certificates(context.order.certificate)
     entity_certificate = load_pem_certificate(certificates[0])
+    context.certificate = certificates[0]
     context.tester.assertEqual(
         what_domain,
         get_certificate_domain_name(entity_certificate)

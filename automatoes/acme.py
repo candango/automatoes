@@ -20,7 +20,8 @@ ACME API client.
 """
 
 from . import get_version
-from .crypto import generate_header, jose_b64, sign_request, sign_request_v2
+from .crypto import (export_certificate_for_acme, generate_header, jose_b64,
+                     sign_request, sign_request_v2)
 from .errors import AccountAlreadyExistsError, AcmeError
 from .model import Order, Challenge
 from collections import namedtuple
@@ -456,6 +457,15 @@ class AcmeV2(Acme):
             order.certificate = response.content
             return response
         raise AcmeError(response)
+
+    def revoke_certificate(self, cert):
+        response = self.post(self.url_from_directory('revokeCert'), {
+            'certificate':  export_certificate_for_acme(cert),
+        }, kid=self.account.uri)
+        if response.status_code == 200:
+            return response
+        raise AcmeError(response)
+
 
     def post(self, path, body, headers=None, kid=None):
         _headers = DEFAULT_HEADERS.copy()
