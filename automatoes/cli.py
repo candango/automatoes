@@ -24,6 +24,7 @@ import logging
 import sys
 import os
 
+from . import get_version
 from .authorize import authorize
 from .issue import issue
 from .info import info
@@ -37,11 +38,13 @@ logger = logging.getLogger(__name__)
 # Text
 DESCRIPTION = \
 """
+Candango Automatoes {}. Manuale replacement.
+
 Interact with ACME certification authorities such as Let's Encrypt.
 
 No idea what you're doing? Register an account, authorize your domains and
 issue a certificate or two. Call a command with -h for more instructions.
-"""
+""".format(get_version())
 
 DESCRIPTION_REGISTER = \
 """
@@ -104,7 +107,7 @@ Shows raw registration info for the current account.
 # Defaults
 LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/"
 DEFAULT_ACCOUNT_PATH = 'account.json'
-DEFAULT_CERT_KEY_SIZE = 2048
+DEFAULT_CERT_KEY_SIZE = 4096
 
 
 # Command handlers
@@ -192,12 +195,15 @@ def load_account(path):
         raise AutomatoesError(e)
 
 
-class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+class Formatter(argparse.ArgumentDefaultsHelpFormatter,
+                argparse.RawDescriptionHelpFormatter):
     pass
 
+def automatoes_main():
+    print("The automatoes command is not implemented yet.")
 
 # Where it all begins.
-def main():
+def manuale_main():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
         formatter_class=Formatter,
@@ -205,8 +211,11 @@ def main():
     subparsers = parser.add_subparsers()
 
     # Server switch
-    parser.add_argument('--server', '-s', help="The ACME server to use", default=LETS_ENCRYPT_PRODUCTION)
-    parser.add_argument('--account', '-a', help="The account file to use or create", default=DEFAULT_ACCOUNT_PATH)
+    parser.add_argument('--server', '-s', help="The ACME server to use",
+                        default=LETS_ENCRYPT_PRODUCTION)
+    parser.add_argument('--account', '-a',
+                        help="The account file to use or create",
+                        default=DEFAULT_ACCOUNT_PATH)
 
     # Verbosity
     parser.add_argument('--verbose', '-v', action="count",
@@ -220,7 +229,8 @@ def main():
         formatter_class=Formatter,
     )
     register.add_argument('email', type=str, help="Account e-mail address")
-    register.add_argument('--key-file', '-k', help="Existing key file to use for the account")
+    register.add_argument('--key-file', '-k',
+                          help="Existing key file to use for the account")
     register.set_defaults(func=_register)
 
     # Domain verification
@@ -230,7 +240,9 @@ def main():
         description=DESCRIPTION_AUTHORIZE,
         formatter_class=Formatter,
     )
-    authorize.add_argument('domain', help="One or more domain names to authorize", nargs='+')
+    authorize.add_argument('domain',
+                           help="One or more domain names to authorize",
+                           nargs='+')
     authorize.add_argument('--method',
                            '-m',
                            help="Authorization method",

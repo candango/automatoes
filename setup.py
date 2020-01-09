@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,8 +62,8 @@ setup(
     install_requires=resolve_requires("requirements/basic.txt"),
     entry_points={
         'console_scripts': [
-            "automatoes = automatoes.cli:main",
-            "manuale = automatoes.cli:main",
+            "automatoes = automatoes.cli:automatoes_main",
+            "manuale = automatoes.cli:manuale_main",
         ],
     },
 )
