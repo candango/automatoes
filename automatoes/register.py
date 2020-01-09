@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,7 @@
 Account registration.
 """
 
-import logging
-import os
-
+from . import get_version
 from .acme import AcmeV2
 from .errors import AutomatoesError, AccountAlreadyExistsError
 from .crypto import (
@@ -31,10 +29,13 @@ from .crypto import (
 from .helpers import confirm
 from .model import Account
 
-logger = logging.getLogger(__name__)
+import os
 
 
 def register(server, account_path, email, key_file):
+    print("Candango Automatoes {}. Manuale replacement.\n\n".format(
+        get_version()))
+
     # Don't overwrite silently
     if os.path.exists(account_path):
         if not confirm("The account file {} already exists. Continuing will"
@@ -43,8 +44,8 @@ def register(server, account_path, email, key_file):
             raise AutomatoesError("Aborting.")
 
     # Confirm e-mail
-    if not confirm("You're about to register a new account with the e-mail "
-                   "{}. Continue?".format(email)):
+    if not confirm("You're about to register a new account with e-mail "
+                   "{} as contact. Continue?".format(email)):
         raise AutomatoesError("Aborting.")
 
     # Load key or generate
@@ -53,32 +54,32 @@ def register(server, account_path, email, key_file):
             with open(key_file, 'rb') as f:
                 account = Account(key=load_private_key(f.read()))
         except (ValueError, AttributeError, TypeError, IOError) as e:
-            logger.error("Couldn't read key.")
+            print("ERROR: Couldn't read key.")
             raise AutomatoesError(e)
     else:
-        logger.info("Generating a new account key. This might take a second.")
+        print("Generating a new account key. This might take a second.")
         account = Account(key=generate_rsa_key(4096))
-        logger.info("Key generated.")
+        print("  Key generated.")
 
     # Register
     acmev2 = AcmeV2(server, account)
-    logger.info("Registering...")
+    print("Registering...")
     try:
         terms_agreed = False
-        logger.info("Retrieving terms of agreement ...")
+        print("  Retrieving terms of agreement ...")
         terms = acmev2.terms_from_directory()
-        logger.info("This server requires you to agree to these terms:")
-        logger.info("  {}".format(terms))
+        print("  This server requires you to agree to these terms:")
+        print("    {}".format(terms))
         if confirm("Agreed?"):
             terms_agreed = True
         else:
-            logger.error("Your account will still be created, but it"
-                         " won't be usable before agreeing to terms.")
+            print("Your account will still be created, but it won't be usable "
+                  "before agreeing to terms.")
         acmev2.register(email, terms_agreed)
-        logger.info("Account {} created.".format(account.uri))
+        print("  Account {} created.".format(account.uri))
     except IOError as e:
-        logger.error("Registration failed due to a connection or request "
-                     "error.")
+        print("ERROR: Registration failed due to a connection or request "
+              "error.")
         raise AutomatoesError(e)
 
     # Write account
@@ -88,7 +89,6 @@ def register(server, account_path, email, key_file):
         os.chmod(account_path, 0o600)
         f.write(account.serialize())
 
-    logger.info("Wrote account to {}.".format(account_path))
-    logger.info("")
-    logger.info("What next? Verify your domains with 'authorize' and use "
-                "'issue' to get new certificates.")
+    print("  Wrote account to {}.\n".format(account_path))
+    print("What's next? Verify your domains with 'authorize' and use 'issue' "
+          "to get new certificates.")
