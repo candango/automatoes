@@ -108,9 +108,17 @@ def authorize(server, paths, account, domains, method, verbose=False):
             update_order(order, order_file)
 
             if not order.expired and not order.invalid:
-                if verbose:
-                    print("    Order still valid and expires at {}.\n".format(
-                        order.contents['expires']))
+                if order.contents['status'] == 'valid':
+                    print("  Order is valid and expires at {}. Please run "
+                          "the issue "
+                          "command.\n".format(order.contents['expires']))
+                    print("  {} domain(s) authorized. Let's Encrypt!".format(
+                        len(domains)))
+                    sys.exit(sysexits.EX_OK)
+                else:
+                    if verbose:
+                        print("    Order still pending and expires "
+                              "at {}.\n".format(order.contents['expires']))
             else:
                 if order.invalid:
                     print("    WARNING: Invalid order, renewing it.\n    Just "
@@ -224,9 +232,14 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 sys.exit(sysexits.EX_CANNOT_EXECUTE)
             else:
                 if verbose:
-                    print("    Deleting valid challenge file {}.\n".format(
+                    print("    Deleting valid challenge file {}.".format(
                         challenge.file_name))
                 clean_challenge_file(challenge_file)
+                if verbose:
+                    print("    Querying ACME server for current status.\n")
+                server_order = acme.query_order(order)
+                order.contents = server_order.contents
+                update_order(order, order_file)
                 print("  {} domain(s) authorized. Let's Encrypt!".format(
                     len(done)))
         if method == 'http':
