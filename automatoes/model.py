@@ -96,7 +96,7 @@ class Order:
         self.type = ty_pe
         self.certificate_uri = None
         self.certificate = {}
-        self.csr = None
+        self.key = None
 
     @property
     def expired(self):
@@ -114,7 +114,7 @@ class Order:
             'uri': self.uri,
             'type': self.type,
             'certificate_uri': self.certificate_uri,
-            'csr': self.csr
+            'key': self.key
         }).encode('utf-8')
 
     @staticmethod
@@ -134,8 +134,8 @@ class Order:
                           ty_pe=data['type'])
             if data['certificate_uri']:
                 order.certificate_uri = data['certificate_uri']
-            if data['csr']:
-                order.certificate_uri = data['csr']
+            if data['key']:
+                order.key = data['key']
             return order
         except (TypeError, ValueError, AttributeError) as e:
             raise IOError("Invalid account structure: {}".format(e))

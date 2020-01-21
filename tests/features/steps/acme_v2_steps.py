@@ -101,6 +101,7 @@ def step_response_identifiers_and_authorizations_size_must_be_size(
         len(context.order.contents['authorizations'])
     )
 
+
 @when("We verify challenges from order for {what_domain} by {what_type}")
 def step_we_verify_challenges_from_order_for_domain_by_type(
         context, what_domain, what_type):
@@ -113,7 +114,7 @@ def step_we_verify_challenges_from_order_for_domain_by_type(
 
 
 @when("We finalize order for {what_domain} by {what_type}")
-def step_we_create_new_order_for_domain_by_type(
+def step_we_finalize_order_for_domain_by_type(
         context, what_domain, what_type):
     domains = what_domain.split(" ")
     csr = create_csr(generate_rsa_key(4096), domains)
@@ -128,7 +129,7 @@ def step_finalized_order_response_status_must_be_status(context, status):
 
 
 @then("We wait for fulfillment to be {status}")
-def step_finalized_order_response_must_be_status(context, status):
+def step_we_wait_for_fulfillment_to_be_status(context, status):
     context.order_fulfillment_response = (
         context.acme_v2.await_for_order_fulfillment(context.order))
     context.tester.assertEqual(status,

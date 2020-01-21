@@ -40,8 +40,8 @@ setup(
     name="automatoes",
     version=automatoes.get_version(),
     license=automatoes.__licence__,
-    description=("A Let's Encrypt/ACME client based on Manuale. Manual or "
-                 "automated your choice."),
+    description=("Let's Encrypt/ACME V2 client replacement for Manuale. Manual"
+                 "or automated your choice."),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/candango/automatoes",

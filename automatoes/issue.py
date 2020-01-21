@@ -81,6 +81,23 @@ def issue(server, paths, account, domains, key_size, key_file=None,
             print("Current order {} path found at orders path.\n".format(
                 domains_hash))
 
+    acme = AcmeV2(server, account)
+    order = Order.deserialize(fs.read(order_file))
+    if order.contents['status'] == "pending":
+        if verbose:
+            print("Querying ACME server for current status.")
+        server_order = acme.query_order(order)
+        order.contents = server_order.contents
+        update_order(order, order_file)
+        if order.contents['status'] in ["pending", "invalid"]:
+            print(" ERROR: Order not ready or invalid. Please re-run: manuale"
+                  " authorize {}.".format(" ".join(domains)))
+            sys.exit(sysexits.EX_CANNOT_EXECUTE)
+    elif order.contents['status'] == "invalid":
+        print(" ERROR: Invalid order. Please re-run: manuale authorize "
+              "{}.".format(" ".join(domains)))
+        sys.exit(sysexits.EX_CANNOT_EXECUTE)
+
     if not output_path or output_path == '.':
         output_path = os.getcwd()
 
@@ -89,8 +106,10 @@ def issue(server, paths, account, domains, key_size, key_file=None,
         try:
             with open(key_file, 'rb') as f:
                 certificate_key = load_private_key(f.read())
+            order.key = export_private_key(certificate_key).decode('ascii')
+            update_order(order, order_file)
         except (ValueError, AttributeError, TypeError, IOError) as e:
-            logger.error("Couldn't read certificate key.")
+            print("ERROR: Couldn't read certificate key.")
             raise AutomatoesError(e)
     else:
         certificate_key = None
@@ -101,57 +120,65 @@ def issue(server, paths, account, domains, key_size, key_file=None,
             with open(csr_file, 'rb') as f:
                 csr = export_csr_for_acme(load_csr(f.read()))
         except (ValueError, AttributeError, TypeError, IOError) as e:
-            logger.error("Couldn't read CSR.")
+            print("ERROR: Couldn't read CSR.")
             raise AutomatoesError(e)
     else:
         # Generate key
         if not key_file:
-            logger.info("Generating a {} bit RSA key. This might take a "
-                        "second.".format(key_size))
-            certificate_key = generate_rsa_key(key_size)
-            logger.info("  Key generated.")
-            logger.info("")
+            if order.key is None:
+                print("Generating a {} bit RSA key. This might take a "
+                      "second.".format(key_size))
+                certificate_key = generate_rsa_key(key_size)
+                print("  Key generated.")
+                order.key = export_private_key(certificate_key).decode('ascii')
+                update_order(order, order_file)
+                print("  Order updated with generated key.")
+            else:
+                print("Previous RSA key found in the order. Loading the key.")
+                certificate_key = load_private_key(order.key.encode('ascii'))
 
         csr = create_csr(certificate_key, domains, must_staple=must_staple)
 
-    acme = AcmeV2(server, account)
-    order = Order.deserialize(fs.read(order_file))
     try:
         logger.info("Requesting certificate issuance...")
+        if order.contents['status'] == "ready":
+            final_order = acme.finalize_order(order, csr)
+            order.contents = final_order
+            update_order(order, order_file)
+            if final_order['status'] in ["processing", "valid"]:
+                if verbose:
+                    print("  Order {} finalized. Certificate is being "
+                          "issued.".format(domains_hash))
+            else:
+                print(" ERROR: Order not ready or invalid. Please re-run: "
+                      "manuale authorize {}.".format(" ".join(domains)))
+                sys.exit(sysexits.EX_CANNOT_EXECUTE)
+        elif order.contents['status'] in ["valid", "processing"]:
+            print("  Order {} is already processing or valid. Downloading "
+                  "certificate.".format(domains_hash))
+        else:
+            print(" ERROR: Order not ready or invalid. Please re-run: manuale "
+                  "authorize {}.".format(" ".join(domains)))
+            sys.exit(sysexits.EX_CANNOT_EXECUTE)
 
-        print(order.contents['finalize'])
-
-        if "certificate" not in order.contents:
+        if order.certificate_uri is None:
             if verbose:
                 print("  Checking order {} status.".format(domains_hash))
-            fulfillment = acme.await_for_order_fulfillment(order, 1, 5)
-
-            if fulfillment['status'] in ["valid", "ready"]:
+            fulfillment = acme.await_for_order_fulfillment(order)
+            if fulfillment['status'] == "valid":
                 order.contents = fulfillment
                 update_order(order, order_file)
             else:
                 print(" ERROR: Order not ready or invalid. Please re-run: "
-                      "manuale authorize {}".format(" ".join(domains)))
+                      "manuale authorize {}.".format(" ".join(domains)))
                 sys.exit(sysexits.EX_CANNOT_EXECUTE)
-
-        if order.contents['status'] is "ready":
-            final_order = acme.finalize_order(order, csr)
-            order.contents = final_order
-            update_order(order, order_file)
-            if final_order['status'] == "ready":
-                if verbose:
-                    print("  Order {} finalized as valid. Issuing "
-                          "certificate".format(domains_hash))
-            else:
-                print(" ERROR: Order not ready or invalid. Please re-run: "
-                      "manuale authorize {}".format(" ".join(domains)))
         else:
-            print("  Order {} is already valid. Issuing "
-                  "certificate".format(domains_hash))
+            print("  We already know the certificate uri for order {}. "
+                  "Downloading certificate.".format(domains_hash))
 
         result = acme.download_order_certificate(order)
 
-        logger.info("  Certificate issued.")
+        logger.info("  Certificate downloaded.")
     except IOError as e:
         print("Connection or service request failed. Aborting.")
         raise AutomatoesError(e)
@@ -174,36 +201,35 @@ def issue(server, paths, account, domains, key_size, key_file=None,
                                          domains[0] + '.intermediate.crt')
         key_path = os.path.join(output_path, domains[0] + '.pem')
 
-        if certificate_key is not None:
+        if order.key is not None:
             with open(key_path, 'wb') as f:
                 os.chmod(key_path, 0o600)
-                f.write(export_private_key(certificate_key))
-                print("Wrote key to {}".format(f.name))
+                f.write(order.key.encode('ascii'))
+                print("\n  Wrote key to {}".format(f.name))
 
         with open(cert_path, 'wb') as f:
             f.write(export_pem_certificate(certificate))
-            print("Wrote certificate to {}".format(f.name))
+            print("  Wrote certificate to {}".format(f.name))
 
         with open(chain_path, 'wb') as f:
             f.write(export_pem_certificate(certificate))
             if len(certificates) > 1:
                 f.write(export_pem_certificate(load_pem_certificate(
                     certificates[1])))
-            print("Wrote certificate with intermediate to {}".format(f.name))
+            print("  Wrote certificate with intermediate to {}".format(f.name))
 
         if len(certificates) > 1:
             with open(intermediate_path, 'wb') as f:
                 f.write(export_pem_certificate(load_pem_certificate(
                     certificates[1])))
-                print("Wrote intermediate certificate to {}".format(f.name))
+                print("  Wrote intermediate certificate to {}".format(f.name))
     except IOError as e:
-        print("Failed to write certificate or key. Going to print them for "
-              "you instead.")
-        if certificate_key is not None:
-            for line in export_private_key(
-                    certificate_key).decode('ascii').split('\n'):
-                logger.error(line)
+        print("  ERROR: Failed to write certificate or key. Going to print "
+              "them for you instead.")
+        if order.key is not None:
+            for line in order.key.split('\n'):
+                print("ERROR: {}".format(line))
         for line in export_pem_certificate(
                 certificate).decode('ascii').split('\n'):
-            logger.error(line)
+            print("ERROR: {}".format(line))
         raise AutomatoesError(e)

@@ -1,28 +1,39 @@
-# Automat-o-es
+# Candango Automat-o-es
 
-Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/) client for advanced users and developers. It is intended to be used by anyone because we don't care if you're a robot, a processes or a person.
+Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/)
+client for advanced users and developers. It is intended to be used by anyone
+because we don't care if you're a robot, a processes or a person.
 
-We will keep the `manuale` command to provide manual workflow designed by the original project and to be a direct replacement from [ManuaLE](https://github.com/veeti/manuale).
+We will keep the `manuale` command to provide manual workflow designed by the
+original project and to be a direct replacement from [ManuaLE](https://github.com/veeti/manuale).
 
 ## Why?
 
-Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE was great but it was designed to be manual.
+Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE
+was great but it was designed to be manual.
 
-Automatoes will add automatic workflows and features to the users also keep maintaining bug fixes, refactor tasks.
+Automatoes will add automatic workflows and features to the users also keep
+maintaining bug fixes, refactor tasks.
 
 ManuaLe was archived but it's way to do things is awesome.
 
 ## Features
 
-* Simple interface with no hoops to jump through. Keys and certificate signing requests are automatically generated: no more cryptic OpenSSL one-liners. (However, you do need to know what to do with generated certificates and keys yourself!)
+* Simple interface with no hoops to jump through. Keys and certificate signing
+requests are automatically generated: no more cryptic OpenSSL one-liners.
+(However, you do need to know what to do with generated certificates and keys
+yourself!)
 
-* Support for DNS & HTTP validation. No need to figure out how to serve challenge files from a live domain.
+* Support for DNS & HTTP validation. No need to figure out how to serve
+challenge files from a live domain.
 
-* Obviously, runs without root access. Use it from any machine you want, it doesn't care. Internet connection recommended.
+* Obviously, runs without root access. Use it from any machine you want, it
+doesn't care. Internet connection recommended.
 
 * Awful, undiscoverable name.
 
-* And finally, if the `openssl` binary is your spirit animal after all, you can still bring your own keys and/or CSR's. Everybody wins.
+* And finally, if the `openssl` binary is your spirit animal after all, you can
+still bring your own keys and/or CSR's. Everybody wins.
 
 ## Installation
 
@@ -37,11 +48,16 @@ Python 3.5 or above is required.
 
 ### Using pip
 
-You can install the package from [PyPI](https://pypi.python.org/pypi/automatoes) using the `pip` tool. To do so, run `pip3 install automatoes`.
+You can install the package from [PyPI](https://pypi.python.org/pypi/automatoes)
+using the `pip` tool. To do so, run `pip3 install automatoes`.
 
-If you're not using Windows or OS X pip may need to compile some of the dependencies. In this case, you need a compiler and development headers for Python, OpenSSL and libffi installed.
+If you're not using Windows or OS X pip may need to compile some of the
+dependencies. In this case, you need a compiler and development headers for
+Python, OpenSSL and libffi installed.
 
-On Debian-based distributions, these will typically be `gcc python3-dev libssl-dev libffi-dev`, and on RPM-based distributions `gcc python3-devel openssl-devel libffi-devel`.
+On Debian-based distributions, these will typically be
+`gcc python3-dev libssl-dev libffi-dev`, and on RPM-based distributions
+`gcc python3-devel openssl-devel libffi-devel`.
 
 ### From the git repository
 
@@ -86,17 +102,149 @@ Set yourself a reminder for renewal!
 
 ## Usage
 
-You need to create an account once. To do so, call `manuale register [email]`. This will create a new account key for you. Follow the registration instructions.
+You need to create an account once. To do so, call `manuale register [email]`.
+This will create a new account key for you. Follow the registration instructions.
 
-Once that's done, you'll have your account saved in `account.json` in the current directory. You'll need this to do anything useful. Oh, and it contains your private key, so keep it safe and secure.
+Once that's done, you'll have your account saved in `account.json` in the
+current directory. You'll need this to do anything useful. Oh, and it contains
+your private key, so keep it safe and secure.
 
-`manuale` expects the account file to be in your working directory by default, so you'll probably want to make a specific directory to do all your certificate stuff in. Likewise, created certificates get saved in the current path by default.
+`manuale` expects the account file to be in your working directory by default,
+so you'll probably want to make a specific directory to do all your certificate
+stuff in. Likewise, created certificates get saved in the current path by
+default.
 
-Next up, verify the domains you want a certificate for with `manuale authorize [domain]`. This will show you the DNS records you need to create and wait for you to do it. For example, you might do it for `example.com` and `www.example.com`.
+Next up, verify the domains you want a certificate for with
+`manuale authorize [domain]`. This will show you the DNS records you need to
+create and wait for you to do it. For example, you might do it for
+`example.com` and `www.example.com`.
 
-Once that's done, you can finally get down to business. Run `manuale issue example.com www.example.com` to get your certificate. It'll save the key, certificate and certificate with intermediate to the working directory.
+Once that's done, you can finally get down to business.
+Run `manuale issue example.com www.example.com` to get your certificate.
+It'll save the key, certificate and certificate with intermediate to the
+working directory.
 
-There's plenty of documentation inside each command. Run `manuale -h` for a list of commands and `manuale [command] -h` for details.
+There's plenty of documentation inside each command. Run `manuale -h` for a
+list of commands and `manuale [command] -h` for details.
+
+## Something different from ManuaLE?
+
+Yes and no. Mostly yes, in the background.
+
+Automatoes provides a manuale command replacement and a new automatoes command
+will be added in the future.
+
+The manuale command will interface ACME V2 only as V1 is reaching
+[End Of Life](https://community.letsencrypt.org/t/end-of-life-plan-for-acmev1/88430).
+
+The account file structure from ManuaLE is maintained, no change here.
+For Let's Encrypt servers we don't need even to register an ACME V2 account
+by now just use the old account file.
+
+ACME V2 works with an [order workflow](https://tools.ietf.org/html/rfc8555#section-7.1)
+that must be fulfilled. Automatoes will mimic orders in a file structure
+locally for better control.
+
+The manuale command will handle orders following the original project workflow
+with minimal changes.
+
+The automatoes command will be order based, let's talk about that when
+released.
+
+Here is what happens in the background(manuale replacement):
+
+> `manuale authorize domain.com other.domain.com`
+> 1. /acme/new-order is called and order file is stored locally at
+> <working directory>/orders/<sha256sum(domain.com other.domain.com)>/order.json
+> 1. /acme/authz/challenge1 and /acme/authz/challenge2 are called and stored at
+> <working directory>/orders/<sha256sum(domain.com other.domain.com)>
+> 1. the file name for challenges will be <domain>_challenge.json
+> 1. you fulfill all challenges either by dns or http, dns is default.
+> Just saying... you know the drill right? Same as before.
+> 1. manuale the Let's Encrypt! message and you can issue the certificate
+
+* If any challenge fails we delete the order file as the order will be set as
+invalid in the server. Invalid orders are considered fulfilled and not pending,
+we can discard them.
+* If you hit Ctrl+c, the order will start from the server state as we can
+continue to process from the local file stored. Even challenges will be
+maintained, in a case when one challenge is validated and 2 are pending, if
+a Ctrl+c was hit, were recognize that in the next attempt.
+* If you call issue and there is an existent invalid order file than we delete
+the order and a new one is created.
+
+> `manuale issue domain.com other.domain.com`
+
+> 1. /acme/order/<order_id>/finalize is called with the pem generated
+> or the one provided by you
+> 1. /acme/cert/<cert_id> is called and we place keys like we use to do before
+> 1. we're done!
+
+* If you try to issue certificates for a domain sequence and an oder is pending
+or invalid automatoes will ask you to re-run authorize.
+
+After authorizing a domain sequence you need to call issue with the same domain
+sequence because:
+
+ 1. The order file is stored at
+ <working directory>/orders/<sha256sum(domain.com other.domain.com)>
+ if we change the domain sequence a new order file will be created at
+ <working directory>/orders/<sha256sum(other.domain.com domain.com)>
+ 2. The acme V2 order finalize call also requires something like this as
+ described at [rfc8555 section-7.4](https://tools.ietf.org/html/rfc8555#section-7.4):
+
+>  A request to finalize an order will result in an error if the CA is
+   unwilling to issue a certificate corresponding to the submitted CSR.
+   For example:
+>
+>   *  **If the CSR and order identifiers differ** <--- TALKING ABOUT THIS
+>
+>   *  If the account is not authorized for the identifiers indicated in the CSR
+>
+>   *  If the CSR requests extensions that the CA is not willing to include
+
+Trying to keeping thing as [KISS](https://www.acronymfinder.com/KISS.html) as
+possible we can complicate things later. Now we need ACME V2.
+
+To create a certificate for a domain sequence authorized by a previous order
+just:
+
+ 1. call authorize again. Chances are that no challenge will be needed but it
+ depends on the ACME V2 server implementation.
+ 1. fulfill challenge(s) if needed
+ 1. call issue with same domain sequence authorize
+ 1. we're done!
+
+In another words, a domain sequence defines the order identifier locally.
+
+The sha256sum command from coreutils can be used if you have a bash script
+to monitor `manuale` execution:
+
+```
+> echo "domain.com other.domain.com" | sha256sum
+83ccaf9441b1abea98837e2f4c2fc18122c0e9ee4e39dd1995387f4d5d495b69  -
+
+> echo "other.domain.com domain.com" | sha256sum
+d0bd2c4957537572ffb7150a7dc89e61f44f9ab603b75be481118e37ec5a6163  -
+```
+
+Storing meta files at <working directory>/orders directory will let you
+automate things better. Don't delete those files let Automatoes handle them for
+you.
+
+Here are more some features we can explore with this local file structure in
+the future:
+
+ - control and advise about limits, as Acme V2 enforce limits for opened orders
+ per account
+ - list orders and status (for pending orders)
+ - create partial authorizations (that will be on automatoes command not in
+ manuale)
+ - SDK?
+ - Can you imagine more? Create a feature request for us.
+
+Also the manuale command can be called with a verbose parameter(-v) right now
+providing more output.
 
 ## See also
 
@@ -105,9 +253,15 @@ There's plenty of documentation inside each command. Run `manuale -h` for a list
 * [Test your server](https://www.ssllabs.com/ssltest/)
 * [Other clients](https://community.letsencrypt.org/t/list-of-client-implementations/2103)
 
-## License
+## Support
 
-**Apache License V2.0**
+Automatoes is one of
+[Candango Open Source Group](http://www.candango.org/projects/)
+initiatives. Available under the
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
+
+This web site and all documentation is licensed under
+[Creative Commons 3.0](http://creativecommons.org/licenses/by/3.0/).
 
 Copyright © 2019-2020 Flavio Garcia
 
