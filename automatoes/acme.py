@@ -425,14 +425,13 @@ class AcmeV2(Acme):
         :return:
         """
         response = self.post(order.contents['finalize'], {
-            'csr': csr,
+            'csr': export_certificate_for_acme(csr),
         }, kid=self.account.uri)
-
         if response.status_code == 200:
             return _json(response)
         raise AcmeError(response)
 
-    def await_for_order_fulfillment(self, order, timeout=5, iterations=5):
+    def await_for_order_fulfillment(self, order, timeout=2, iterations=5):
         response = self.post_as_get(order.uri, kid=self.account.uri)
         iteration_count = 0
         while _json(response)['status'] != "valid":
@@ -465,7 +464,6 @@ class AcmeV2(Acme):
         if response.status_code == 200:
             return response
         raise AcmeError(response)
-
 
     def post(self, path, body, headers=None, kid=None):
         _headers = DEFAULT_HEADERS.copy()

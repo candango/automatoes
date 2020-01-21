@@ -168,15 +168,14 @@ def create_csr(key, domains, must_staple=False):
         ocsp_must_staple = x509.TLSFeature(
             features=[x509.TLSFeatureType.status_request])
         csr = csr.add_extension(ocsp_must_staple, critical=False)
-    csr = csr.sign(key, hashes.SHA256(), default_backend())
-    return export_csr_for_acme(csr)
+    return csr.sign(key, hashes.SHA256(), default_backend())
 
 
 def export_csr_for_acme(csr):
     """
     Exports a X.509 CSR for the ACME protocol (JOSE Base64 DER).
     """
-    return jose_b64(csr.public_bytes(Encoding.DER))
+    return export_certificate_for_acme(csr)
 
 
 def load_csr(data):
