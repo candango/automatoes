@@ -2,7 +2,7 @@
 
 # What's new in Automatoes 0.9.0
 
-## Jan 18, 2020
+## Jan 21, 2020
 
 We are pleased to announce the release of Automatoes 0.9.0.
 
