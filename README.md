@@ -181,7 +181,7 @@ the order and a new one is created.
 > 1. we're done!
 
 * If you try to issue certificates for a domain sequence and an oder is pending
-or invalid automatoes will ask you to authorize before.
+or invalid automatoes will ask you to re-run authorize.
 
 After authorizing a domain sequence you need to call issue with the same domain
 sequence because:
