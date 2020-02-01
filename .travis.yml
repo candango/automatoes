@@ -8,7 +8,11 @@ install:
   - "pip install -r requirements/basic.txt"
   - "pip install -r requirements/tests.txt"
   - "go get -u github.com/letsencrypt/pebble/..."
-  - "cd $GOPATH/src/github.com/letsencrypt/pebble && go install ./... && cd -"
+  - |
+    (
+      cd "$GOPATH/src/github.com/letsencrypt/pebble/"
+      go install ./...
+    )
 script:
   #- "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
   - "./scripts/pebble_service.sh start tests/conf/pebble-config.json"
