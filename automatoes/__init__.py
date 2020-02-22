@@ -30,4 +30,3 @@ def get_author():
 
 def get_author_email():
     return __author__.split(" <")[1][:-1]
-
