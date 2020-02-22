@@ -5,7 +5,8 @@ client for advanced users and developers. It is intended to be used by anyone
 because we don't care if you're a robot, a processes or a person.
 
 We will keep the `manuale` command to provide manual workflow designed by the
-original project and to be a direct replacement from [ManuaLE](https://github.com/veeti/manuale).
+original project and to be a direct replacement from
+[ManuaLE](https://github.com/veeti/manuale).
 
 ## Why?
 
@@ -48,8 +49,9 @@ Python 3.5 or above is required.
 
 ### Using pip
 
-You can install the package from [PyPI](https://pypi.python.org/pypi/automatoes)
-using the `pip` tool. To do so, run `pip3 install automatoes`.
+You can install the package from
+[PyPI](https://pypi.python.org/pypi/automatoes) using the `pip` tool. To do 
+so, run `pip3 install automatoes`.
 
 If you're not using Windows or OS X pip may need to compile some of the
 dependencies. In this case, you need a compiler and development headers for
@@ -103,7 +105,8 @@ Set yourself a reminder for renewal!
 ## Usage
 
 You need to create an account once. To do so, call `manuale register [email]`.
-This will create a new account key for you. Follow the registration instructions.
+This will create a new account key for you. Follow the registration
+instructions.
 
 Once that's done, you'll have your account saved in `account.json` in the
 current directory. You'll need this to do anything useful. Oh, and it contains
@@ -132,18 +135,20 @@ list of commands and `manuale [command] -h` for details.
 Yes and no. Mostly yes, in the background.
 
 Automatoes provides a manuale command replacement and a new automatoes command
-will be added in the future.
+that will be added in the future.
 
 The manuale command will interface ACME V2 only as V1 is reaching
 [End Of Life](https://community.letsencrypt.org/t/end-of-life-plan-for-acmev1/88430).
 
 The account file structure from ManuaLE is maintained, no change here.
-For Let's Encrypt servers we don't need even to register an ACME V2 account
-by now just use the old account file.
+For Let's Encrypt servers need to change the url from V1 api to V2 api that is
+being covered by [#30](https://github.com/candango/automatoes/issues/30). After
+that you don't need even to register an ACME V2 account.
 
-ACME V2 works with an [order workflow](https://tools.ietf.org/html/rfc8555#section-7.1)
-that must be fulfilled. Automatoes will mimic orders in a file structure
-locally for better control.
+ACME V2 works with an 
+[order workflow](https://tools.ietf.org/html/rfc8555#section-7.1) that must be
+fulfilled. Automatoes will mimic orders in a file structure locally for better
+control.
 
 The manuale command will handle orders following the original project workflow
 with minimal changes.
@@ -155,9 +160,9 @@ Here is what happens in the background(manuale replacement):
 
 > `manuale authorize domain.com other.domain.com`
 > 1. /acme/new-order is called and order file is stored locally at
-> <working directory>/orders/<sha256sum(domain.com other.domain.com)>/order.json
+> working_directory/orders/<sha256sum(domain.com other.domain.com)>/order.json
 > 1. /acme/authz/challenge1 and /acme/authz/challenge2 are called and stored at
-> <working directory>/orders/<sha256sum(domain.com other.domain.com)>
+> working_directory/orders/<sha256sum(domain.com other.domain.com)>
 > 1. the file name for challenges will be <domain>_challenge.json
 > 1. you fulfill all challenges either by dns or http, dns is default.
 > Just saying... you know the drill right? Same as before.
@@ -181,17 +186,18 @@ the order and a new one is created.
 > 1. we're done!
 
 * If you try to issue certificates for a domain sequence and an oder is pending
-or invalid automatoes will ask you to re-run authorize.
+or invalid, automatoes will ask you to run authorize before.
 
-After authorizing a domain sequence you need to call issue with the same domain
+After authorizing a domain sequence you need run issue with the same domain
 sequence because:
 
  1. The order file is stored at
- <working directory>/orders/<sha256sum(domain.com other.domain.com)>
+ working_directory/orders/<sha256sum(domain.com other.domain.com)>
  if we change the domain sequence a new order file will be created at
- <working directory>/orders/<sha256sum(other.domain.com domain.com)>
+ working_directory/orders/<sha256sum(other.domain.com domain.com)>
  2. The acme V2 order finalize call also requires something like this as
- described at [rfc8555 section-7.4](https://tools.ietf.org/html/rfc8555#section-7.4):
+ described at
+ [rfc8555 section-7.4](https://tools.ietf.org/html/rfc8555#section-7.4):
 
 >  A request to finalize an order will result in an error if the CA is
    unwilling to issue a certificate corresponding to the submitted CSR.
@@ -228,7 +234,7 @@ to monitor `manuale` execution:
 d0bd2c4957537572ffb7150a7dc89e61f44f9ab603b75be481118e37ec5a6163  -
 ```
 
-Storing meta files at <working directory>/orders directory will let you
+Storing meta files at working_directory/orders directory will let you
 automate things better. Don't delete those files let Automatoes handle them for
 you.
 

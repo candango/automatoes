@@ -18,11 +18,11 @@ Here are the highlights:
 
 ## Refactory
 
- * ACME V2 account registration. #5
- * ACME V2 get nonce. #7
- * ACME V2 Account Info. #16
- * ACME V2 Applying for Certificate Issuance. #18
- * ACME V2 Certificate Revocation #25
+ * ACME V2 account registration. [#5](https://github.com/candango/automatoes/issues/5)
+ * ACME V2 get nonce. [#7](https://github.com/candango/automatoes/issues/7)
+ * ACME V2 Account Info. [#16](https://github.com/candango/automatoes/issues/16)
+ * ACME V2 Applying for Certificate Issuance. [#18](https://github.com/candango/automatoes/issues/18)
+ * ACME V2 Certificate Revocation [#25](https://github.com/candango/automatoes/issues/25)
 
 # What's new in Automatoes 0.0.0.1
 
@@ -34,11 +34,11 @@ Candango Automatoes initial rlease.
 
 ## Bugs
 
- * Python 3.5 depreciation notice. #6
+ * Python 3.5 depreciation notice. [#6](https://github.com/candango/automatoes/issues/6)
 
 ## Refactory
 
- * Changed license to Apache 2. #2
+ * Changed license to Apache 2. [#2](https://github.com/candango/automatoes/issues/2)
 
 # Manuale (Legacy)
 
