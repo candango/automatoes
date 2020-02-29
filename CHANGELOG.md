@@ -1,5 +1,20 @@
 # Candango Automatoes
 
+# What's new in Automatoes 0.9.1
+
+## Jan 29, 2020
+
+We are pleased to announce the release of Automatoes 0.9.1.
+
+This release fixes a severe bug with `manuale revoke` command and updates dependencies.
+
+Here are the highlights:
+
+## Bugs
+
+ * Revoke dies with AttributeError: 'str' object has no attribute 'public_bytes' bug severe. [#34](https://github.com/candango/automatoes/issues/34)
+
+
 # What's new in Automatoes 0.9.0
 
 ## Jan 21, 2020
@@ -18,11 +33,11 @@ Here are the highlights:
 
 ## Refactory
 
- * ACME V2 account registration. #5
- * ACME V2 get nonce. #7
- * ACME V2 Account Info. #16
- * ACME V2 Applying for Certificate Issuance. #18
- * ACME V2 Certificate Revocation #25
+ * ACME V2 account registration. [#5](https://github.com/candango/automatoes/issues/5)
+ * ACME V2 get nonce. [#7](https://github.com/candango/automatoes/issues/7)
+ * ACME V2 Account Info. [#16](https://github.com/candango/automatoes/issues/16)
+ * ACME V2 Applying for Certificate Issuance. [#18](https://github.com/candango/automatoes/issues/18)
+ * ACME V2 Certificate Revocation [#25](https://github.com/candango/automatoes/issues/25)
 
 # What's new in Automatoes 0.0.0.1
 
@@ -34,11 +49,11 @@ Candango Automatoes initial rlease.
 
 ## Bugs
 
- * Python 3.5 depreciation notice. #6
+ * Python 3.5 depreciation notice. [#6](https://github.com/candango/automatoes/issues/6)
 
 ## Refactory
 
- * Changed license to Apache 2. #2
+ * Changed license to Apache 2. [#2](https://github.com/candango/automatoes/issues/2)
 
 # Manuale (Legacy)
 

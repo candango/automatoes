@@ -26,7 +26,6 @@ from .acme import AcmeV2
 from .errors import AutomatoesError
 from .crypto import (
     load_pem_certificate,
-    export_certificate_for_acme,
     get_certificate_domains
 )
 from .helpers import confirm
@@ -57,7 +56,7 @@ def revoke(server, account, certificate):
     # Revoke.
     acme = AcmeV2(server, account)
     try:
-        acme.revoke_certificate(export_certificate_for_acme(certificate))
+        acme.revoke_certificate(certificate)
     except IOError as e:
         raise AutomatoesError(e)
 

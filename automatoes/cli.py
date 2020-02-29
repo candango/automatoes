@@ -199,8 +199,10 @@ class Formatter(argparse.ArgumentDefaultsHelpFormatter,
                 argparse.RawDescriptionHelpFormatter):
     pass
 
+
 def automatoes_main():
     print("The automatoes command is not implemented yet.")
+
 
 # Where it all begins.
 def manuale_main():

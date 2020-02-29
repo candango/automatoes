@@ -16,7 +16,7 @@
 # limitations under the License.
 
 __author__ = "Flavio Garcia <piraz@candango.org>"
-__version__ = (0, 9, 0)
+__version__ = (0, 9, 1)
 __licence__ = "Apache License V2.0"
 
 
@@ -30,4 +30,3 @@ def get_author():
 
 def get_author_email():
     return __author__.split(" <")[1][:-1]
-
