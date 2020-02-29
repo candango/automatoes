@@ -1,5 +1,20 @@
 # Candango Automatoes
 
+# What's new in Automatoes 0.9.1
+
+## Jan 29, 2020
+
+We are pleased to announce the release of Automatoes 0.9.1.
+
+This release fixes a severe bug with `manuale revoke` command and updates dependencies.
+
+Here are the highlights:
+
+## Bugs
+
+ * Revoke dies with AttributeError: 'str' object has no attribute 'public_bytes' bug severe. [#34](https://github.com/candango/automatoes/issues/34)
+
+
 # What's new in Automatoes 0.9.0
 
 ## Jan 21, 2020
