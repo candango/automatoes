@@ -18,12 +18,6 @@
 """
 The command line interface.
 """
-import automatoes
-import argparse
-import logging
-import sys
-import os
-
 from . import get_version
 from .authorize import authorize
 from .issue import issue
@@ -32,6 +26,12 @@ from .model import Account
 from .register import register
 from .revoke import revoke
 from .errors import AutomatoesError
+
+import argparse
+from cartola import sysexits
+import logging
+import sys
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -306,13 +306,13 @@ def manuale_main():
     version.set_defaults(func=lambda *args: logger.info(
         "automatoes {}\n\nThis tool is a full manuale "
         "replacement.\nJust run manuale instead of automatoes"
-        ".".format(automatoes.get_version())))
+        ".".format(get_version())))
 
     # Parse
     args = parser.parse_args()
     if not hasattr(args, 'func'):
         parser.print_help()
-        sys.exit(0)
+        sys.exit(sysexits.EX_MISUSE)
 
     # Set up logging
     root = logging.getLogger('automatoes')
@@ -327,12 +327,12 @@ def manuale_main():
     except AutomatoesError as e:
         if str(e):
             logger.error(e)
-        sys.exit(1)
+        sys.exit(sysexits.EX_SOFTWARE)
     except KeyboardInterrupt:
         logger.error("")
         logger.error("Interrupted.")
-        sys.exit(2)
+        sys.exit(sysexits.EX_TERMINATED_BY_CRTL_C)
     except Exception as e:
         logger.error("Oops! An unhandled error occurred. Please file a bug.")
         logger.exception(e)
-        sys.exit(3)
+        sys.exit(sysexits.EX_CATCHALL)
