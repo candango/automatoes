@@ -1,5 +1,7 @@
 # Candango Automat-o-es
 
+[![Build Status](https://travis-ci.org/candango/automatoes.svg?branch=develop)](https://travis-ci.org/candango/automatoes)
+
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/)
 client for advanced users and developers. It is intended to be used by anyone
 because we don't care if you're a robot, a processes or a person.
