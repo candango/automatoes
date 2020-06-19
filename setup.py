@@ -52,7 +52,7 @@ setup(
     author=automatoes.get_author(),
     author_email=automatoes.get_author_email(),
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",
         "Environment :: Console",
         "Environment :: Web Environment",

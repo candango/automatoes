@@ -12,13 +12,14 @@ original project and to be a direct replacement from
 
 ## Why?
 
-Bacause Let's Encrypt's point is to be to be automatic and seamless and ManuaLE
-was great but it was designed to be manual.
+Bacause Let's Encrypt's point is to be automatic and seamless and ManuaLE was
+designed to be manual.
 
-Automatoes will add automatic workflows and features to the users also keep
-maintaining bug fixes, refactor tasks.
+Automatoes will add automatic workflows and new features to evolve ManuaLe's
+legacy. The project also will keep performing maintenance tasks as bug fixes
+and refactory.
 
-ManuaLe was archived but it's way to do things is awesome.
+Automatoes is an ACME V2 replacement to ManuaLE.
 
 ## Features
 

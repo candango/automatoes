@@ -18,12 +18,6 @@
 """
 The command line interface.
 """
-import automatoes
-import argparse
-import logging
-import sys
-import os
-
 from . import get_version
 from .authorize import authorize
 from .issue import issue
@@ -31,7 +25,14 @@ from .info import info
 from .model import Account
 from .register import register
 from .revoke import revoke
+from .upgrade import upgrade
 from .errors import AutomatoesError
+
+import argparse
+from cartola import sysexits
+import logging
+import sys
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,12 @@ current account.
 
 DESCRIPTION_INFO = \
 """
-Shows raw registration info for the current account.
+Display registration info for the current account.
+"""
+
+DESCRIPTION_UPGRADE = \
+"""
+Upgrade current account's uri from Let's Encrypt ACME V1 to ACME V2.
 """
 
 # Defaults
@@ -164,6 +170,12 @@ def _info(args):
     info(args.server, account, paths)
 
 
+def _upgrade(args):
+    account_path = args.account
+    account = load_account(args.account)
+    upgrade(args.server, account, account_path)
+
+
 def get_paths(account_file):
     current_path = os.path.dirname(os.path.abspath(account_file))
     return {
@@ -178,6 +190,7 @@ def get_meta_paths(path):
         'orders': os.path.join(path, "orders"),
         'authorizations': os.path.join(path, "authorizations"),
     }
+
 
 def load_account(path):
     # Show a more descriptive message if the file doesn't exist.
@@ -295,24 +308,33 @@ def manuale_main():
     # Account info
     info = subparsers.add_parser(
         'info',
-        help="Shows account information from the service",
+        help="Display account information",
         description=DESCRIPTION_INFO,
         formatter_class=Formatter,
     )
     info.set_defaults(func=_info)
+
+    # Account upgrade
+    upgrade = subparsers.add_parser(
+        'upgrade',
+        help="Upgrade account's uri from Let's Encrypt ACME V1 to V2",
+        description=DESCRIPTION_UPGRADE,
+        formatter_class=Formatter,
+    )
+    upgrade.set_defaults(func=_upgrade)
 
     # Version
     version = subparsers.add_parser("version", help="Show the version number")
     version.set_defaults(func=lambda *args: logger.info(
         "automatoes {}\n\nThis tool is a full manuale "
         "replacement.\nJust run manuale instead of automatoes"
-        ".".format(automatoes.get_version())))
+        ".".format(get_version())))
 
     # Parse
     args = parser.parse_args()
     if not hasattr(args, 'func'):
         parser.print_help()
-        sys.exit(0)
+        sys.exit(sysexits.EX_MISUSE)
 
     # Set up logging
     root = logging.getLogger('automatoes')
@@ -327,12 +349,12 @@ def manuale_main():
     except AutomatoesError as e:
         if str(e):
             logger.error(e)
-        sys.exit(1)
+        sys.exit(sysexits.EX_SOFTWARE)
     except KeyboardInterrupt:
         logger.error("")
         logger.error("Interrupted.")
-        sys.exit(2)
+        sys.exit(sysexits.EX_TERMINATED_BY_CRTL_C)
     except Exception as e:
         logger.error("Oops! An unhandled error occurred. Please file a bug.")
         logger.exception(e)
-        sys.exit(3)
+        sys.exit(sysexits.EX_CATCHALL)
