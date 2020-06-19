@@ -27,10 +27,12 @@ from .model import Order, Challenge
 from collections import namedtuple
 import copy
 import hashlib
+import logging
 import requests
 import time
 from urllib.parse import urljoin, urlparse
 
+logger = logging.getLogger(__name__)
 
 DEFAULT_HEADERS = {
     'User-Agent': "automatoes {} (https://candango.org/p/automatoes)".format(
@@ -234,6 +236,23 @@ IssuanceResult = namedtuple("IssuanceResult",
 
 
 class AcmeV2(Acme):
+
+    def __init__(self, url, account, directory="directory", verify=None):
+        super(AcmeV2, self).__init__(url, account, directory, verify)
+        if "acme-v01.api.letsencrypt.org" in self.account.uri:
+            logger.warning("WARNING: The account is using Let's Encrypt "
+                           "discontinued ACME V1 url.")
+            logger.warning("WARNING: Upgrading account to ACME V2 temporally.")
+            logger.warning("WARNING: Please run 'manuale upgrade' to make the "
+                           "change permanently.")
+            self.account.uri = self._letsencrypt_acme_uri_v1_to_v2()
+
+    def _letsencrypt_acme_uri_v1_to_v2(self):
+        uri = self.account.uri.replace(
+            "acme-v01.api.letsencrypt.org",
+            "acme-v02.api.letsencrypt.org"
+        )
+        return uri.replace("acme/reg", "acme/acct")
 
     def head(self, path, headers=None):
         _headers = DEFAULT_HEADERS.copy()
