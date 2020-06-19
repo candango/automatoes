@@ -25,6 +25,7 @@ from .info import info
 from .model import Account
 from .register import register
 from .revoke import revoke
+from .upgrade import upgrade
 from .errors import AutomatoesError
 
 import argparse
@@ -101,7 +102,12 @@ current account.
 
 DESCRIPTION_INFO = \
 """
-Shows raw registration info for the current account.
+Display registration info for the current account.
+"""
+
+DESCRIPTION_UPGRADE = \
+"""
+Upgrade current account's uri from Let's Encrypt ACME V1 to ACME V2.
 """
 
 # Defaults
@@ -164,6 +170,12 @@ def _info(args):
     info(args.server, account, paths)
 
 
+def _upgrade(args):
+    account_path = args.account
+    account = load_account(args.account)
+    upgrade(args.server, account, account_path)
+
+
 def get_paths(account_file):
     current_path = os.path.dirname(os.path.abspath(account_file))
     return {
@@ -178,6 +190,7 @@ def get_meta_paths(path):
         'orders': os.path.join(path, "orders"),
         'authorizations': os.path.join(path, "authorizations"),
     }
+
 
 def load_account(path):
     # Show a more descriptive message if the file doesn't exist.
@@ -295,11 +308,20 @@ def manuale_main():
     # Account info
     info = subparsers.add_parser(
         'info',
-        help="Shows account information from the service",
+        help="Display account information",
         description=DESCRIPTION_INFO,
         formatter_class=Formatter,
     )
     info.set_defaults(func=_info)
+
+    # Account upgrade
+    upgrade = subparsers.add_parser(
+        'upgrade',
+        help="Upgrade account's uri from Let's Encrypt ACME V1 to V2",
+        description=DESCRIPTION_UPGRADE,
+        formatter_class=Formatter,
+    )
+    upgrade.set_defaults(func=_upgrade)
 
     # Version
     version = subparsers.add_parser("version", help="Show the version number")

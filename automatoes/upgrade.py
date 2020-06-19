@@ -15,40 +15,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """
-The account info command.
+The account upgrade command.
 """
 
 from . import get_version
 from .acme import AcmeV2
 from .errors import AutomatoesError
+from .helpers import confirm
+from cartola import fs
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
 
-def info(server, account, paths):
-    acme_v2 = AcmeV2(server, account)
+def upgrade(server, account, account_path):
+    acme_v2 = AcmeV2(server, account, upgrade=True)
     print("Candango Automatoes {}. Manuale replacement."
           "\n\n".format(get_version()))
-
-    try:
-        print("Requesting account data...\n")
-
-        response = acme_v2.get_registration()
-        print("  Account contacts:")
-        for contact in response['contact']:
-            print("    {}".format(contact[7:]))
-        print("  Creation: {}".format(response['createdAt']))
-        print("  Initial Ip: {}".format(response['initialIp']))
-        print("  Key Data:")
-        print("    Type: {}".format(response['key']['kty']))
-        print("    Public key (part I) n: {}".format(response['key']['n']))
-        print("    Public key (part II) e: {}\n".format(response['key']['e']))
-
-        print("    Private key stored at {}".format(
-            os.path.join(paths['current'], "account.json")))
-    except IOError as e:
-        raise AutomatoesError(e)
+    if acme_v2.is_uri_letsencrypt_acme_v1():
+        print("Account's uri format is Let's Encrypt ACME V1.")
+        print("Current uri: %s" % acme_v2.account.uri)
+        if not confirm("Let's Encrypt ACME V2: %s.\nDo you want to "
+                       "upgrade?" % acme_v2.letsencrypt_acme_uri_v1_to_v2()):
+            raise AutomatoesError("Aborting.")
+        account.uri = acme_v2.letsencrypt_acme_uri_v1_to_v2()
+        fs.write(account_path, account.serialize(), binary=True)
+        print("Account's uri upgraded to Let's Encrypt ACME V2.\n")
+    else:
+        print("Account's uri format isn't Let's Encrypt ACME V1.")
+        print("Skipping upgrade action.")
