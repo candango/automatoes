@@ -144,9 +144,17 @@ The manuale command will interface ACME V2 only as V1 is reaching
 [End Of Life](https://community.letsencrypt.org/t/end-of-life-plan-for-acmev1/88430).
 
 The account file structure from ManuaLE is maintained, no change here.
-For Let's Encrypt servers need to change the url from V1 api to V2 api that is
-being covered by [#30](https://github.com/candango/automatoes/issues/30). After
-that you don't need even to register an ACME V2 account.
+
+For Let's Encrypt servers it is necessary to change the uri from V1 api to V2.
+With [#30](https://github.com/candango/automatoes/issues/30) we'll warn you
+about your uri being Let's Encrypt ACME V1 and run with a correct ACME V2
+without fixing the account.json file.
+
+To fix the account.json file permanently run `manuale upgrade` and after
+confirmation your account uri will be changed to the Let's Encrypt ACME V2 uri.
+
+The upgrade action will only act against an account uri from production Let's
+Encrypt ACME V1 otherwise nothing will be executed.
 
 ACME V2 works with an 
 [order workflow](https://tools.ietf.org/html/rfc8555#section-7.1) that must be
