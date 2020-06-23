@@ -251,9 +251,13 @@ class AcmeV2(Acme):
                 self.account.uri = self.letsencrypt_acme_uri_v1_to_v2()
 
     def is_uri_letsencrypt_acme_v1(self):
+        if self.account is None:
+            return False
         return "acme-v01.api.letsencrypt.org" in self.account.uri
 
     def letsencrypt_acme_uri_v1_to_v2(self):
+        if self.account is None:
+            return None
         uri = self.account.uri.replace(
             "acme-v01.api.letsencrypt.org",
             "acme-v02.api.letsencrypt.org"
