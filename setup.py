@@ -35,13 +35,17 @@ with open("README.md", "r") as fh:
 
 # Solution from http://bit.ly/29Yl8VN
 def resolve_requires(requirements_file):
-    requirements = parse_requirements("./%s" % requirements_file,
-                                      session=False)
     try:
+        requirements = parse_requirements("./%s" % requirements_file,
+                                          session=False)
         return [str(ir.req) for ir in requirements]
     except AttributeError:
         # for pip >= 20.1.x
-        return [str(ir.requirement) for ir in requirements]
+        # Need to run again as the first run was ruined by the exception
+        requirements = parse_requirements("./%s" % requirements_file,
+                                          session=False)
+        # pr stands for parsed_requirement
+        return [str(pr.requirement) for pr in requirements]
 
 
 setup(
