@@ -100,8 +100,8 @@ class Order:
 
     @property
     def expired(self):
-        order_timestamp = datetime.strptime(self.contents['expires'],
-                                            "%Y-%m-%dT%H:%M:%SZ")
+        order_timestamp = datetime.strptime(self.contents['expires'][0:19],
+                                            "%Y-%m-%dT%H:%M:%S")
         return order_timestamp < datetime.now()
 
     @property
