@@ -21,6 +21,7 @@ The domain authorization command.
 
 from . import get_version
 from .acme import AcmeV2
+from .crypto import generate_jwk_thumbprint
 from .errors import AutomatoesError
 from .model import Order
 
@@ -163,12 +164,15 @@ def authorize(server, paths, account, domains, method, verbose=False):
                   "in place:\n")
             for challenge in pending_challenges:
                 token = challenge.contents['token']
-
                 # path sanity check
                 assert (token and os.path.sep not in token and '.' not in
                         token)
                 files.add(token)
-                fs.write(os.path.join(current_path, token), challenge.key)
+                fs.write(
+                    os.path.join(current_path, token),
+                    "%s.%s" % (token,
+                               generate_jwk_thumbprint(account.key))
+                )
                 print("    http://{}/.well-known/acme-challenge/{}".format(
                     challenge.domain, token))
 
