@@ -375,23 +375,6 @@ class AcmeV2(Acme):
             )
         raise AcmeError(response)
 
-    def clean_authorizations(self, order):
-        """
-        If a new order created, all existing authrizations are disabled
-        to prevent from bug #42 by clearing history
-        :param Order order: order to be cleaned
-        :return:
-        """
-        if len(order.contents['authorizations']) == 1:
-            return False
-
-        for auth in order.contents['authorizations']:
-            response = self.post(auth, { 'status': 'deactivated' })
-            if response.status_code != 201:
-                raise AcmeError(response)
-        return True
-
-
     def query_orders(self):
         """ Query existent order status
 
@@ -490,9 +473,7 @@ class AcmeV2(Acme):
                                         kid=self.account.uri)
             iteration_count += 1
 
-        print(_json(response)) # DEBUG
-        if (_json(response)['status'] in ["valid", "ready"] and
-            'certificate' in _json(response)):
+        if _json(response)['status'] in ["valid", "ready"]:
             order.certificate_uri = _json(response)['certificate']
 
         if response.status_code == 200:
