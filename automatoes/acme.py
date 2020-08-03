@@ -458,6 +458,8 @@ class AcmeV2(Acme):
         response = self.post(order.contents['finalize'], {
             'csr': export_certificate_for_acme(csr),
         }, kid=self.account.uri)
+        if _json(response)['status'] == "valid":
+            order.certificate_uri = _json(response)['certificate']
         if response.status_code == 200:
             return _json(response)
         raise AcmeError(response)
@@ -473,7 +475,7 @@ class AcmeV2(Acme):
                                         kid=self.account.uri)
             iteration_count += 1
 
-        if _json(response)['status'] in ["valid", "ready"]:
+        if _json(response)['status'] == "valid":
             order.certificate_uri = _json(response)['certificate']
 
         if response.status_code == 200:
