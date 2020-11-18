@@ -1,32 +1,51 @@
+#!/usr/bin/env python
+#
+# Copyright 2019-2020 Flavio Garcia
+# Copyright 2016-2017 Veeti Paananen under MIT License
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
 The command line interface.
 """
-
-import argparse
-import logging
-import sys
-import os
-
-from .account import Account
-from .account import deserialize as deserialize_account
+from . import get_version
 from .authorize import authorize
 from .issue import issue
 from .info import info
+from .model import Account
 from .register import register
 from .revoke import revoke
-from .errors import ManualeError
-import manuale
+from .upgrade import upgrade
+from .errors import AutomatoesError
+
+import argparse
+from cartola import sysexits
+import logging
+import sys
+import os
 
 logger = logging.getLogger(__name__)
 
 # Text
 DESCRIPTION = \
 """
+Candango Automatoes {}. Manuale replacement.
+
 Interact with ACME certification authorities such as Let's Encrypt.
 
 No idea what you're doing? Register an account, authorize your domains and
 issue a certificate or two. Call a command with -h for more instructions.
-"""
+""".format(get_version())
 
 DESCRIPTION_REGISTER = \
 """
@@ -83,13 +102,19 @@ current account.
 
 DESCRIPTION_INFO = \
 """
-Shows raw registration info for the current account.
+Display registration info for the current account.
+"""
+
+DESCRIPTION_UPGRADE = \
+"""
+Upgrade current account's uri from Let's Encrypt ACME V1 to ACME V2.
 """
 
 # Defaults
-LETS_ENCRYPT_PRODUCTION = "https://acme-v01.api.letsencrypt.org/"
+LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/"
 DEFAULT_ACCOUNT_PATH = 'account.json'
-DEFAULT_CERT_KEY_SIZE = 2048
+DEFAULT_CERT_KEY_SIZE = 4096
+
 
 # Command handlers
 def _register(args):
@@ -100,14 +125,25 @@ def _register(args):
         key_file=args.key_file
     )
 
+
 def _authorize(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
-    authorize(args.server, account, args.domain, args.method)
+    verbose = False
+    if args.verbose > 0:
+        verbose = True
+    authorize(args.server, paths, account, args.domain, args.method, verbose)
+
 
 def _issue(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
+    verbose = False
+    if args.verbose > 0:
+        verbose = True
     issue(
         server=args.server,
+        paths=paths,
         account=account,
         domains=args.domain,
         key_size=args.key_size,
@@ -115,7 +151,9 @@ def _issue(args):
         csr_file=args.csr_file,
         output_path=args.output,
         must_staple=args.ocsp_must_staple,
+        verbose=verbose
     )
+
 
 def _revoke(args):
     account = load_account(args.account)
@@ -125,30 +163,62 @@ def _revoke(args):
         certificate=args.certificate
     )
 
+
 def _info(args):
+    paths = get_paths(args.account)
     account = load_account(args.account)
-    info(args.server, account)
+    info(args.server, account, paths)
+
+
+def _upgrade(args):
+    account_path = args.account
+    account = load_account(args.account)
+    upgrade(args.server, account, account_path)
+
+
+def get_paths(account_file):
+    current_path = os.path.dirname(os.path.abspath(account_file))
+    return {
+        'authorizations': os.path.join(current_path, "authorizations"),
+        'current': current_path,
+        'orders': os.path.join(current_path, "orders"),
+    }
+
+
+def get_meta_paths(path):
+    return {
+        'orders': os.path.join(path, "orders"),
+        'authorizations': os.path.join(path, "authorizations"),
+    }
+
 
 def load_account(path):
     # Show a more descriptive message if the file doesn't exist.
     if not os.path.exists(path):
         logger.error("Couldn't find an account file at {}.".format(path))
         logger.error("Are you in the right directory? Did you register yet?")
-        logger.error("Run 'manuale -h' for instructions.")
-        raise ManualeError()
+        logger.error("Run 'automatoes -h' for instructions.")
+        raise AutomatoesError()
 
     try:
         with open(path, 'rb') as f:
-            return deserialize_account(f.read())
+            return Account.deserialize(f.read())
     except (ValueError, IOError) as e:
         logger.error("Couldn't read account file. Aborting.")
-        raise ManualeError(e)
+        raise AutomatoesError(e)
 
-class Formatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+
+class Formatter(argparse.ArgumentDefaultsHelpFormatter,
+                argparse.RawDescriptionHelpFormatter):
     pass
 
+
+def automatoes_main():
+    print("The automatoes command is not implemented yet.")
+
+
 # Where it all begins.
-def main():
+def manuale_main():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
         formatter_class=Formatter,
@@ -156,8 +226,15 @@ def main():
     subparsers = parser.add_subparsers()
 
     # Server switch
-    parser.add_argument('--server', '-s', help="The ACME server to use", default=LETS_ENCRYPT_PRODUCTION)
-    parser.add_argument('--account', '-a', help="The account file to use or create", default=DEFAULT_ACCOUNT_PATH)
+    parser.add_argument('--server', '-s', help="The ACME server to use",
+                        default=LETS_ENCRYPT_PRODUCTION)
+    parser.add_argument('--account', '-a',
+                        help="The account file to use or create",
+                        default=DEFAULT_ACCOUNT_PATH)
+
+    # Verbosity
+    parser.add_argument('--verbose', '-v', action="count",
+                        help="Set verbose mode", default=0)
 
     # Account creation
     register = subparsers.add_parser(
@@ -167,7 +244,8 @@ def main():
         formatter_class=Formatter,
     )
     register.add_argument('email', type=str, help="Account e-mail address")
-    register.add_argument('--key-file', '-k', help="Existing key file to use for the account")
+    register.add_argument('--key-file', '-k',
+                          help="Existing key file to use for the account")
     register.set_defaults(func=_register)
 
     # Domain verification
@@ -177,7 +255,9 @@ def main():
         description=DESCRIPTION_AUTHORIZE,
         formatter_class=Formatter,
     )
-    authorize.add_argument('domain', help="One or more domain names to authorize", nargs='+')
+    authorize.add_argument('domain',
+                           help="One or more domain names to authorize",
+                           nargs='+')
     authorize.add_argument('--method',
                            '-m',
                            help="Authorization method",
@@ -192,11 +272,19 @@ def main():
         description=DESCRIPTION_ISSUE,
         formatter_class=Formatter,
     )
-    issue.add_argument('domain', help="One or more domain names to include in the certificate", nargs='+')
-    issue.add_argument('--key-size', '-b', help="The key size to use for the certificate", type=int, default=DEFAULT_CERT_KEY_SIZE)
-    issue.add_argument('--key-file', '-k', help="Existing key file to use for the certificate")
+    issue.add_argument(
+        'domain',
+        help="One or more domain names to include in the certificate",
+        nargs='+')
+    issue.add_argument('--key-size', '-b',
+                       help="The key size to use for the certificate",
+                       type=int, default=DEFAULT_CERT_KEY_SIZE)
+    issue.add_argument('--key-file', '-k',
+                       help="Existing key file to use for the certificate")
     issue.add_argument('--csr-file', help="Existing signing request to use")
-    issue.add_argument('--output', '-o', help="The output directory for created objects", default='.')
+    issue.add_argument('--output', '-o',
+                       help="The output directory for created objects",
+                       default='.')
     issue.add_argument('--ocsp-must-staple',
                        dest='ocsp_must_staple',
                        help="CSR: Request OCSP Must-Staple extension",
@@ -214,30 +302,42 @@ def main():
         description=DESCRIPTION_REVOKE,
         formatter_class=Formatter,
     )
-    revoke.add_argument('certificate', help="The certificate file to revoke")
+    revoke.add_argument("certificate", help="The certificate file to revoke")
     revoke.set_defaults(func=_revoke)
 
     # Account info
     info = subparsers.add_parser(
         'info',
-        help="Shows account information from the service",
+        help="Display account information",
         description=DESCRIPTION_INFO,
         formatter_class=Formatter,
     )
     info.set_defaults(func=_info)
 
+    # Account upgrade
+    upgrade = subparsers.add_parser(
+        'upgrade',
+        help="Upgrade account's uri from Let's Encrypt ACME V1 to V2",
+        description=DESCRIPTION_UPGRADE,
+        formatter_class=Formatter,
+    )
+    upgrade.set_defaults(func=_upgrade)
+
     # Version
-    version = subparsers.add_parser('version', help="Show the version number")
-    version.set_defaults(func=lambda *args: logger.info("manuale {}".format(manuale.__version__)))
+    version = subparsers.add_parser("version", help="Show the version number")
+    version.set_defaults(func=lambda *args: logger.info(
+        "automatoes {}\n\nThis tool is a full manuale "
+        "replacement.\nJust run manuale instead of automatoes"
+        ".".format(get_version())))
 
     # Parse
     args = parser.parse_args()
     if not hasattr(args, 'func'):
         parser.print_help()
-        sys.exit(0)
+        sys.exit(sysexits.EX_MISUSE)
 
     # Set up logging
-    root = logging.getLogger('manuale')
+    root = logging.getLogger('automatoes')
     root.setLevel(logging.INFO)
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(logging.Formatter("%(message)s"))
@@ -246,15 +346,15 @@ def main():
     # Let's encrypt
     try:
         args.func(args)
-    except ManualeError as e:
+    except AutomatoesError as e:
         if str(e):
             logger.error(e)
-        sys.exit(1)
+        sys.exit(sysexits.EX_SOFTWARE)
     except KeyboardInterrupt:
         logger.error("")
         logger.error("Interrupted.")
-        sys.exit(2)
+        sys.exit(sysexits.EX_TERMINATED_BY_CRTL_C)
     except Exception as e:
         logger.error("Oops! An unhandled error occurred. Please file a bug.")
         logger.exception(e)
-        sys.exit(3)
+        sys.exit(sysexits.EX_CATCHALL)

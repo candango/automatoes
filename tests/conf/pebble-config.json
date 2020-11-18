@@ -1,0 +1,11 @@
+{
+  "pebble": {
+    "listenAddress": "0.0.0.0:14000",
+    "managementListenAddress": null,
+    "certificate": "tests/certs/localhost/cert.pem",
+    "privateKey": "tests/certs/localhost/key.pem",
+    "httpPort": 5002,
+    "tlsPort": 5001,
+    "ocspResponderURL": ""
+  }
+}
