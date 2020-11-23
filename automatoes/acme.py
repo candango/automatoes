@@ -226,7 +226,7 @@ class Acme:
         # Make sure path is relative
         if path.startswith("http"):
             path = urlparse(path).path
-        return urljoin(self.url, path)
+        return urljoin(self.url, "acme/" + path)
 
 
 RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
