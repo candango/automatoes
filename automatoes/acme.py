@@ -42,7 +42,7 @@ DEFAULT_HEADERS = {
 
 class Acme:
 
-    def __init__(self, url, account, directory="directory", verify=None):
+    def __init__(self, url, account, directory="acme/directory", verify=None):
         self.url = url
         self.account = None
         self.directory = directory
@@ -237,7 +237,7 @@ IssuanceResult = namedtuple("IssuanceResult",
 
 class AcmeV2(Acme):
 
-    def __init__(self, url, account, directory="directory", verify=None,
+    def __init__(self, url, account, directory="acme/directory", verify=None,
                  upgrade=False):
         super(AcmeV2, self).__init__(url, account, directory, verify)
         if self.is_uri_letsencrypt_acme_v1():
