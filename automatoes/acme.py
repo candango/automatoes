@@ -26,6 +26,7 @@ from .errors import AccountAlreadyExistsError, AcmeError
 from .model import Order, Challenge
 from collections import namedtuple
 import copy
+import datetime
 import hashlib
 import logging
 import requests
@@ -223,9 +224,20 @@ class Acme:
         return requests.post(self.path(path), data=body, **kwargs)
 
     def path(self, path):
+        # If https is in we assume that was returned by the directory
+        if path.startswith("https"):
+            return path
         # Make sure path is relative
         if path.startswith("http"):
             path = urlparse(path).path
+        url_parsed = urlparse(self.url)
+        if url_parsed.path != "":
+            url_parsed_path = url_parsed.path
+            if url_parsed_path.startswith("/"):
+                url_parsed_path = url_parsed_path[1:]
+            if path.startswith("/"):
+                path = path[1:]
+            path = "%s/%s" % (url_parsed_path, path)
         return urljoin(self.url, path)
 
 
@@ -414,6 +426,13 @@ class AcmeV2(Acme):
                 digest = hashlib.sha256()
                 digest.update(key_authorization.encode('ascii'))
                 if order.type in challenge['type']:
+                    if "expires" not in auth_response:
+                        expire_date = (datetime.datetime.now() +
+                                       datetime.timedelta(days=10))
+                        print(expire_date)
+                        auth_response['expires'] = expire_date.strftime(
+                            "%Y-%m-%dT%H:%M:%S")
+                    print(auth_response)
                     order_challenges.append(Challenge(
                         contents=challenge,
                         domain=auth_response['identifier']['value'],
