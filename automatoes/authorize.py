@@ -104,8 +104,12 @@ def authorize(server, paths, account, domains, method, verbose=False):
                 print("  Found order file. Querying ACME server for current "
                       "status.")
             order = Order.deserialize(fs.read(order_file))
-            server_order = acme.query_order(order)
-            order.contents = server_order.contents
+            try:
+                server_order = acme.query_order(order)
+                order.contents = server_order.contents
+            except:
+                print("    WARNING: Old order. Setting it as expired.\n")
+                order.contents['status'] = "expired"
             update_order(order, order_file)
 
             if not order.expired and not order.invalid:

@@ -31,9 +31,9 @@ class Account:
 
     def serialize(self):
         return json.dumps({
-            'key': export_private_key(self.key).decode('utf-8'),
+            'key': export_private_key(self.key).decode("utf-8"),
             'uri': self.uri,
-        }).encode('utf-8')
+        }).encode("utf-8")
 
     @property
     def thumbprint(self):
@@ -45,9 +45,9 @@ class Account:
             if not isinstance(data, str):
                 data = data.decode('utf-8')
             data = json.loads(data)
-            if 'key' not in data or 'uri' not in data:
+            if "key" not in data or "uri" not in data:
                 raise ValueError("Missing 'key' or 'uri' fields.")
-            return Account(key=load_private_key(data['key'].encode('utf8')),
+            return Account(key=load_private_key(data['key'].encode("utf8")),
                            uri=data['uri'])
         except (TypeError, ValueError, AttributeError) as e:
             raise IOError("Invalid account structure: {}".format(e))
@@ -100,6 +100,8 @@ class Order:
 
     @property
     def expired(self):
+        if self.contents['status'] == "expired":
+            return True
         order_timestamp = datetime.strptime(self.contents['expires'][0:19],
                                             "%Y-%m-%dT%H:%M:%S")
         return order_timestamp < datetime.now()
@@ -115,13 +117,13 @@ class Order:
             'type': self.type,
             'certificate_uri': self.certificate_uri,
             'key': self.key
-        }).encode('utf-8')
+        }).encode("utf-8")
 
     @staticmethod
     def deserialize(data):
         try:
             if not isinstance(data, str):
-                data = data.decode('utf-8')
+                data = data.decode("utf-8")
             data = json.loads(data)
             if 'contents' not in data:
                 raise ValueError("Missing 'contents' field.")

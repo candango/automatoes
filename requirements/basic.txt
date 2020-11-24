@@ -1,3 +1,3 @@
-cartola==0.7
-cryptography==3.0
-requests==2.24.0
+cartola==0.9
+cryptography==3.2.1
+requests==2.25.0

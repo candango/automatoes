@@ -41,13 +41,19 @@ def info(server, account, paths):
         print("  Account contacts:")
         for contact in response['contact']:
             print("    {}".format(contact[7:]))
-        print("  Creation: {}".format(response['createdAt']))
-        print("  Initial Ip: {}".format(response['initialIp']))
-        print("  Key Data:")
-        print("    Type: {}".format(response['key']['kty']))
-        print("    Public key (part I) n: {}".format(response['key']['n']))
-        print("    Public key (part II) e: {}\n".format(response['key']['e']))
-
+        if "createdAt" in response:
+            print("  Creation: {}".format(response['createdAt']))
+        if "initialIp" in response:
+            print("  Initial Ip: {}".format(response['initialIp']))
+        if "key" in response:
+            print("  Key Data:")
+            print("    Type: {}".format(response['key']['kty']))
+            print("    Public key (part I) n: {}".format(
+                response['key']['n']))
+            print("    Public key (part II) e: {}\n".format(
+                response['key']['e']))
+        else:
+            print("    WARNING: Server won't return your key information.")
         print("    Private key stored at {}".format(
             os.path.join(paths['current'], "account.json")))
     except IOError as e:

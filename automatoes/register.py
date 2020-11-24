@@ -35,7 +35,6 @@ import os
 def register(server, account_path, email, key_file):
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
-
     # Don't overwrite silently
     if os.path.exists(account_path):
         if not confirm("The account file {} already exists. Continuing will"
@@ -68,13 +67,18 @@ def register(server, account_path, email, key_file):
         terms_agreed = False
         print("  Retrieving terms of agreement ...")
         terms = acmev2.terms_from_directory()
-        print("  This server requires you to agree to these terms:")
-        print("    {}".format(terms))
-        if confirm("Agreed?"):
+        if terms is None:
+            print("  There is no terms being enforced in this server. "
+                  "Resuming execution...")
             terms_agreed = True
         else:
-            print("Your account will still be created, but it won't be usable "
-                  "before agreeing to terms.")
+            print("  This server requires you to agree to these terms:")
+            print("    {}".format(terms))
+            if confirm("Agreed?"):
+                terms_agreed = True
+            else:
+                print("Your account will still be created, but it won't be "
+                      "usable before agreeing to terms.")
         acmev2.register(email, terms_agreed)
         print("  Account {} created.".format(account.uri))
     except IOError as e:
