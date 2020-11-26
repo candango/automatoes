@@ -429,10 +429,8 @@ class AcmeV2(Acme):
                     if "expires" not in auth_response:
                         expire_date = (datetime.datetime.now() +
                                        datetime.timedelta(days=2))
-                        print(expire_date)
                         auth_response['expires'] = expire_date.strftime(
                             "%Y-%m-%dT%H:%M:%S")
-                    print(auth_response)
                     order_challenges.append(Challenge(
                         contents=challenge,
                         domain=auth_response['identifier']['value'],
