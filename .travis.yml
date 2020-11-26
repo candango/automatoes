@@ -1,5 +1,5 @@
 # https://travis-ci.org/candango/automatoes
-language: python
+language: "python"
 python:
   - "3.5"
   - "3.6"
@@ -16,7 +16,6 @@ install:
       go install ./...
     )
 script:
-  #- "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
   - "./scripts/pebble_service.sh start tests/conf/pebble-config.json"
-  - behave tests/features
+  - "behave tests/features"
   - "./scripts/pebble_service.sh stop tests/conf/pebble-config.json"
