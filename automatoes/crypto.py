@@ -22,8 +22,11 @@ Cryptography, hopefully mostly correct.
 import base64
 import json
 import logging
-
-from cryptography import x509
+# TODO: Remove that after python 3.5 depreciation
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from cryptography import x509
 from cryptography.x509 import NameOID
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
