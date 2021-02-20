@@ -1,5 +1,5 @@
 # https://travis-ci.org/candango/automatoes
-language: python
+language: "python"
 python:
   - "3.5"
   - "3.6"
@@ -9,6 +9,7 @@ python:
 install:
   - "pip install -r requirements/basic.txt"
   - "pip install -r requirements/tests.txt"
+  - ./scripts/install_cryptography.sh
   - "go get -u github.com/letsencrypt/pebble/..."
   - |
     (
@@ -16,7 +17,6 @@ install:
       go install ./...
     )
 script:
-  #- "PYTHONPATH=$PYTHONPATH:. python tests/runtests.py"
   - "./scripts/pebble_service.sh start tests/conf/pebble-config.json"
-  - behave tests/features
+  - "behave tests/features"
   - "./scripts/pebble_service.sh stop tests/conf/pebble-config.json"
