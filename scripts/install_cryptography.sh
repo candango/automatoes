@@ -1,14 +1,13 @@
 #!/bin/bash
 
-export PYTHONPATH=$PYTHONPATH:.
+export PYTHONPATH="${PYTHONPATH}:."
 
-PYTHON_VERSION=`python -c 'import sys; print(sys.version_info.minor)'`
+PYTHON_MINOR_VERSION="$(python -c 'import sys; print(sys.version_info.minor)')"
 
-if [ $PYTHON_VERSION -eq 5 ]; then
-    pip install -r requirements/cryptography_legacy.txt;
-    exit;
-else
-    pip install -r requirements/cryptography.txt;
-    exit;
+if [ "${PYTHON_MINOR_VERSION}" -eq 5 ]; then
+    pip install -r requirements/cryptography_legacy.txt
+    exit 0
 fi
-exit 0;
+
+pip install -r requirements/cryptography.txt
+exit 0
