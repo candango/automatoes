@@ -20,12 +20,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Set up peeble
         run: |
-          ./scripts/install_pebble.sh
-      - name: Install dependencies
-        run: |
-          pip install -r requirements/development.txt
-      - name: Run python behave tests
-        run: |
-          ./scripts/pebble_service.sh start tests/conf/pebble-config.json
-          behave tests/features
-          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json
+          which awk
+          which pwd
+          which curl
+#          ./scripts/install_pebble.sh
+#      - name: Install dependencies
+#        run: |
+#          pip install -r requirements/development.txt
+#      - name: Run python behave tests
+#        run: |
+#          ./scripts/pebble_service.sh start tests/conf/pebble-config.json
+#          behave tests/features
+#          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json
