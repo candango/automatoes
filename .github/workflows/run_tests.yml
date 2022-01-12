@@ -21,9 +21,11 @@ jobs:
       - name: Set up peeble
         run: |
           ./scripts/install_pebble.sh
-          which peeble
           cd go
           pwd
+          cd bin
+          ls -lah
+          echo $GOPATH
 #      - name: Install dependencies
 #        run: |
 #          pip install -r requirements/development.txt
