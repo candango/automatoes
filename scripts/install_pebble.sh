@@ -1,3 +1,13 @@
 #!/bin/bash
+echo -n "Installing Peeble ... "
 go get -u github.com/letsencrypt/pebble/...
-cd $GOPATH/src/github.com/letsencrypt/pebble && go install ./...
+echo "[ OK ]"
+echo -n "Installing Minica ... "
+go get -u github.com/jsha/minica/...
+echo "[ OK ]"
+echo -n "Generating minica keys ... "
+rm -rf tests/certs/*.pem tests/certs/localhost
+cd tests/certs
+"$GOPATH"/bin/minica -domains localhost -ca-cert candango.minica.pem -ca-key candango.minica.key.pem
+cd - > /dev/null
+echo "[ OK ]"

@@ -1,5 +1,5 @@
 #!/bin/bash
-## Copyright 2019 Flavio Garcia
+## Copyright 2019-2021 Flavio Garcia
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
 ## description: Peeble service runner.
 ## processname: pebble_service.sh
 
-## Author: Flavio Garcia <piraz@cadnango.org>
+## Author: Flavio Garcia <piraz@candango.org>
 
 AWK_CMD="/usr/bin/awk"
 CURL_CMD="/usr/bin/curl"
 PWD_PATH="/usr/bin/pwd"
 
 ORIGINAL_PATH=$PWD_PATH
-SCRIPT_PATH=$(dirname $0)
-SCRIPT_NAME=$(basename $0)
+SCRIPT_PATH=$(dirname "$0")
+SCRIPT_NAME=$(basename "$0")
 
 SCRIPT_OK=0
 SCRIPT_ERROR=1
@@ -115,30 +115,30 @@ stop_pebble(){
 pebble_option_list() {
     case "$1" in 
         start)
-            if is_running $@; then
+            if is_running "$@"; then
                 send_error "Peeble Server $2 is still running..."
             else
-                start_pebble $@
+                start_pebble "$@"
             fi
             ;;
         stop)
-            if is_running $@; then
-                stop_pebble $@
+            if is_running "$@"; then
+                stop_pebble "$@"
             else
                 send_error "Peeble Server $2 is not running..."
             fi
             ;;
         status)
-            if is_running $@; then
+            if is_running "$@"; then
                 echo "Peeble Server $2 is running..."
             else
                 echo "Peeble Server $2 is not running..."
             fi
             ;;
         *)
-            send_error "Usage: $SCRIPT_NAME FILE_NAME {start|stop|status}"
+            send_error "Usage: $SCRIPT_NAME {start|stop|status} FILE_NAME"
             ;;
     esac
 }
 
-pebble_option_list $@
+pebble_option_list "$@"
