@@ -26,4 +26,6 @@ jobs:
           pip install -r requirements/development.txt
       - name: Run python behave tests
         run: |
+          ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
+          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json
