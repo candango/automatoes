@@ -22,7 +22,7 @@ jobs:
         run: |
           export GOPATH=~/go
           ./scripts/install_pebble.sh
-          $GOPATH/bin/pebble
+#          $GOPATH/bin/pebble
 #      - name: Install dependencies
 #        run: |
 #          pip install -r requirements/development.txt
