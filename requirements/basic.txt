@@ -1,2 +1,2 @@
-cartola==0.10
-requests==2.25.1
+peasant==0.4
+requests==2.27.1

@@ -27,8 +27,8 @@ CURL_CMD="/usr/bin/curl"
 PWD_PATH="/usr/bin/pwd"
 
 ORIGINAL_PATH=$PWD_PATH
-SCRIPT_PATH=$(dirname $0)
-SCRIPT_NAME=$(basename $0)
+SCRIPT_PATH=$(dirname "$0")
+SCRIPT_NAME=$(basename "$0")
 
 SCRIPT_OK=0
 SCRIPT_ERROR=1
@@ -145,7 +145,7 @@ pebble_option_list()
             fi
             ;;
         *)
-            send_error "Usage: $SCRIPT_NAME FILE_NAME {start|stop|status}"
+            send_error "Usage: $SCRIPT_NAME {start|stop|status} FILE_NAME"
             ;;
     esac
 }
