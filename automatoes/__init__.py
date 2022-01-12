@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2021 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 # limitations under the License.
 
 __author__ = "Flavio Garcia <piraz@candango.org>"
-__version__ = (0, 9, 6)
+__version__ = (0, 9, 7)
 __licence__ = "Apache License V2.0"
 
 
