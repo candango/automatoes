@@ -21,7 +21,9 @@ jobs:
       - name: Set up peeble
         run: |
           ./scripts/install_pebble.sh
-          cd go
+          cd ~
+          ls -lah
+          cd $GOPATH
           pwd
           cd bin
           ls -lah
