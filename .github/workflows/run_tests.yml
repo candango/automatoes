@@ -22,18 +22,11 @@ jobs:
         run: |
           export GOPATH=~/go
           ./scripts/install_pebble.sh
-          cd ~
-          ls -lah
-          cd $GOPATH
-          pwd
-          cd bin
-          ls -lah
-          echo $GOPATH
-#      - name: Install dependencies
-#        run: |
-#          pip install -r requirements/development.txt
-#      - name: Run python behave tests
-#        run: |
-#          ./scripts/pebble_service.sh start tests/conf/pebble-config.json
-#          behave tests/features
-#          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/development.txt
+      - name: Run python behave tests
+        run: |
+          ./scripts/pebble_service.sh start tests/conf/pebble-config.json
+          behave tests/features
+          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json

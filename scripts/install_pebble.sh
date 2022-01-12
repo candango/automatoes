@@ -3,7 +3,7 @@ echo -n "Installing Peeble ... "
 go get -u github.com/letsencrypt/pebble/...
 echo "[ OK ]"
 echo -n "Installing Minica ... "
-go get -u github.com/jsha/minica/...
+go install github.com/jsha/minica@latest
 echo "[ OK ]"
 echo -n "Generating minica keys ... "
 rm -rf tests/certs/*.pem tests/certs/localhost

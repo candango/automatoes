@@ -32,7 +32,7 @@ SCRIPT_NAME=$(basename "$0")
 SCRIPT_OK=0
 SCRIPT_ERROR=1
 PEEBLE_CMD=$GOPATH/bin/pebble
-PEEBLE_SERVICE_URL="https://localhost:8080"
+PEEBLE_SERVICE_URL="https://localhost:14000"
 
 OK_STRING="[ \033[32mOK\033[37m ]"
 
