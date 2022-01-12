@@ -20,6 +20,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Set up peeble
         run: |
+          ls -lah
+          which bash
+          ls -lah /bin/bash
           ./scripts/install_peeble.sh
       - name: Install dependencies
         run: |
