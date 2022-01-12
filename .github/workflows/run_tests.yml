@@ -20,6 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Set up peeble
         run: |
+          export GOPATH=~/go
           ./scripts/install_pebble.sh
           cd ~
           ls -lah
