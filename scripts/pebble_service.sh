@@ -1,6 +1,7 @@
 #!/bin/bash
 ##
-## Copyright 2019 Flavio Garcia
+## Copyright 2019-2022 Flavio Gonçalves Garcia
+## Copyright 2020 Viktor Szépe
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -20,7 +21,7 @@
 ## description: Peeble service runner.
 ## processname: pebble_service.sh
 ##
-## Author: Flavio Garcia <piraz@cadnango.org>
+## Author: Flavio Garcia <piraz@candango.org>
 
 AWK_CMD="/usr/bin/awk"
 CURL_CMD="/usr/bin/curl"
