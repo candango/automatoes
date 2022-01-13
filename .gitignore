@@ -114,3 +114,5 @@ venv.bak/
 # Tests
 tests/features/sandbox/account.json
 tests/features/sandbox/user_contacts.txt
+tests/certs/*.pem
+tests/certs/localhost/
