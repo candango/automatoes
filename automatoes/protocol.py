@@ -120,5 +120,5 @@ class AcmeProtocol(Peasant):
         self._directory_path = path
 
     @property
-    def verify(self) -> bool | str:
+    def verify(self):
         return self._verify
