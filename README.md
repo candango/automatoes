@@ -284,6 +284,5 @@ initiatives. Available under the
 This web site and all documentation is licensed under
 [Creative Commons 3.0](http://creativecommons.org/licenses/by/3.0/).
 
-Copyright © 2019-2021 Flavio Garcia
-
+Copyright © 2019-2022 Flávio Gonçalves Garcia
 Copyright © 2016-2017 Veeti Paananen under MIT License
