@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ from cartola import security
 
 @given("We have a {what_url} url from ACME V2 directory")
 def step_v2_server_is_accessible(context, what_url):
-    new_nonce_url = context.acme_v2.url_from_directory(what_url)
+    new_nonce_url = context.acme_protocol.directory()[what_url]
     context.tester.assertEqual(
         context.peeble_url, "/".join(new_nonce_url.split("/")[0:3]))
 

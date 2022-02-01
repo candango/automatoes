@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 # https://community.letsencrypt.org/t/staging-endpoint-for-acme-v2/49605
 from behave import fixture, use_fixture
 from automatoes.acme import AcmeV2
+from automatoes.protocol import AcmeProtocol, AcmeV2RequestsTransport
 import os
 from unittest.case import TestCase
 
@@ -29,6 +30,18 @@ def get_absolute_path(directory):
     return os.path.realpath(
         os.path.join(os.path.dirname(__file__), "..", directory)
     )
+
+
+@fixture
+def acme_protocol(context, timeout=1, **kwargs):
+    transport = AcmeV2RequestsTransport()
+    context.acme_protocol = AcmeProtocol(
+        transport,
+        url=peeble_url,
+        directory="dir",
+        verify=get_absolute_path("certs/candango.minica.pem")
+    )
+    yield context.acme_protocol
 
 
 @fixture
@@ -55,6 +68,7 @@ def tester(context, timeout=1, **kwargs):
 
 
 def before_all(context):
+    use_fixture(acme_protocol, context)
     use_fixture(acme_v2, context)
     use_fixture(peeble_url_context, context)
     use_fixture(tester, context)
