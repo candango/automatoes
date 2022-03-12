@@ -1,5 +1,7 @@
 #!/bin/bash
-## Copyright 2019 Flavio Garcia
+##
+## Copyright 2019-2022 Flavio Gonçalves Garcia
+## Copyright 2020 Viktor Szépe
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -18,16 +20,16 @@
 ##
 ## description: Peeble service runner.
 ## processname: pebble_service.sh
-
-## Author: Flavio Garcia <piraz@cadnango.org>
+##
+## Author: Flavio Garcia <piraz@candango.org>
 
 AWK_CMD="/usr/bin/awk"
 CURL_CMD="/usr/bin/curl"
 PWD_PATH="/usr/bin/pwd"
 
 ORIGINAL_PATH=$PWD_PATH
-SCRIPT_PATH=$(dirname $0)
-SCRIPT_NAME=$(basename $0)
+SCRIPT_PATH=$(dirname "$0")
+SCRIPT_NAME=$(basename "$0")
 
 SCRIPT_OK=0
 SCRIPT_ERROR=1
@@ -40,46 +42,50 @@ OK_STRING="[ \033[32mOK\033[37m ]"
 #
 # Returns 0 if the specified string contains the specified substring,
 # otherwise returns 1.
-contains() {
-    string=i"$1"
-    substring="$2"
-    if test "${string#*$substring}" != "$string"
-    then
-        return 0    # $substring is in $string
-    else
-        return 1    # $substring is not in $string
-    fi
+contains()
+{
+    local string=i"$1"
+    local substring="$2"
+
+    # Whether $substring is in $string
+    test "${string#*$substring}" != "$string"
 }
 
-send_error(){
-    error=$1
-    cat << EOF >&2
+send_error()
+{
+    local error="$1"
+    cat <<EOF >&2
 $error
 EOF
+
     exit $SCRIPT_ERROR
 }
 
-is_running() {
-    for out in $(ps aux | grep $2 | $AWK_CMD '{print $11";"$2}')
+is_running()
+{
+    for out in $(ps aux | grep "$2" | $AWK_CMD '{print $11";"$2}')
     do
         PROC=$(echo $out | sed -e "s/;/ /g" | $AWK_CMD '{print $1}')
-        if contains $PROC "pebble"; then
+        if contains "$PROC" "pebble"; then
            return 0
         fi
     done
+
     return 1
 }
 
-start_pebble(){
+start_pebble()
+{
     export PEBBLE_WFE_NONCEREJECT=0
     export PEBBLE_VA_ALWAYS_VALID=1
     export PEBBLE_VA_NOSLEEP=1
+
     echo "*************************************************************************************************"
     echo "* Candango automatoes Pebble Server Start Process"
     echo "* Config File: $2"
     echo "*"
     echo -n "* Starting Pebble Server "
-    nohup $PEEBLE_CMD -config $2 > /dev/null 2>&1 &
+    nohup $PEEBLE_CMD -config $2 >/dev/null 2>&1 &
     RETVAL=$(curl --cacert "$SCRIPT_PATH/../tests/certs/candango.minica.pem" --write-out %{http_code} --silent --output /dev/null "$PEEBLE_SERVICE_URL/dir" | tr -d ' ')
     while [ $RETVAL -ne 200 ]
     do
@@ -89,10 +95,12 @@ start_pebble(){
     done
     echo -e " $OK_STRING"
     echo "*************************************************************************************************"
+
     return 0
 }
 
-stop_pebble(){
+stop_pebble()
+{
     echo "*************************************************************************************************"
     echo "* Candango automatoes Pebble Server Start Process"
     echo "* Config File: $2"
@@ -109,36 +117,38 @@ stop_pebble(){
            return 0
         fi
     done
+
     return 1
 }
 
-pebble_option_list() {
+pebble_option_list()
+{
     case "$1" in 
         start)
-            if is_running $@; then
+            if is_running "$@"; then
                 send_error "Peeble Server $2 is still running..."
             else
-                start_pebble $@
+                start_pebble "$@"
             fi
             ;;
         stop)
-            if is_running $@; then
-                stop_pebble $@
+            if is_running "$@"; then
+                stop_pebble "$@"
             else
                 send_error "Peeble Server $2 is not running..."
             fi
             ;;
         status)
-            if is_running $@; then
+            if is_running "$@"; then
                 echo "Peeble Server $2 is running..."
             else
                 echo "Peeble Server $2 is not running..."
             fi
             ;;
         *)
-            send_error "Usage: $SCRIPT_NAME FILE_NAME {start|stop|status}"
+            send_error "Usage: $SCRIPT_NAME {start|stop|status} FILE_NAME"
             ;;
     esac
 }
 
-pebble_option_list $@
+pebble_option_list "$@"

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2021 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,8 @@ __licence__ = "Apache License V2.0"
 
 
 def get_version():
+    if isinstance(__version__[-1], str):
+        return '.'.join(map(str, __version__[:-1])) + __version__[-1]
     return ".".join(map(str, __version__))
 
 
