@@ -1,8 +1,10 @@
 # Candango Automat-o-es
 
-[![Join the chat at https://gitter.im/candango/automatoes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/candango/automatoes)
-[![Build Status](https://travis-ci.org/candango/automatoes.svg?branch=develop)](https://travis-ci.org/candango/automatoes)
 [![PyPI](https://img.shields.io/pypi/v/automatoes.svg)](https://pypi.org/project/automatoes/)
+[![Number of PyPI downloads](https://img.shields.io/pypi/dm/automatoes.svg)](https://pypi.org/project/automatoes/#files)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fcandango%2Fautomatoes%2Fbadge&style=flat)](https://actions-badge.atrox.dev/candango/automatoes/goto)
+[![Join the chat at https://gitter.im/candango/automatoes](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/candango/automatoes)
+
 
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/)
 client for advanced users and developers. It is intended to be used by anyone

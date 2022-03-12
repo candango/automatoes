@@ -48,14 +48,6 @@ def resolve_requires(requirements_file):
         return [str(pr.requirement) for pr in requirements]
 
 
-def use_right_cryptography(requirements):
-    cryptography_req = "requirements/cryptography.txt"
-    if sys.version_info.minor < 6:
-        cryptography_req = "requirements/cryptography_legacy.txt"
-    requirements.append(resolve_requires(cryptography_req)[0])
-    return requirements
-
-
 setup(
     name="automatoes",
     version=automatoes.get_version(),
@@ -82,9 +74,7 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
     ],
     packages=["automatoes"],
-    install_requires=use_right_cryptography(
-        resolve_requires("requirements/basic.txt")
-    ),
+    install_requires=resolve_requires("requirements/basic.txt"),
     entry_points={
         'console_scripts': [
             "automatoes = automatoes.cli:automatoes_main",

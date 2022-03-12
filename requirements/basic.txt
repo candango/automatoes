@@ -1,2 +1,2 @@
-peasant==0.4
+peasant==0.6
 requests==2.27.1
