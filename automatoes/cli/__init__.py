@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +18,24 @@
 """
 The command line interface.
 """
-from . import get_version, messages
-from .authorize import authorize
-from .issue import issue
-from .info import info
-from .model import Account
-from .register import register
-from .revoke import revoke
-from .upgrade import upgrade
-from .errors import AutomatoesError
+from .. import get_version, messages
+from ..authorize import authorize
+from ..issue import issue
+from ..info import info
+from ..model import Account
+from ..register import register
+from ..revoke import revoke
+from ..upgrade import upgrade
+from ..errors import AutomatoesError
 
 import argparse
-from cartola import sysexits
+from cartola import config, sysexits
+import click
 import logging
-import sys
 import os
+import sys
+import taskio
+
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +43,26 @@ logger = logging.getLogger(__name__)
 LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/"
 DEFAULT_ACCOUNT_PATH = 'account.json'
 DEFAULT_CERT_KEY_SIZE = 4096
+
+AUTOMATOES_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", ".."))
+AUTOMATOES_CONFIG_PATH = os.path.join(AUTOMATOES_ROOT, "automatoes", "conf")
+AUTOMATOES_CONFIG_FILE = os.path.join(AUTOMATOES_CONFIG_PATH, "automatoes.yml")
+
+pass_context = click.make_pass_decorator(
+    taskio.core.TaskioContext, ensure=True)
+
+
+@taskio.root(taskio_conf=config.load_yaml_file(AUTOMATOES_CONFIG_FILE))
+@click.option("-a", "--account", help=messages.OPTION_ACCOUNT_HELP,
+              default=DEFAULT_ACCOUNT_PATH, show_default=True)
+@click.option("-s", "--server", help=messages.OPTION_SERVER_HELP,
+              default=LETS_ENCRYPT_PRODUCTION, show_default=True)
+@pass_context
+def automatoes_cli(ctx, account, server):
+    print(ctx)
+
+    print(server)
 
 
 # Command handlers
