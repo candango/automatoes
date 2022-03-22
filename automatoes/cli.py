@@ -18,7 +18,7 @@
 """
 The command line interface.
 """
-from . import get_version
+from . import get_version, messages
 from .authorize import authorize
 from .issue import issue
 from .info import info
@@ -35,80 +35,6 @@ import sys
 import os
 
 logger = logging.getLogger(__name__)
-
-# Text
-DESCRIPTION = \
-"""
-Candango Automatoes {}. Manuale replacement.
-
-Interact with ACME certification authorities such as Let's Encrypt.
-
-No idea what you're doing? Register an account, authorize your domains and
-issue a certificate or two. Call a command with -h for more instructions.
-""".format(get_version())
-
-DESCRIPTION_REGISTER = \
-"""
-Creates a new account key and registers on the server. The resulting --account
-is saved in the specified file, and required for most other operations.
-
-You only have to do this once. Keep the account file safe and secure: it
-contains your private key, and you need it to get certificates!
-"""
-
-DESCRIPTION_AUTHORIZE = \
-"""
-Authorizes a domain or multiple domains for your account through DNS or HTTP
-verification. You will need to set up DNS records or HTTP files as prompted.
-
-After authorizing a domain, you can issue certificates for it. Authorizations
-can last for a long time, so you might not need to do this every time you want
-a new certificate.  This depends on the server being used. You should see an
-expiration date for the authorization after completion.
-
-If a domain is already authorized, the authorization's expiration date will be
-printed.
-"""
-
-DESCRIPTION_ISSUE = \
-"""
-Issues a certificate for one or more domains. Hopefully needless to say, you
-must have valid authorizations for the domains you specify first.
-
-This will generate a new RSA key and CSR for you. But if you want, you can
-bring your own with the --key-file and --csr-file attributes. You can also set
-a custom --key-size. (Don't try something stupid like 512, the server won't
-accept it. I tried.)
-
-The resulting key and certificate are written into domain.pem and domain.crt.
-A chained certificate with the intermediate included is also written to
-domain.chain.crt. You can change the --output directory to something else from
-the working directory as well.
-
-(If you're passing your own CSR, the given domains can be whatever you want.)
-
-Note that unlike many other certification authorities, ACME does not add a
-non-www or www alias to certificates. If you want this to happen, add it
-yourself. You need to authorize both as well.
-
-Certificate issuance has a server-side rate limit. Don't overdo it.
-"""
-
-DESCRIPTION_REVOKE = \
-"""
-Revokes a certificate. The certificate must have been issued using the
-current account.
-"""
-
-DESCRIPTION_INFO = \
-"""
-Display registration info for the current account.
-"""
-
-DESCRIPTION_UPGRADE = \
-"""
-Upgrade current account's uri from Let's Encrypt ACME V1 to ACME V2.
-"""
 
 # Defaults
 LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/"
@@ -220,7 +146,7 @@ def automatoes_main():
 # Where it all begins.
 def manuale_main():
     parser = argparse.ArgumentParser(
-        description=DESCRIPTION,
+        description=messages.DESCRIPTION,
         formatter_class=Formatter,
     )
     subparsers = parser.add_subparsers()
@@ -240,7 +166,7 @@ def manuale_main():
     register = subparsers.add_parser(
         'register',
         help="Create a new account and register",
-        description=DESCRIPTION_REGISTER,
+        description=messages.DESCRIPTION_REGISTER,
         formatter_class=Formatter,
     )
     register.add_argument('email', type=str, help="Account e-mail address")
@@ -252,7 +178,7 @@ def manuale_main():
     authorize = subparsers.add_parser(
         'authorize',
         help="Verify domain ownership",
-        description=DESCRIPTION_AUTHORIZE,
+        description=messages.DESCRIPTION_AUTHORIZE,
         formatter_class=Formatter,
     )
     authorize.add_argument('domain',
@@ -269,7 +195,7 @@ def manuale_main():
     issue = subparsers.add_parser(
         'issue',
         help="Request a new certificate",
-        description=DESCRIPTION_ISSUE,
+        description=messages.DESCRIPTION_ISSUE,
         formatter_class=Formatter,
     )
     issue.add_argument(
@@ -299,7 +225,7 @@ def manuale_main():
     revoke = subparsers.add_parser(
         'revoke',
         help="Revoke an issued certificate",
-        description=DESCRIPTION_REVOKE,
+        description=messages.DESCRIPTION_REVOKE,
         formatter_class=Formatter,
     )
     revoke.add_argument("certificate", help="The certificate file to revoke")
@@ -309,7 +235,7 @@ def manuale_main():
     info = subparsers.add_parser(
         'info',
         help="Display account information",
-        description=DESCRIPTION_INFO,
+        description=messages.DESCRIPTION_INFO,
         formatter_class=Formatter,
     )
     info.set_defaults(func=_info)
@@ -318,7 +244,7 @@ def manuale_main():
     upgrade = subparsers.add_parser(
         'upgrade',
         help="Upgrade account's uri from Let's Encrypt ACME V1 to V2",
-        description=DESCRIPTION_UPGRADE,
+        description=messages.DESCRIPTION_UPGRADE,
         formatter_class=Formatter,
     )
     upgrade.set_defaults(func=_upgrade)
