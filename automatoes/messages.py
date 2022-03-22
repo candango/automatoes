@@ -83,3 +83,6 @@ Display registration info for the current account.
 DESCRIPTION_UPGRADE = """
 Upgrade current account's uri from Let's Encrypt ACME V1 to ACME V2.
 """
+
+OPTION_ACCOUNT_HELP = "The account file to use or create"
+OPTION_SERVER_HELP = "The ACME server to use"

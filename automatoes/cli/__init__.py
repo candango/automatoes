@@ -175,10 +175,11 @@ def manuale_main():
     subparsers = parser.add_subparsers()
 
     # Server switch
-    parser.add_argument('--server', '-s', help="The ACME server to use",
+    parser.add_argument('--server', '-s',
+                        help=messages.OPTION_SERVER_HELP,
                         default=LETS_ENCRYPT_PRODUCTION)
     parser.add_argument('--account', '-a',
-                        help="The account file to use or create",
+                        help=messages.OPTION_ACCOUNT_HELP,
                         default=DEFAULT_ACCOUNT_PATH)
 
     # Verbosity
