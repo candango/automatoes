@@ -24,9 +24,13 @@
 
 OK_STRING="[ \033[32mOK\033[37m ]"
 
-echo -n "Installing Peeble ........ "
-go get -u github.com/letsencrypt/pebble/...
-echo -e " $OK_STRING"
+echo "Installing Peeble: "
+git clone git@github.com:letsencrypt/pebble.git
+cd pebble
+go install ./cmd/pebble
+cd -
+rm -rf pebble
+echo -e "Peeble installed .......... $OK_STRING"
 echo -n "Installing Minica ........ "
 go install github.com/jsha/minica@latest
 echo -e " $OK_STRING"
