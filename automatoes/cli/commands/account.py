@@ -19,8 +19,8 @@ from ...cli import pass_context
 import taskio
 
 
-@taskio.group(name="account", short_help="Commands related to account "
-                                         "managment")
+@taskio.group(name="account", short_help="Group with commands related to "
+                                         "account managment")
 @pass_context
 def account(ctx):
     pass

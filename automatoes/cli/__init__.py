@@ -35,6 +35,7 @@ import logging
 import os
 import sys
 import taskio
+from taskio.core import TaskioCliContext
 
 
 logger = logging.getLogger(__name__)
@@ -49,8 +50,22 @@ AUTOMATOES_ROOT = os.path.abspath(
 AUTOMATOES_CONFIG_PATH = os.path.join(AUTOMATOES_ROOT, "automatoes", "conf")
 AUTOMATOES_CONFIG_FILE = os.path.join(AUTOMATOES_CONFIG_PATH, "automatoes.yml")
 
-pass_context = click.make_pass_decorator(
-    taskio.core.TaskioContext, ensure=True)
+
+class AutomatoesCliContext(TaskioCliContext):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.AUTOMATOES_ROOT = AUTOMATOES_ROOT
+        self.AUTOMATOES_CONFIG_PATH = AUTOMATOES_CONFIG_PATH
+        self.AUTOMATOES_CONFIG_FILE = AUTOMATOES_CONFIG_FILE
+        self.account = None
+        self.server = None
+        self.verbose = False
+        self.root = None
+
+
+pass_context = click.make_pass_decorator(AutomatoesCliContext,
+                                         ensure=True)
 
 
 @taskio.root(taskio_conf=config.load_yaml_file(AUTOMATOES_CONFIG_FILE))
@@ -59,10 +74,10 @@ pass_context = click.make_pass_decorator(
 @click.option("-s", "--server", help=messages.OPTION_SERVER_HELP,
               default=LETS_ENCRYPT_PRODUCTION, show_default=True)
 @pass_context
-def automatoes_cli(ctx, account, server):
+def automatoes_cli(ctx: AutomatoesCliContext, account, server):
     print(ctx)
-
-    print(server)
+    ctx.account = account
+    ctx.server = server
 
 
 # Command handlers

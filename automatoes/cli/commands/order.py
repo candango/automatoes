@@ -19,7 +19,8 @@ from ...cli import pass_context
 import taskio
 
 
-@taskio.group(name="order", short_help="Commands related to orders managment")
+@taskio.group(name="order", short_help="Group with commands related to order "
+                                       "managment")
 @pass_context
 def order(ctx):
     pass
