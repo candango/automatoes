@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 #
 # Copyright 2019-2020 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
@@ -103,7 +103,7 @@ def sign_request(key, header, protected_header, payload):
     """
     protected = jose_b64(json.dumps(protected_header).encode('utf8'))
     payload = jose_b64(json.dumps(payload).encode('utf8'))
-    data = "{protected}.{payload}".format(protected=protected, payload=payload)
+    data = "{%s}.{%s}" % (protected, payload)
     signed_data = key.sign(data.encode("ascii"), padding.PKCS1v15(),
                            hashes.SHA256())
     return json.dumps({
