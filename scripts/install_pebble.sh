@@ -25,7 +25,7 @@
 OK_STRING="[ \033[32mOK\033[37m ]"
 
 echo "Installing Peeble: "
-git clone git@github.com:letsencrypt/pebble.git
+git clone https://github.com/letsencrypt/pebble.git
 cd pebble
 go install ./cmd/pebble
 cd -
