@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,12 @@
 
 def confirm(msg, default=True):
     while True:
-        choices = 'Y/n' if default else 'y/N'
-        answer = input("{} [{}] ".format(msg, choices)).strip().lower()
+        choices = "Y/n" if default else "y/N"
+        answer = input(
+            "%s [%s] " % (msg, choices)
+        ).encode("utf-8", "ignore").decode("utf-8", "ignore").strip().lower()
 
-        if answer in { 'yes', 'y' } or (default and not answer):
+        if answer in {"yes", "y"} or (default and not answer):
             return True
-        elif answer in { 'no', 'n' } or (not default and not answer):
+        if answer in {"no", "n"} or (not default and not answer):
             return False

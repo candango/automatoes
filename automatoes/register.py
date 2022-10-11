@@ -33,6 +33,8 @@ import os
 
 
 def register(server, account_path, email, key_file):
+    email = str(email).encode("utf-8", "ignore").decode("utf-8", "ignore")
+
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
     # Don't overwrite silently
