@@ -17,7 +17,7 @@
 
 import automatoes
 from codecs import open
-from setuptools import setup
+from setuptools import find_packages, setup
 import sys
 
 try:
@@ -73,7 +73,9 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3 :: Only",
     ],
-    packages=["automatoes"],
+    packages=find_packages(),
+    package_dir={'automatoes': "automatoes"},
+    include_package_data=True,
     install_requires=resolve_requires("requirements/basic.txt"),
     entry_points={
         'console_scripts': [
