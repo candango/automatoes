@@ -14,6 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
 
 
 def confirm(msg, default=True):
@@ -21,7 +22,7 @@ def confirm(msg, default=True):
         choices = "Y/n" if default else "y/N"
         answer = input(
             "%s [%s] " % (msg, choices)
-        ).encode("utf-8", "ignore").decode("utf-8", "ignore").strip().lower()
+        ).encode(sys.stdin.encoding).decode().strip().lower()
 
         if answer in {"yes", "y"} or (default and not answer):
             return True

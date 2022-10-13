@@ -18,6 +18,7 @@
 """
 Account registration.
 """
+import sys
 
 from . import get_version
 from .acme import AcmeV2
@@ -33,7 +34,7 @@ import os
 
 
 def register(server, account_path, email, key_file):
-    email = str(email).encode("utf-8", "ignore").decode("utf-8", "ignore")
+    email = str(email).encode(sys.stdin.encoding).decode()
 
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
