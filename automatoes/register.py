@@ -18,7 +18,6 @@
 """
 Account registration.
 """
-import sys
 
 from . import get_version
 from .acme import AcmeV2
@@ -34,9 +33,6 @@ import os
 
 
 def register(server, account_path, email, key_file):
-    in_encoding = sys.stdin.encoding
-    email = str(email).encode(in_encoding).decode(in_encoding)
-
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
     # Don't overwrite silently
@@ -44,7 +40,7 @@ def register(server, account_path, email, key_file):
         if not confirm("The account file {} already exists. Continuing will"
                        " overwrite it with the new key."
                        " Continue?".format(account_path), default=False):
-            raise AccountAlreadyExistsError("Aborting.")
+            raise AutomatoesError("Aborting.")
 
     # Confirm e-mail
     if not confirm("You're about to register a new account with e-mail "

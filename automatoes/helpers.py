@@ -14,18 +14,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
+import click
 
 
 def confirm(msg, default=True):
-    while True:
-        choices = "Y/n" if default else "y/N"
-        in_encoding = sys.stdin.encoding
-        answer = input(
-            "%s [%s] " % (msg, choices)
-        ).encode(in_encoding).decode(in_encoding).strip().lower()
-
-        if answer in {"yes", "y"} or (default and not answer):
-            return True
-        if answer in {"no", "n"} or (not default and not answer):
-            return False
+    answer = click.confirm("%s" % msg, default=default)
+    return answer
