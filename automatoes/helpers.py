@@ -20,9 +20,10 @@ import sys
 def confirm(msg, default=True):
     while True:
         choices = "Y/n" if default else "y/N"
+        in_encoding = sys.stdin.encoding
         answer = input(
             "%s [%s] " % (msg, choices)
-        ).encode(sys.stdin.encoding).decode().strip().lower()
+        ).encode(in_encoding).decode(in_encoding).strip().lower()
 
         if answer in {"yes", "y"} or (default and not answer):
             return True
