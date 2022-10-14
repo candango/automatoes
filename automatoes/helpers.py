@@ -26,8 +26,8 @@ def confirm(msg, default=True):
           "https://github.com/candango/automatoes/issues/103")
     while True:
         choices = "Y/n" if default else "y/N"
-        answer = None
-        encoding = None
+        answer = ""
+        encoding = ""
         try:
             answer, encoding = decode(input("%s [%s] " % (msg, choices)))
         except UnicodeDecodeError as ude:
@@ -42,6 +42,8 @@ def confirm(msg, default=True):
             print("Current input encoding: %s" % sys.stdin.encoding)
             print("Current output encoding: %s" % sys.stdout.encoding)
             print("Byte order: %s" % sys.byteorder)
+            print("Setting answer to: UnicodeDecodeError")
+            answer = "UnicodeDecodeError"
             print("*********************************************************")
         except UnicodeEncodeError as uee:
             print("*********************************************************")
@@ -58,6 +60,12 @@ def confirm(msg, default=True):
             print("*********************************************************")
 
         print("*********************************************************")
+        if "UnicodeDecodeError" in answer:
+            print("Dude, please type this: y, yes, n, no")
+            print("No more ç/ű/etc... + backspace + backspace or whatever "
+                  "UnicodeDecodeError you can generate with your keyboard....")
+            print("Fix here is just ignore.... and keep asking for valid "
+                  "responses")
         if "no encode found" in answer:
             no_encode_found = True
             print("We need more encodes....")
@@ -91,6 +99,8 @@ def confirm(msg, default=True):
 
 
 def decode(answer: str, encoding="ascii") -> (str, str):
+    print("Answer inside the decode: %s. Trying encoding: %s" %
+          (answer, encoding))
     try:
         return answer.encode(encoding).decode(encoding), encoding
     except UnicodeDecodeError as ude:
