@@ -26,11 +26,27 @@ def confirm(msg, default=True):
           "https://github.com/candango/automatoes/issues/103")
     while True:
         choices = "Y/n" if default else "y/N"
+        answer = None
+        encoding = None
         try:
             answer, encoding = decode(input("%s [%s] " % (msg, choices)))
+        except UnicodeDecodeError as ude:
+            print("*********************************************************")
+            print("This exception is on the python input function WTF!?:")
+            print("DECODING!!!!")
+            print(ude)
+            print("*********************************************************")
+            print("Preferred encoding: %s" % locale.getpreferredencoding())
+            print("Default locale:\n lang: %s, encoding: %s"
+                  % locale.getdefaultlocale())
+            print("Current input encoding: %s" % sys.stdin.encoding)
+            print("Current output encoding: %s" % sys.stdout.encoding)
+            print("Byte order: %s" % sys.byteorder)
+            print("*********************************************************")
         except UnicodeEncodeError as uee:
             print("*********************************************************")
             print("This exception is on the python input function WTF!?:")
+            print("ENCODING!!!!")
             print(uee)
             print("*********************************************************")
             print("Preferred encoding: %s" % locale.getpreferredencoding())
@@ -77,6 +93,9 @@ def confirm(msg, default=True):
 def decode(answer: str, encoding="ascii") -> (str, str):
     try:
         return answer.encode(encoding).decode(encoding), encoding
+    except UnicodeDecodeError as ude:
+        last_exception = "%s" % ude
+        print(last_exception)
     except UnicodeEncodeError as uee:
         last_exception = "%s" % uee
         print(last_exception)
