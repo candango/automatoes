@@ -14,9 +14,77 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import click
+import locale
+import sys
 
 
 def confirm(msg, default=True):
-    answer = click.confirm("%s" % msg, default=default)
-    return answer
+    no_encode_found = False
+    print("*********************************************************")
+    print("Inside the confirm function!!!!\n\n")
+    print("Please post the output at:\n %s" %
+          "https://github.com/candango/automatoes/issues/103")
+    while True:
+        choices = "Y/n" if default else "y/N"
+        try:
+            answer, encoding = decode(input("%s [%s] " % (msg, choices)))
+        except UnicodeEncodeError as uee:
+            print("*********************************************************")
+            print("This exception is on the python input function WTF!?:")
+            print(uee)
+            print("*********************************************************")
+            print("Preferred encoding: %s" % locale.getpreferredencoding())
+            print("Default locale:\n lang: %s, encoding: %s"
+                  % locale.getdefaultlocale())
+            print("Current input encoding: %s" % sys.stdin.encoding)
+            print("Current output encoding: %s" % sys.stdout.encoding)
+            print("Byte order: %s" % sys.byteorder)
+            print("*********************************************************")
+
+        print("*********************************************************")
+        if "no encode found" in answer:
+            no_encode_found = True
+            print("We need more encodes....")
+            print("*********************************************************")
+        print("Answer: %s" % answer)
+        print("Answer encoded with: %s" % encoding)
+        print("Preferred encoding: %s" % locale.getpreferredencoding())
+        print("Default locale:\n lang: %s, encoding: %s"
+              % locale.getdefaultlocale())
+        print("Current input encoding: %s" % sys.stdin.encoding)
+        print("Current output encoding: %s" % sys.stdout.encoding)
+        print("Byte order: %s" % sys.byteorder)
+
+        print("*********************************************************")
+
+        answer = answer.strip().lower()
+
+        print("Outside the confirm function!!!! Don't copy after the next"
+              "line of starts...")
+        print("*********************************************************")
+
+        if no_encode_found:
+            print("If this is the case, I need to add a parameter for y/n "
+                  "options on `manuale register`")
+            return False
+
+        if answer in {"yes", "y"} or (default and not answer):
+            return True
+        if answer in {"no", "n"} or (not default and not answer):
+            return False
+
+
+def decode(answer: str, encoding="ascii") -> (str, str):
+    try:
+        return answer.encode(encoding).decode(encoding), encoding
+    except UnicodeEncodeError as uee:
+        last_exception = "%s" % uee
+        print(last_exception)
+    if encoding != "ascii":
+        if encoding == "ascii":
+            return decode(answer, "utf-8")
+        if encoding == "utf-8":
+            return decode(answer, "utf-16")
+        if encoding == "utf-16":
+            return decode(answer, "utf-32")
+    return "no encode found exception(%s)" % last_exception, encoding
