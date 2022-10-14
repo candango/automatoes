@@ -80,7 +80,7 @@ def decode(answer: str, encoding="ascii") -> (str, str):
     except UnicodeEncodeError as uee:
         last_exception = "%s" % uee
         print(last_exception)
-    if encoding != "ascii":
+    if encoding != "utf-32":
         if encoding == "ascii":
             return decode(answer, "utf-8")
         if encoding == "utf-8":
