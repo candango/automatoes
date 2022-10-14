@@ -45,7 +45,7 @@ still bring your own keys and/or CSR's. Everybody wins.
 
 ## Installation
 
-Python 3.5 or above is required.
+Python 3.6 or above is required.
 
 ### Using your package manager
 
@@ -183,21 +183,21 @@ Here is what happens in the background(manuale replacement):
 > Just saying... you know the drill right? Same as before.
 > 1. manuale the Let's Encrypt! message and you can issue the certificate
 
-* If any challenge fails we delete the order file as the order will be set as
-invalid in the server. Invalid orders are considered fulfilled and not pending,
+* If any challenge fails we delete the order file because it will be invalid
+in the server side. Invalid orders are considered fulfilled and not pending,
 we can discard them.
-* If you hit Ctrl+c, the order will start from the server state as we can
-continue to process from the local file stored. Even challenges will be
-maintained, in a case when one challenge is validated and 2 are pending, if
-a Ctrl+c was hit, were recognize that in the next attempt.
-* If you call issue and there is an existent invalid order file than we delete
-the order and a new one is created.
+* If you hit Ctrl+c, the order will start from the state found in the local
+file stored. Even challenges will be maintained, in a case when one challenge
+is validated and 2 are pending, if Ctrl+c was hit, we'll recognize them in a 
+next attempt.
+* If you call the authorize command and there is an existent invalid order,
+this one will be deleted, and a new order will be created.
 
 > `manuale issue domain.com other.domain.com`
 
 > 1. /acme/order/<order_id>/finalize is called with the pem generated
 > or the one provided by you
-> 1. /acme/cert/<cert_id> is called and we place keys like we use to do before
+> 1. /acme/cert/<cert_id> is called, and we place keys like we use to do before
 > 1. we're done!
 
 * If you try to issue certificates for a domain sequence and an oder is pending
@@ -224,19 +224,20 @@ sequence because:
 >
 >   *  If the CSR requests extensions that the CA is not willing to include
 
-Trying to keeping thing as [KISS](https://www.acronymfinder.com/KISS.html) as
-possible we can complicate things later. Now we need ACME V2.
+Trying to keep thing as [KISS](https://www.acronymfinder.com/KISS.html) as
+possible, we can complicate things later. Now we need ACME V2.
 
 To create a certificate for a domain sequence authorized by a previous order
 just:
 
- 1. call authorize again. Chances are that no challenge will be needed but it
+ 1. call authorize again. Chances are that no challenge will be needed, but it
  depends on the ACME V2 server implementation.
  1. fulfill challenge(s) if needed
  1. call issue with same domain sequence authorize
  1. we're done!
 
-In another words, a domain sequence defines the order identifier locally.
+In other words, a domain sequence defines how the order identifier is created
+locally.
 
 The sha256sum command from coreutils can be used if you have a bash script
 to monitor `manuale` execution:
@@ -249,7 +250,7 @@ to monitor `manuale` execution:
 d0bd2c4957537572ffb7150a7dc89e61f44f9ab603b75be481118e37ec5a6163  -
 ```
 
-Storing meta files at working_directory/orders directory will let you
+Storing meta files at working_directory/orders directory will let us
 automate things better. Don't delete those files let Automatoes handle them for
 you.
 
@@ -264,7 +265,7 @@ the future:
  - SDK?
  - Can you imagine more? Create a feature request for us.
 
-Also the manuale command can be called with a verbose parameter(-v) right now
+Also, the manuale command can be called with a verbose parameter(-v) right now
 providing more output.
 
 ## See also
@@ -276,14 +277,18 @@ providing more output.
 
 ## Support
 
-For direct support [join gitter chat at https://gitter.im/candango/automatoes](https://gitter.im/candango/automatoes).
+For direct support create a
+[new discussion](https://github.com/candango/automatoes/discussions/new?category=help)
+or a
+[new ticket](https://github.com/candango/automatoes/issues/new)
+we'll love to see how to help you.
 
 Automatoes is one of
 [Candango Open Source Group](http://www.candango.org/projects/)
 initiatives. Available under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
 
-This web site and all documentation is licensed under
+This website and all documentation are licensed under
 [Creative Commons 3.0](http://creativecommons.org/licenses/by/3.0/).
 
 Copyright © 2019-2022 Flávio Gonçalves Garcia

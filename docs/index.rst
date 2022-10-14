@@ -49,12 +49,15 @@ Discussion and support
 Report bugs on the `GitHub issue tracker
 <https://github.com/candango/automatoes/issues>`_.
 
+Create a new discussion at the `GitHub discussions
+<https://github.com/candango/automatoes/discussions/new?category=help>`_.
+
 Automatoes is one of `Candango Open Source Group initiatives
 <http://www.candango.org/projects/>`_. It is available under the
 `Apache License, Version 2.0
 <http://www.apache.org/licenses/LICENSE-2.0.html>`_.
 
-This web site and all documentation is licensed under `Creative
+This website and all documentation are licensed under `Creative
 Commons 3.0 <http://creativecommons.org/licenses/by/3.0/>`_.
 
 Copyright © 2019-2022 Flávio Gonçalves Garcia
