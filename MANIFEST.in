@@ -4,3 +4,4 @@ include LICENSE
 include requirements/basic.txt
 include requirements/cryptography.txt
 include requirements/cryptography_legacy.txt
+include automatoes/conf/*.yml

@@ -390,15 +390,13 @@ class AcmeV2(Acme):
     def query_orders(self):
         """ Query existent order status
 
-
-        :param Order order: order to be challenged
         :return: Order
         """
         raise NotImplementedError
 
-    def query_order(self, order):
+    def query_order(self, order: Order):
         """ Query existent order status
-        :param Order order: order to be challenged
+        :param order: order to be challenged
         :return: Order
         """
         response = self.post_as_get(order.uri, kid=self.account.uri)
@@ -410,9 +408,9 @@ class AcmeV2(Acme):
             )
         raise AcmeError(response)
 
-    def get_order_challenges(self, order):
+    def get_order_challenges(self, order: Order):
         """ Return all challenges from an order .
-        :param Order order: order to be challenged
+        :param order: order to be challenged
         :return: Order
         """
         domains = [identifier['value'] for identifier in
@@ -441,9 +439,10 @@ class AcmeV2(Acme):
                     ))
         return order_challenges
 
-    def verify_order_challenge(self, challenge, timeout=5, retry_limit=5):
+    def verify_order_challenge(self, challenge: Challenge, timeout=5,
+                               retry_limit=5):
         """ Return all challenges from an order .
-        :param Challenge challenge: A challenge from the order
+        :param challenge: A challenge from the order
         :param int timeout: timeout before check challenge status
         :param retry_limit: retry limit of checks of a challenge
         :return:
@@ -465,11 +464,10 @@ class AcmeV2(Acme):
                                                   kid=self.account.uri))
         return response
 
-    def finalize_order(self, order, csr):
-        """
-        Marks the specified validation as complete.
-        :param OrderResult order: authorization to be
-        validated
+    def finalize_order(self, order: Order, csr):
+        """ Marks the specified validation as complete.
+        :param order: order to be finalized
+        :param csr a certificate public key in base64
         :return:
         """
         response = self.post(order.contents['finalize'], {

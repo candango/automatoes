@@ -93,10 +93,9 @@ class AcmeProtocol(Peasant):
     def __init__(self, transport, **kwargs):
         super().__init__(transport)
         self._url = kwargs.get("url")
-        self._account = None
+        self._account = kwargs.get("account")
         self._directory_path = kwargs.get("directory", "directory")
         self._verify = kwargs.get("verify")
-        self.account = kwargs.get("account")
 
     @property
     def url(self):

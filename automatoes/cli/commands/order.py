@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from automatoes.cli import automatoes_cli
+from ...cli import pass_context
+import taskio
 
-if __name__ == "__main__":
-    automatoes_cli()
+
+@taskio.group(name="order", short_help="Group with commands related to order "
+                                       "managment")
+@pass_context
+def order(ctx):
+    pass
+
+
+@order.command(name="list", short_help="List orders")
+@pass_context
+def order_list(ctx):
+    print("List orders")

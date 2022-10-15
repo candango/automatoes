@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2022 Flávio Gonçálves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,19 +32,20 @@ from .model import Account
 import os
 
 
-def register(server, account_path, email, key_file):
+def register(server, account_path, email, key_file, verbose=False):
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
     # Don't overwrite silently
     if os.path.exists(account_path):
         if not confirm("The account file {} already exists. Continuing will"
                        " overwrite it with the new key."
-                       " Continue?".format(account_path), default=False):
+                       " Continue?".format(account_path), default=False,
+                       verbose=verbose):
             raise AutomatoesError("Aborting.")
 
     # Confirm e-mail
     if not confirm("You're about to register a new account with e-mail "
-                   "{} as contact. Continue?".format(email)):
+                   "{} as contact. Continue?".format(email), verbose=verbose):
         raise AutomatoesError("Aborting.")
 
     # Load key or generate
@@ -74,7 +75,7 @@ def register(server, account_path, email, key_file):
         else:
             print("  This server requires you to agree to these terms:")
             print("    {}".format(terms))
-            if confirm("Agreed?"):
+            if confirm("Agreed?", verbose=verbose):
                 terms_agreed = True
             else:
                 print("Your account will still be created, but it won't be "

@@ -58,7 +58,7 @@ def step_we_ask_to_create_an_acme_v2_user(context):
         context.peeble_url, "/".join(response.uri.split("/")[0:3]))
     context.tester.assertEqual(
         "my-account", "/".join(response.uri.split("/")[3:4]))
-    context.tester.assertIsInstance(int(response.uri.split("/")[4:5][0]), int)
+    context.tester.assertIsInstance(response.uri.split("/")[4:5][0], str)
     context.acme_v2.get_registration()
 
 
@@ -110,7 +110,8 @@ def step_we_verify_challenges_from_order_for_domain_by_type(
         if challenge.domain == what_domain:
             challenge_response = context.acme_v2.verify_order_challenge(
                 challenge, 1)
-            context.tester.assertEqual('valid', challenge_response['status'])
+            context.tester.assertEqual('processing',
+                                       challenge_response['status'])
 
 
 @when("We finalize order for {what_domain} by {what_type}")
