@@ -82,11 +82,15 @@ def automatoes_cli(ctx: AutomatoesCliContext, account, server):
 
 # Command handlers
 def _register(args):
+    verbose = False
+    if args.verbose > 0:
+        verbose = True
     register(
         server=args.server,
         account_path=args.account,
         email=args.email,
-        key_file=args.key_file
+        key_file=args.key_file,
+        verbose=verbose
     )
 
 
