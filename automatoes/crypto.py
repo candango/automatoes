@@ -232,7 +232,7 @@ def export_certificate_for_acme(cert):
 
 
 def strip_certificates(data):
-    p = re.compile("-----BEGIN CERTIFICATE-----\n(?s).+?"
+    p = re.compile("(?s)-----BEGIN CERTIFICATE-----\n.+?"
                    "-----END CERTIFICATE-----\n")
     stripped_data = []
     for cert in p.findall(data.decode()):
