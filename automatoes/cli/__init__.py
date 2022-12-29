@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2022 Flávio Gonçalves Garcia
+# Copyright 2019-2023 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,13 +29,10 @@ from ..upgrade import upgrade
 from ..errors import AutomatoesError
 
 import argparse
-from cartola import config, sysexits
-import click
+from cartola import sysexits
 import logging
 import os
 import sys
-import taskio
-from taskio.core import TaskioCliContext
 
 
 logger = logging.getLogger(__name__)
@@ -49,35 +46,6 @@ AUTOMATOES_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", ".."))
 AUTOMATOES_CONFIG_PATH = os.path.join(AUTOMATOES_ROOT, "automatoes", "conf")
 AUTOMATOES_CONFIG_FILE = os.path.join(AUTOMATOES_CONFIG_PATH, "automatoes.yml")
-
-
-class AutomatoesCliContext(TaskioCliContext):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.AUTOMATOES_ROOT = AUTOMATOES_ROOT
-        self.AUTOMATOES_CONFIG_PATH = AUTOMATOES_CONFIG_PATH
-        self.AUTOMATOES_CONFIG_FILE = AUTOMATOES_CONFIG_FILE
-        self.account = None
-        self.server = None
-        self.verbose = False
-        self.root = None
-
-
-pass_context = click.make_pass_decorator(AutomatoesCliContext,
-                                         ensure=True)
-
-
-@taskio.root(taskio_conf=config.load_yaml_file(AUTOMATOES_CONFIG_FILE))
-@click.option("-a", "--account", help=messages.OPTION_ACCOUNT_HELP,
-              default=DEFAULT_ACCOUNT_PATH, show_default=True)
-@click.option("-s", "--server", help=messages.OPTION_SERVER_HELP,
-              default=LETS_ENCRYPT_PRODUCTION, show_default=True)
-@pass_context
-def automatoes_cli(ctx: AutomatoesCliContext, account, server):
-    print(ctx)
-    ctx.account = account
-    ctx.server = server
 
 
 # Command handlers
