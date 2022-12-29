@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2022 Flávio Gonçalves Garcia
-# Copyright 2016-2017 Veeti Paananen under MIT License
+# Copyright 2019-2023 Flávio Gonçalves Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...cli import pass_context
+from ..automatoes import pass_context, AutomatoesCliContext
+from automatoes.model import Account
+from cartola import fs
 import taskio
 
 
@@ -28,5 +29,10 @@ def account(ctx):
 
 @account.command(name="list", short_help="List accounts")
 @pass_context
-def account_list(ctx):
-    print("List accounts")
+def account_list(ctx: AutomatoesCliContext):
+    for account_file in ctx.account_files:
+        default_account = True if account_file == "account.json" else False
+        if default_account:
+            print("(Default Account)", end=" ")
+        _account = Account.deserialize(fs.read(account_file))
+        print(_account.uri)

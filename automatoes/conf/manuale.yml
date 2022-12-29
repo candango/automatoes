@@ -1,0 +1,8 @@
+taskio:
+  program:
+    name: manuale
+    version: automatoes.get_version
+  sources:
+    - automatoes.cli.commands.account
+    - automatoes.cli.commands.help
+    - automatoes.cli.commands.order
