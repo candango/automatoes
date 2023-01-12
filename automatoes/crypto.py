@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2023 Flávio Gonçalves Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,8 +31,7 @@ from cryptography.x509 import NameOID
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import (
-    generate_private_key,
-    RSAPrivateKey,
+    generate_private_key, RSAPrivateKey, RSAPrivateNumbers, RSAPublicNumbers
 )
 from cryptography.hazmat.primitives.asymmetric.ec import (
     EllipticCurvePrivateKey,
@@ -62,6 +61,16 @@ def generate_rsa_key(size=2048):
     Generates a new RSA private key.
     """
     return generate_private_key(65537, size, default_backend())
+
+
+def generate_rsa_key_from_parameters(p, q, d, dmp1, dmq1, iqmp, e, n):
+    """
+    Note: from certbot dp is dmp1, dq is dmq1 and iqmp is qi
+    """
+    public_numbers = RSAPublicNumbers(e, n)
+    return RSAPrivateNumbers(
+        p, q, d, dmp1, dmq1, iqmp, public_numbers
+    ).private_key(default_backend())
 
 
 def generate_header(account_key):
