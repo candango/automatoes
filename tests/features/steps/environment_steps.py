@@ -80,7 +80,7 @@ def user_file_exists_at(context, account_path):
 
 
 @given("Certificate file exists at {certificate_path}")
-def user_file_exists_at(context, certificate_path):
+def certificate_file_exists_at(context, certificate_path):
     real_certificate_path = get_absolute_path(certificate_path)
     context.tester.assertTrue(os.path.exists(real_certificate_path))
     context.tester.assertTrue(os.path.isfile(real_certificate_path))
