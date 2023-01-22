@@ -22,6 +22,7 @@ from .. import get_version, messages
 from ..authorize import authorize
 from ..issue import issue
 from ..info import info
+from ..migrate import migrate
 from ..model import Account
 from ..register import register
 from ..revoke import revoke
@@ -112,6 +113,10 @@ def _upgrade(args):
     upgrade(args.server, account, account_path)
 
 
+def _migrate(args):
+    migrate(account_path=args.account, certbot_path=args.certbot_path)
+
+
 def get_paths(account_file):
     current_path = os.path.dirname(os.path.abspath(account_file))
     return {
@@ -137,6 +142,7 @@ def load_account(path):
         raise AutomatoesError()
 
     try:
+        # TODO: Use cartola fs.read here
         with open(path, 'rb') as f:
             return Account.deserialize(f.read())
     except (ValueError, IOError) as e:
@@ -174,91 +180,104 @@ def manuale_main():
                         help="Set verbose mode", default=0)
 
     # Account creation
-    register = subparsers.add_parser(
+    register_sub = subparsers.add_parser(
         'register',
         help="Create a new account and register",
         description=messages.DESCRIPTION_REGISTER,
         formatter_class=Formatter,
     )
-    register.add_argument('email', type=str, help="Account e-mail address")
-    register.add_argument('--key-file', '-k',
+    register_sub.add_argument('email', type=str, help="Account e-mail address")
+    register_sub.add_argument('--key-file', '-k',
                           help="Existing key file to use for the account")
-    register.set_defaults(func=_register)
+    register_sub.set_defaults(func=_register)
 
     # Domain verification
-    authorize = subparsers.add_parser(
+    authorize_sub = subparsers.add_parser(
         'authorize',
         help="Verify domain ownership",
         description=messages.DESCRIPTION_AUTHORIZE,
         formatter_class=Formatter,
     )
-    authorize.add_argument('domain',
+    authorize_sub.add_argument('domain',
                            help="One or more domain names to authorize",
                            nargs='+')
-    authorize.add_argument('--method',
+    authorize_sub.add_argument('--method',
                            '-m',
                            help="Authorization method",
                            choices=('dns', 'http'),
                            default='dns')
-    authorize.set_defaults(func=_authorize)
+    authorize_sub.set_defaults(func=_authorize)
 
     # Certificate issuance
-    issue = subparsers.add_parser(
+    issue_sub = subparsers.add_parser(
         'issue',
         help="Request a new certificate",
         description=messages.DESCRIPTION_ISSUE,
         formatter_class=Formatter,
     )
-    issue.add_argument(
+    issue_sub.add_argument(
         'domain',
         help="One or more domain names to include in the certificate",
         nargs='+')
-    issue.add_argument('--key-size', '-b',
+    issue_sub.add_argument('--key-size', '-b',
                        help="The key size to use for the certificate",
                        type=int, default=DEFAULT_CERT_KEY_SIZE)
-    issue.add_argument('--key-file', '-k',
+    issue_sub.add_argument('--key-file', '-k',
                        help="Existing key file to use for the certificate")
-    issue.add_argument('--csr-file', help="Existing signing request to use")
-    issue.add_argument('--output', '-o',
+    issue_sub.add_argument('--csr-file', help="Existing signing request to use")
+    issue_sub.add_argument('--output', '-o',
                        help="The output directory for created objects",
                        default='.')
-    issue.add_argument('--ocsp-must-staple',
+    issue_sub.add_argument('--ocsp-must-staple',
                        dest='ocsp_must_staple',
                        help="CSR: Request OCSP Must-Staple extension",
                        action='store_true')
-    issue.add_argument('--no-ocsp-must-staple',
+    issue_sub.add_argument('--no-ocsp-must-staple',
                        dest='ocsp_must_staple',
                        help=argparse.SUPPRESS,
                        action='store_false')
-    issue.set_defaults(func=_issue, ocsp_must_staple=False)
+    issue_sub.set_defaults(func=_issue, ocsp_must_staple=False)
 
     # Certificate revocation
-    revoke = subparsers.add_parser(
+    revoke_sub = subparsers.add_parser(
         'revoke',
         help="Revoke an issued certificate",
         description=messages.DESCRIPTION_REVOKE,
         formatter_class=Formatter,
     )
-    revoke.add_argument("certificate", help="The certificate file to revoke")
-    revoke.set_defaults(func=_revoke)
+    revoke_sub.add_argument("certificate", help="The certificate file to "
+                                                "revoke")
+    revoke_sub.set_defaults(func=_revoke)
 
     # Account info
-    info = subparsers.add_parser(
+    info_sub = subparsers.add_parser(
         'info',
         help="Display account information",
         description=messages.DESCRIPTION_INFO,
         formatter_class=Formatter,
     )
-    info.set_defaults(func=_info)
+    info_sub.set_defaults(func=_info)
 
     # Account upgrade
-    upgrade = subparsers.add_parser(
+    upgrade_sub = subparsers.add_parser(
         'upgrade',
         help="Upgrade account's uri from Let's Encrypt ACME V1 to V2",
         description=messages.DESCRIPTION_UPGRADE,
         formatter_class=Formatter,
     )
-    upgrade.set_defaults(func=_upgrade)
+    upgrade_sub.set_defaults(func=_upgrade)
+
+    # Migrate an account from certbot
+    migrate_sub = subparsers.add_parser(
+        "migrate",
+        help="Migrate a certbot account to automatoes format",
+        description=messages.DESCRIPTION_MIGRATE,
+        formatter_class=Formatter,
+    )
+    migrate_sub.add_argument("-c", "--certbot-path",
+                         help="Directory path where the account files are"
+                              "located")
+    migrate_sub.set_defaults(func=_migrate)
 
     # Version
     version = subparsers.add_parser("version", help="Show the version number")
