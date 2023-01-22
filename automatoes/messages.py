@@ -28,7 +28,7 @@ issue a certificate or two. Call a command with -h for more instructions.
 """.format(get_version())
 
 DESCRIPTION_REGISTER = """
-Creates a new account key and registers on the server. The resulting --account
+Create a new account key and register on the server. The resulting --account
 is saved in the specified file, and required for most other operations.
 
 You only have to do this once. Keep the account file safe and secure: it
@@ -69,6 +69,10 @@ non-www or www alias to certificates. If you want this to happen, add it
 yourself. You need to authorize both as well.
 
 Certificate issuance has a server-side rate limit. Don't overdo it.
+"""
+
+DESCRIPTION_MIGRATE = """
+Migrate an account created by certbot to the automatoes format.
 """
 
 DESCRIPTION_REVOKE = """
