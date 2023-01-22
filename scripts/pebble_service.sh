@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Copyright 2019-2022 Flavio Gonçalves Garcia
+## Copyright 2019-2023 Flavio Gonçalves Garcia
 ## Copyright 2020 Viktor Szépe
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,10 +24,8 @@
 ## Author: Flavio Garcia <piraz@candango.org>
 
 AWK_CMD="/usr/bin/awk"
-CURL_CMD="/usr/bin/curl"
 PWD_PATH="/usr/bin/pwd"
 
-ORIGINAL_PATH=$PWD_PATH
 SCRIPT_PATH=$(dirname "$0")
 SCRIPT_NAME=$(basename "$0")
 
@@ -71,7 +69,7 @@ is_running()
         fi
     done
 
-    return 1
+    return $SCRIPT_ERROR
 }
 
 start_pebble()
@@ -96,7 +94,7 @@ start_pebble()
     echo -e " $OK_STRING"
     echo "*************************************************************************************************"
 
-    return 0
+    return $SCRIPT_OK
 }
 
 stop_pebble()
@@ -114,11 +112,11 @@ stop_pebble()
            kill -9 $PID
            echo -e " $OK_STRING"
            echo "*************************************************************************************************"
-           return 0
+           return $SCRIPT_OK
         fi
     done
 
-    return 1
+    return $SCRIPT_ERROR
 }
 
 pebble_option_list()

@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Copyright 2019-2022 Flavio Gonçalves Garcia
+## Copyright 2019-2023 Flavio Gonçalves Garcia
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ OK_STRING="[ \033[32mOK\033[37m ]"
 
 echo "Installing Peeble: "
 git clone https://github.com/letsencrypt/pebble.git
-cd pebble
+cd pebble || exit
 go install ./cmd/pebble
-cd -
+cd - || exit
 rm -rf pebble
 echo -e "Peeble installed .......... $OK_STRING"
 echo -n "Installing Minica ........ "
@@ -36,7 +36,7 @@ go install github.com/jsha/minica@latest
 echo -e " $OK_STRING"
 echo -n "Generating minica keys ... "
 rm -rf tests/certs/*.pem tests/certs/localhost
-cd tests/certs
+cd tests/certs || exit
 "$GOPATH"/bin/minica -domains localhost -ca-cert candango.minica.pem -ca-key candango.minica.key.pem
-cd - > /dev/null
+cd - > /dev/null || exit
 echo -e " $OK_STRING"

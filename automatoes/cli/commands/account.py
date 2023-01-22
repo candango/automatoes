@@ -30,9 +30,14 @@ def account(ctx):
 @account.command(name="list", short_help="List accounts")
 @pass_context
 def account_list(ctx: AutomatoesCliContext):
+    from urllib.parse import urlparse
+    print("Id\t\t\tServer")
     for account_file in ctx.account_files:
         default_account = True if account_file == "account.json" else False
-        if default_account:
-            print("(Default Account)", end=" ")
+        # if default_account:
+        #     print("(Default Account)", end=" ")
         _account = Account.deserialize(fs.read(account_file))
-        print(_account.uri)
+        parsedurl = urlparse(_account.uri)
+        account_id = parsedurl.path.split("/")[-1]
+        account_server = "%s://%s" % (parsedurl.scheme, parsedurl.netloc)
+        print("%s\t\t%s" % (account_id, account_server))
