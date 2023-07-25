@@ -50,7 +50,7 @@ EXPIRATION_FORMAT = "%Y-%m-%d"
 
 
 def issue(server, paths, account, domains, key_size, key_file=None,
-          csr_file=None, output_path=None, must_staple=False, verbose=False):
+          csr_file=None, output_path=None, output_filename=None, must_staple=False, verbose=False):
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
         get_version()))
 
@@ -195,11 +195,12 @@ def issue(server, paths, account, domains, key_size, key_file=None,
 
         # Write the key, certificate and full chain
         os.makedirs(output_path, exist_ok=True)
-        cert_path = os.path.join(output_path, domains[0] + '.crt')
-        chain_path = os.path.join(output_path, domains[0] + '.chain.crt')
+        cert_name = output_filename if output_filename else domains[0]
+        cert_path = os.path.join(output_path, cert_name + '.crt')
+        chain_path = os.path.join(output_path, cert_name + '.chain.crt')
         intermediate_path = os.path.join(output_path,
-                                         domains[0] + '.intermediate.crt')
-        key_path = os.path.join(output_path, domains[0] + '.pem')
+                                         cert_name + '.intermediate.crt')
+        key_path = os.path.join(output_path, cert_name + '.pem')
 
         if order.key is not None:
             with open(key_path, 'wb') as f:
