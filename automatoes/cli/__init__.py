@@ -87,6 +87,7 @@ def _issue(args):
         key_file=args.key_file,
         csr_file=args.csr_file,
         output_path=args.output,
+        output_filename=args.output_filename,
         must_staple=args.ocsp_must_staple,
         verbose=verbose
     )
@@ -228,6 +229,9 @@ def manuale_main():
     issue_sub.add_argument('--output', '-o',
                        help="The output directory for created objects",
                        default='.')
+    issue_sub.add_argument('--output-filename',
+                       help="The filename base for created objects",
+                       default=None)
     issue_sub.add_argument('--ocsp-must-staple',
                        dest='ocsp_must_staple',
                        help="CSR: Request OCSP Must-Staple extension",
