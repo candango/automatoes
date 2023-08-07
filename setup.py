@@ -59,6 +59,7 @@ setup(
     url="https://github.com/candango/automatoes",
     author=automatoes.get_author(),
     author_email=automatoes.get_author_email(),
+    python_requires=">= 3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",

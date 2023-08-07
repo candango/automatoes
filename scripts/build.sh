@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Copyright 2019-2022 Flávio Gonçalves Garcia
+## Copyright 2019-2023 Flavio Garcia
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 ##
 ## build.sh    Build packages to be uploaded to pypi.
 ##
-## Author: Flavio Gonçalves Garcia <piraz@candango.org>
+## Author: Flavio Garcia <piraz@candango.org>
 
-python setup.py bdist_wheel --universal
-python setup.py sdist
+python -m build
 rm -rf build
 rm -rf automatoes.egg-info
