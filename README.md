@@ -3,7 +3,6 @@
 [![PyPI](https://img.shields.io/pypi/v/automatoes.svg)](https://pypi.org/project/automatoes/)
 [![Number of PyPI downloads](https://img.shields.io/pypi/dm/automatoes.svg)](https://pypi.org/project/automatoes/#files)
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fcandango%2Fautomatoes%2Fbadge&style=flat)](https://actions-badge.atrox.dev/candango/automatoes/goto)
-[![Requirements Status](https://requires.io/github/candango/automatoes/requirements.svg?branch=develop)](https://requires.io/github/candango/automatoes/requirements/?branch=develop)
 
 
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/)
