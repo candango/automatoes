@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+from . import get_absolute_path
+from automatoes.protocol import AcmeV2Pesant, AcmeRequestsTransport
+from tornado import testing
 
 
-TEST_ROOT = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_ROOT = os.path.abspath(os.path.join(TEST_ROOT, "fixtures"))
-PROJECT_ROOT = os.path.abspath(os.path.join(TEST_ROOT, ".."))
+class NonceTestCase(testing.AsyncTestCase):
+    """ Test letsencrypt nonce
+    """
 
-
-def get_absolute_path(directory):
-    return os.path.realpath(
-            os.path.join(os.path.dirname(__file__), directory)
-    )
+    @testing.gen_test
+    async def test_auth(self):
+        transport = AcmeRequestsTransport("https://localhost:14000")
+        protocol = AcmeV2Pesant(
+                transport,
+                directory="dir",
+                verify=get_absolute_path("certs/candango.minica.pem")
+        )
+        self.assertIsNotNone(protocol.new_nonce())

@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-#
-# Copyright 2019-2022 Flávio Gonçalves Garcia
+# Copyright 2019-2024 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,82 +13,15 @@
 # limitations under the License.
 
 from . import get_version
-from peasant import get_version as peasant_get_version
-from peasant.client import Peasant, PeasantTransport
-import requests
-from urllib.parse import urljoin, urlparse
+from peasant.client.protocol import Peasant
+from peasant.client.transport_requests import RequestsTransport
 
 
-class AcmeV2RequestsTransport(PeasantTransport):
-
-    def __init__(self):
-        super().__init__()
-        self._directory = None
-        self._user_agent = ("Automat-o-es %s Peasant %s" % (
-            get_version(), peasant_get_version()))
-
-    @property
-    def DEFAULT_HEADERS(self) -> dict:
-        return {'User-Agent': self._user_agent}
-
-    def set_directory(self):
-        response = self.get("/%s" % self.peasant.directory_path)
-        if response.status_code == 200:
-            self.peasant.directory_cache = response.json()
-        else:
-            raise Exception
-
-    def new_nonce(self):
-        """ Returns a new nonce """
-        return self.head(self.peasant.directory['newNonce'], headers={
-            'resource': "new-reg",
-            'payload': None,
-        }).headers.get('Replay-Nonce')
-
-    def get(self, path, **kwargs):
-        kwargs = self.create_kwargs(**kwargs)
-        return requests.get(self.sanatize_path(path), **kwargs)
-
-    def head(self, path, **kwargs):
-        kwargs = self.create_kwargs(**kwargs)
-        return requests.head(self.path(path), **kwargs)
-
-    def create_kwargs(self, **kwargs):
-        _headers = self.DEFAULT_HEADERS.copy()
-        headers = kwargs.get("headers")
-        if headers:
-            _headers.update(headers)
-        kwargs = {
-            'headers': _headers
-        }
-        if self.peasant.verify:
-            kwargs['verify'] = self.peasant.verify
-        return kwargs
-
-    def sanatize_path(self, path):
-        """ Handle path and make it sure the right path will be used combined
-        with the url from set to the peasant.
-        """
-        # If https is in we assume that was returned by the directory
-        if path.startswith("https"):
-            return path
-        # Make sure path is relative
-        if path.startswith("http"):
-            path = urlparse(path).path
-        url_parsed = urlparse(self.peasant.url)
-        if url_parsed.path != "":
-            url_parsed_path = url_parsed.path
-            if url_parsed_path.startswith("/"):
-                url_parsed_path = url_parsed_path[1:]
-            if path.startswith("/"):
-                path = path[1:]
-            path = "%s/%s" % (url_parsed_path, path)
-        return urljoin(self.peasant.url, path)
-
-
-class AcmeProtocol(Peasant):
+class AcmeV2Pesant(Peasant):
 
     def __init__(self, transport, **kwargs):
+        """
+        """
         super().__init__(transport)
         self._url = kwargs.get("url")
         self._account = kwargs.get("account")
@@ -121,3 +52,36 @@ class AcmeProtocol(Peasant):
     @property
     def verify(self):
         return self._verify
+
+
+class AcmeRequestsTransport(RequestsTransport):
+
+    peasant: AcmeV2Pesant
+
+    def __init__(self, bastion_address):
+        super().__init__(bastion_address)
+        self._directory = None
+        self.user_agent = (f"Automatoes/{get_version()} {self.user_agent}")
+        self.basic_headers = {
+            'User-Agent': self.user_agent
+        }
+        self.kwargs_updater = self.update_kwargs
+
+    def update_kwargs(self, method, **kwargs):
+        if self.peasant.verify:
+            kwargs['verify'] = self.peasant.verify
+        return kwargs
+
+    def set_directory(self):
+        response = self.get("/%s" % self.peasant.directory_path)
+        if response.status_code == 200:
+            self.peasant.directory_cache = response.json()
+        else:
+            raise Exception
+
+    def new_nonce(self):
+        """ Returns a new nonce """
+        return self.head(self.peasant.directory()['newNonce'], headers={
+            'resource': "new-reg",
+            'payload': None,
+        }).headers.get('Replay-Nonce')
