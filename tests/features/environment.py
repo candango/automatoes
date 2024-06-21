@@ -17,7 +17,7 @@
 # https://community.letsencrypt.org/t/staging-endpoint-for-acme-v2/49605
 from behave import fixture, use_fixture
 from automatoes.acme import AcmeV2
-from automatoes.protocol import AcmeV2Pesant, AcmeV2RequestsTransport
+from automatoes.protocol import AcmeV2Pesant, AcmeRequestsTransport
 import os
 from unittest.case import TestCase
 
@@ -32,7 +32,7 @@ def get_absolute_path(directory):
 
 @fixture
 def acme_protocol(context, timeout=1, **kwargs):
-    transport = AcmeV2RequestsTransport()
+    transport = AcmeRequestsTransport(peeble_url)
     context.acme_protocol = AcmeV2Pesant(
         transport,
         url=peeble_url,
