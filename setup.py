@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019-2021 Flavio Garcia
+# Copyright 2019-2024 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ setup(
     url="https://github.com/candango/automatoes",
     author=automatoes.get_author(),
     author_email=automatoes.get_author_email(),
-    python_requires=">= 3.7",
+    python_requires=">= 3.8",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",
@@ -68,11 +68,11 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3 :: Only",
     ],
     packages=find_packages(),
