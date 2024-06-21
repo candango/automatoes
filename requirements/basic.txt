@@ -1,3 +1,2 @@
-peasant>=0.7.3
-requests==2.31.0
-taskio==0.0.5
+peasant[requests]>=0.7.3
+taskio>=0.0.7
