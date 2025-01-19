@@ -1,2 +1,2 @@
 behave==1.2.6
-tornado==6.4.1
+tornado==6.4.2
