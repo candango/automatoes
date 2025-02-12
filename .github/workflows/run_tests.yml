@@ -35,4 +35,4 @@ jobs:
           behave tests/features
       - name: Build packages
         run: |
-          ./scripst/build.sh
+          ./scripts/build.sh
