@@ -16,18 +16,8 @@
 # limitations under the License.
 
 import automatoes
-from codecs import open
 from setuptools import find_packages, setup
-import sys
-
-try:
-    # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError:
-    # for pip <= 9.0.3
-    print("error: Upgrade to a pip version newer than 10. Run \"pip install "
-          "--upgrade pip\".")
-    sys.exit(1)
+import os
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -35,17 +25,21 @@ with open("README.md", "r") as fh:
 
 # Solution from http://bit.ly/29Yl8VN
 def resolve_requires(requirements_file):
-    try:
-        requirements = parse_requirements("./%s" % requirements_file,
-                                          session=False)
-        return [str(ir.req) for ir in requirements]
-    except AttributeError:
-        # for pip >= 20.1.x
-        # Need to run again as the first run was ruined by the exception
-        requirements = parse_requirements("./%s" % requirements_file,
-                                          session=False)
-        # pr stands for parsed_requirement
-        return [str(pr.requirement) for pr in requirements]
+    requires = []
+    if os.path.isfile(f"./{requirements_file}"):
+        file_dir = os.path.dirname(f"./{requirements_file}")
+        with open(f"./{requirements_file}") as f:
+            for raw_line in f.readlines():
+                line = raw_line.strip().replace("\n", "")
+                if len(line) > 0:
+                    if line.startswith("-r "):
+                        partial_file = os.path.join(file_dir, line.replace(
+                            "-r ", ""))
+                        partial_requires = resolve_requires(partial_file)
+                        requires = requires + partial_requires
+                        continue
+                    requires.append(line)
+    return requires
 
 
 setup(
