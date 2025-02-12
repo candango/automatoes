@@ -18,6 +18,6 @@
 ##
 ## Author: Flavio Garcia <piraz@candango.org>
 
-python -m build -n
+python -m build
 rm -rf build
 rm -rf automatoes.egg-info
