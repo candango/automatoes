@@ -413,8 +413,6 @@ class AcmeV2(Acme):
         :param order: order to be challenged
         :return: Order
         """
-        domains = [identifier['value'] for identifier in
-                   order.contents['identifiers']]
         order_challenges = []
         for auth in order.contents['authorizations']:
             auth_response = _json(self.post_as_get(auth, self.account.uri))
@@ -522,7 +520,7 @@ class AcmeV2(Acme):
         protected = self.get_headers(url=self.path(path))
         if kid:
             protected['kid'] = kid
-            protected.pop('jwk')
+            protected.pop("jwk")
         body = sign_request_v2(self.account.key, protected, body)
         kwargs = {
             'headers': _headers
@@ -539,7 +537,7 @@ class AcmeV2(Acme):
 
         protected = self.get_headers(url=self.path(path))
         protected['kid'] = kid
-        protected.pop('jwk')
+        protected.pop("jwk")
         body = sign_request_v2(self.account.key, protected, None)
         kwargs = {
             'headers': _headers

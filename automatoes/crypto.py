@@ -28,7 +28,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from cryptography import x509
-from cryptography.x509 import NameOID
+from cryptography.x509 import NameOID, DNSName, SubjectAlternativeName
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import (
@@ -97,7 +97,7 @@ def generate_header(account_key):
     numbers = account_key.public_key().public_numbers()
     e = numbers.e.to_bytes((numbers.e.bit_length() // 8 + 1), byteorder='big')
     n = numbers.n.to_bytes((numbers.n.bit_length() // 8 + 1), byteorder='big')
-    if n[0] == 0: # for strict JWK
+    if n[0] == 0:  # for strict JWK
         n = n[1:]
     return {
         'alg': 'RS256',
@@ -178,7 +178,8 @@ def export_private_key(key):
     """
     Exports a private key in OpenSSL PEM format.
     """
-    return key.private_bytes(Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption())
+    return key.private_bytes(Encoding.PEM, PrivateFormat.TraditionalOpenSSL,
+                             NoEncryption())
 
 
 def create_csr(key, domains, must_staple=False):
@@ -235,7 +236,7 @@ def get_issuer_certificate_domain_name(cert):
 
 def get_certificate_domain_name(cert):
     for ext in cert.extensions:
-        if isinstance(ext.value, SubjectAlternativeName):
+        if isinstance(ext.value, x509.SubjectAlternativeName):
             return ext.value.get_values_for_type(DNSName)[0]
 
 
