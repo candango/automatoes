@@ -228,8 +228,15 @@ def load_pem_certificate(data):
     return x509.load_pem_x509_certificate(data, default_backend())
 
 
+def get_issuer_certificate_domain_name(cert):
+    for cn in cert.subject:
+        return cn.value
+
+
 def get_certificate_domain_name(cert):
-    return cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+    for ext in cert.extensions:
+        if isinstance(ext.value, SubjectAlternativeName):
+            return ext.value.get_values_for_type(DNSName)[0]
 
 
 def get_certificate_domains(cert):

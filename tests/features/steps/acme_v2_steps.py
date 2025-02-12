@@ -18,7 +18,8 @@
 from behave import given, when, then
 from automatoes.crypto import (create_csr, generate_rsa_key,
                                strip_certificates, load_pem_certificate,
-                               get_certificate_domain_name)
+                               get_certificate_domain_name,
+                               get_issuer_certificate_domain_name)
 from automatoes.model import Account
 from cartola import security
 
@@ -169,7 +170,7 @@ def step_order_has_a_certificate_with_domain(context, what_domain):
     )
     issuer_certificate = load_pem_certificate(certificates[1])
     context.tester.assertTrue(
-        get_certificate_domain_name(
+        get_issuer_certificate_domain_name(
             issuer_certificate
         ).startswith("Pebble Intermediate CA")
     )
