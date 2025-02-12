@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Copyright 2019-2023 Flavio Garcia
+## Copyright 2019-2025 Flavio Garcia
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
 ##
 ## Author: Flavio Garcia <piraz@candango.org>
 
-python -m build
+python -m build -n
 rm -rf build
 rm -rf automatoes.egg-info

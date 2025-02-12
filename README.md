@@ -290,5 +290,5 @@ initiatives. Available under the
 This website and all documentation are licensed under
 [Creative Commons 3.0](http://creativecommons.org/licenses/by/3.0/).
 
-Copyright © 2019-2022 Flávio Gonçalves Garcia
+Copyright © 2019-2025 Flavio Garcia
 Copyright © 2016-2017 Veeti Paananen under MIT License

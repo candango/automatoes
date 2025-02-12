@@ -34,4 +34,6 @@ jobs:
           export GOPATH=~/go
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
-          ./scripts/pebble_service.sh stop tests/conf/pebble-config.json
+      - name: Build packages
+        run: |
+          ./scripst/build.sh
