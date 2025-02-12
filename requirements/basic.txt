@@ -1,2 +1,2 @@
-peasant[requests]>=0.7.4
+peasant[requests]>=0.7.5
 taskio>=0.0.7
