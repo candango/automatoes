@@ -19,7 +19,7 @@ import taskio
 
 
 @taskio.group(name="order", short_help="Group with commands related to order "
-                                       "managment")
+                                       "management")
 @pass_context
 def order(ctx):
     pass

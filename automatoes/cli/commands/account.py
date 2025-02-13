@@ -21,7 +21,7 @@ import taskio
 
 
 @taskio.group(name="account", short_help="Group with commands related to "
-                                         "account managment")
+                                         "account management")
 @pass_context
 def account(ctx):
     pass

@@ -20,7 +20,7 @@ original project and to be a direct replacement from
 Why?
 ====
 
-Bacause Let's Encrypt's point is to be automatic and seamless and ManuaLE was
+Because Let's Encrypt's point is to be automatic and seamless and ManuaLE was
 designed to be manual.
 
 Automatoes will add automatic workflows and new features to evolve ManuaLe's
