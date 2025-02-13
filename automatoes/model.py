@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright 2019-2022 Flávio Gonçalves Garcia
+# Copyright 2019-2025 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +18,7 @@ import json
 
 from .crypto import (generate_jwk_thumbprint, load_private_key,
                      export_private_key)
+from collections import namedtuple
 from datetime import datetime
 
 
@@ -141,3 +140,9 @@ class Order:
             return order
         except (TypeError, ValueError, AttributeError) as e:
             raise IOError("Invalid account structure: {}".format(e))
+
+
+RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
+NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
+IssuanceResult = namedtuple("IssuanceResult",
+                            "certificate location intermediate")

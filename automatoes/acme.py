@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright 2019-2020 Flavio Garcia
+# Copyright 2019-2025 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +17,13 @@
 ACME API client.
 """
 
-from . import get_version
-from .crypto import (export_certificate_for_acme, generate_header, jose_b64,
-                     sign_request, sign_request_v2)
-from .errors import AccountAlreadyExistsError, AcmeError
-from .model import Order, Challenge
-from collections import namedtuple
+from automatoes import get_version
+from automatoes.crypto import (export_certificate_for_acme, generate_header,
+                               jose_b64, sign_request, sign_request_v2)
+from automatoes.errors import AccountAlreadyExistsError, AcmeError
+from automatoes.model import (Challenge, IssuanceResult,
+                              NewAuthorizationResult, Order,
+                              RegistrationResult)
 import copy
 import datetime
 import hashlib
@@ -239,12 +238,6 @@ class Acme:
                 path = path[1:]
             path = "%s/%s" % (url_parsed_path, path)
         return urljoin(self.url, path)
-
-
-RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
-NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
-IssuanceResult = namedtuple("IssuanceResult",
-                            "certificate location intermediate")
 
 
 class AcmeV2(Acme):
