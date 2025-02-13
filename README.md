@@ -44,7 +44,7 @@ still bring your own keys and/or CSR's. Everybody wins.
 
 ## Installation
 
-Python 3.6 or above is required.
+Python 3.9 or above is required.
 
 ### Using your package manager
 
