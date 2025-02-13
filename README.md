@@ -15,7 +15,7 @@ original project and to be a direct replacement from
 
 ## Why?
 
-Bacause Let's Encrypt's point is to be automatic and seamless and ManuaLE was
+Because Let's Encrypt's point is to be automatic and seamless and ManuaLE was
 designed to be manual.
 
 Automatoes will add automatic workflows and new features to evolve ManuaLe's
@@ -199,7 +199,7 @@ this one will be deleted, and a new order will be created.
 > 1. /acme/cert/<cert_id> is called, and we place keys like we use to do before
 > 1. we're done!
 
-* If you try to issue certificates for a domain sequence and an oder is pending
+* If you try to issue certificates for a domain sequence and an order is pending
 or invalid, automatoes will ask you to run authorize before.
 
 After authorizing a domain sequence you need run issue with the same domain

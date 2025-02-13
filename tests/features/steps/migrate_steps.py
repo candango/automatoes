@@ -28,7 +28,7 @@ from tests.features.steps.environment_steps import (create_file,
 
 
 def key_int_to_data(value: int) -> str:
-    """ This is the invertion of what happens inside
+    """ This is the inversion of what happens inside
     automatoes.crypto.certbot_key_data_to_int
     """
     hex_value = hex(value).replace("0x", "")
