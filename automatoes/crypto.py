@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-#
-# Copyright 2019-2023 Flávio Gonçalves Garcia
+# Copyright 2019-2025 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +26,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from cryptography import x509
-from cryptography.x509 import NameOID, DNSName, SubjectAlternativeName
+from cryptography.x509 import NameOID, DNSName
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import (
@@ -88,6 +86,13 @@ def certbot_key_data_to_int(key_data: dict) -> dict:
     for key, value in key_data.items():
         key_data_int[key] = int(data_to_hex(value.encode()), 16)
     return key_data_int
+
+
+def generate_ari_data(cert):
+    aki_b64 = base64.urlsafe_b64encode(get_certificate_aki(cert).encode())
+    serial_b64 = base64.urlsafe_b64encode(
+            get_certificate_serial(cert).encode())
+    return f"{aki_b64}.{serial_b64}"
 
 
 def generate_header(account_key):
@@ -232,6 +237,18 @@ def load_pem_certificate(data):
 def get_issuer_certificate_domain_name(cert):
     for cn in cert.subject:
         return cn.value
+
+
+def get_certificate_aki(cert):
+    for ext in cert.extensions:
+        if isinstance(ext.value, x509.AuthorityKeyIdentifier):
+            hex = ext.value.key_identifier.hex()
+            return ":".join(hex[i:i+2] for i in range(0, len(hex), 2))
+
+
+def get_certificate_serial(cert):
+    hex = format(cert.serial_number, "x")
+    return ":".join(hex[i:i+2] for i in range(0, len(hex), 2))
 
 
 def get_certificate_domain_name(cert):
