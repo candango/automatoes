@@ -21,11 +21,7 @@ import base64
 import binascii
 import json
 import logging
-# TODO: Remove that after python 3.5 depreciation
-import warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    from cryptography import x509
+from cryptography import x509
 from cryptography.x509 import NameOID, DNSName
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
