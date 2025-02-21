@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright 2019 Flavio Garcia
+# Copyright 2019-2025 Flavio Garcia
 # Copyright 2016-2017 Veeti Paananen under MIT License
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +23,8 @@ class AcmeError(IOError):
         try:
             details = response.json()
             self.type = details.get('type', 'unknown')
-            message = "{} (type {}, HTTP {})".format(details.get('detail'),
-                    self.type, response.status_code)
+            message = (f"{details.get('detail')} (type {self.type}, HTTP "
+                       f"{response.status_code})")
         except (ValueError, TypeError, AttributeError):
             pass
         super().__init__(message)

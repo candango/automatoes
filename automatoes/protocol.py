@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Flavio Garcia
+# Copyright 2019-2025 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import get_version
+from automatoes import get_version
+from automatoes.errors import AccountAlreadyExistsError, AcmeError
+from automatoes.model import Account, RegistrationResult
+
 from peasant.client.protocol import Peasant
+from peasant.client.transport import METHOD_POST
 from peasant.client.transport_requests import RequestsTransport
 
 
@@ -23,23 +27,8 @@ class AcmeV2Pesant(Peasant):
         """
         """
         super().__init__(transport)
-        self._url = kwargs.get("url")
-        self._account = kwargs.get("account")
         self._directory_path = kwargs.get("directory", "directory")
         self._verify = kwargs.get("verify")
-
-    @property
-    def url(self):
-        return self._url
-
-    @property
-    def account(self):
-        return self.account
-
-    @account.setter
-    def account(self, account):
-        # TODO: Throw an error right here if account is None
-        self._account = account
 
     @property
     def directory_path(self):
@@ -80,8 +69,44 @@ class AcmeRequestsTransport(RequestsTransport):
             raise Exception
 
     def new_nonce(self):
-        """ Returns a new nonce """
+        """ Return a new nonce """
         return self.head(self.peasant.directory()['newNonce'], headers={
             'resource': "new-reg",
             'payload': None,
         }).headers.get('Replay-Nonce')
+
+    def new_account(self, account: Account, contacts: list,
+                    terms_agreed: bool = False):
+        """ Create a new account in the Acme Server """
+        payload = {
+           "termsOfServiceAgreed": terms_agreed,
+           "contact": [f"mailto:{contact}" for contact in contacts],
+        }
+        response = self.post(
+            self.peasant.directory()['newAccount'],
+            payload
+        )
+
+        uri = response.headers.get("Location")
+
+        if response.status_code == 201:
+            self.account.uri = uri
+
+            # Find terms of service from link headers
+            terms = self.terms_from_directory()
+
+            return RegistrationResult(
+                contents=_json(response),
+                uri=uri,
+                terms=terms
+            )
+        elif response.status_code == 409:
+            raise AccountAlreadyExistsError(response, uri)
+        raise AcmeError(response)
+
+
+def _json(response):
+    try:
+        return response.json()
+    except ValueError as e:
+        raise AcmeError("Invalid JSON response. {}".format(e))

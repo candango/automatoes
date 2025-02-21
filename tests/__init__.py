@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Flavio Garcia
+# Copyright 2019-2025 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from automatoes.protocol import AcmeV2Pesant, AcmeRequestsTransport
 import os
 
 
 TEST_ROOT = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_ROOT = os.path.abspath(os.path.join(TEST_ROOT, "fixtures"))
 PROJECT_ROOT = os.path.abspath(os.path.join(TEST_ROOT, ".."))
+
+PEEBLE_URL = "https://localhost:14000"
+
+
+def get_transport() -> AcmeRequestsTransport:
+    return AcmeRequestsTransport(PEEBLE_URL)
+
+
+def get_protocol(transport: AcmeRequestsTransport = None) -> AcmeV2Pesant:
+    if transport is None:
+        transport = get_transport()
+    return AcmeV2Pesant(
+        transport,
+        directory="dir",
+        verify=get_absolute_path("certs/candango.minica.pem")
+    )
 
 
 def get_absolute_path(directory):

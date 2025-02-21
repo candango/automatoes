@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Flavio Garcia
+# Copyright 2019-2025 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import get_absolute_path
-from automatoes.protocol import AcmeV2Pesant, AcmeRequestsTransport
+from tests import get_protocol, get_transport
 from tornado import testing
 
 
@@ -22,11 +21,7 @@ class NonceTestCase(testing.AsyncTestCase):
     """
 
     @testing.gen_test
-    async def test_auth(self):
-        transport = AcmeRequestsTransport("https://localhost:14000")
-        protocol = AcmeV2Pesant(
-                transport,
-                directory="dir",
-                verify=get_absolute_path("certs/candango.minica.pem")
-        )
+    async def test_nonce(self):
+        protocol = get_protocol(get_transport())
+        print(protocol.new_nonce())
         self.assertIsNotNone(protocol.new_nonce())
