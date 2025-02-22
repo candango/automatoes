@@ -91,6 +91,27 @@ def generate_ari_data(cert):
     return f"{aki_b64}.{serial_b64}"
 
 
+# TODO: accept new kinds of encryption
+def generate_protected_header(account_key):
+    """
+    Creates a new request header for the specified account key.
+    """
+    numbers = account_key.public_key().public_numbers()
+    e = numbers.e.to_bytes((numbers.e.bit_length() // 8 + 1), byteorder='big')
+    n = numbers.n.to_bytes((numbers.n.bit_length() // 8 + 1), byteorder='big')
+    if n[0] == 0:  # for strict JWK
+        n = n[1:]
+    return {
+        'alg': 'RS256',
+        'jwk': {
+            'kty': 'RSA',
+            'e': jose_b64(e),
+            'n': jose_b64(n),
+        },
+    }
+
+
+# TODO: Remove this function after acme to peasant migration
 def generate_header(account_key):
     """
     Creates a new request header for the specified account key.
@@ -141,6 +162,7 @@ def sign_request(key, header, protected_header, payload):
     })
 
 
+# TODO: we need to accept other forms of encryption over here!!!
 def sign_request_v2(key, protected_header, payload):
     """
     Creates a JSON Web Signature for the request header and payload using the

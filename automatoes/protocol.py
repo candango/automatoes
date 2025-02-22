@@ -54,12 +54,57 @@ class AcmeRequestsTransport(RequestsTransport):
         self.basic_headers = {
             'User-Agent': self.user_agent
         }
-        self.kwargs_updater = self.update_kwargs
+        self.kwargs_updater = self.__kwargs_updater
 
-    def update_kwargs(self, method, **kwargs):
+    def __kwargs_updater(self, method, **kwargs):
+        if method == METHOD_POST:
+            kid = None
+            if "kid" in kwargs:
+                kid = kwargs.pop("kid")
+            key = None
+            if "key" in kwargs:
+                key = kwargs.pop("key")
+            uri = None
+            if "uri" in kwargs:
+                uri = kwargs.pop("uri")
+            protected = self.get_protected_headers(key, uri=uri)
+            if kid:
+                protected['kid'] = kid
+                protected.pop("jwk")
+            data = kwargs.get("data")
+            if data:
+                kwargs['data'] = sign_request_v2(key, protected, data)
         if self.peasant.verify:
             kwargs['verify'] = self.peasant.verify
         return kwargs
+
+    def get_protected_headers(self, key, uri=None):
+        """
+        Builds a new pair of headers for signed requests.
+        """
+        header = generate_protected_header(key)
+        protected_header = copy.deepcopy(header)
+        protected_header['nonce'] = self.new_nonce()
+        if uri is not None:
+            protected_header['url'] = uri
+        return protected_header
+
+    def post_as_get(self, path, **kwargs):
+        """Send a POST request.
+
+        :param path: absolute or relative URL for the new
+        :class:`requests.Request` object.
+        :param **kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`requests.Response <Response>` object
+        :rtype: requests.Response
+        """
+        url = self.get_url(path, **kwargs)
+        headers = self.get_headers(**kwargs)
+        kwargs['headers'] = headers
+        kwargs = self.update_kwargs(METHOD_POST, **kwargs)
+        with requests.post(url, **kwargs) as result:
+            result.raise_for_status()
+        return result
 
     def set_directory(self):
         response = self.get("/%s" % self.peasant.directory_path)
