@@ -18,16 +18,16 @@
 """
 The command line interface.
 """
-from .. import get_version, messages
-from ..authorize import authorize
-from ..issue import issue
-from ..info import info
-from ..migrate import migrate
-from ..model import Account
-from ..register import register
-from ..revoke import revoke
-from ..upgrade import upgrade
-from ..errors import AutomatoesError
+from automatoes import get_version, messages
+from automatoes.authorize import authorize
+from automatoes.issue import issue
+from automatoes.info import info
+from automatoes.migrate import migrate
+from automatoes.model import Account
+from automatoes.register import register
+from automatoes.revoke import revoke
+from automatoes.upgrade import upgrade
+from automatoes.errors import AutomatoesError
 
 import argparse
 from cartola import sysexits

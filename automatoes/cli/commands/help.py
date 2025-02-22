@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..automatoes import AutomatoesCliContext, pass_context
+from automatoes.cli.cli import AutomatoesCliContext, pass_context
 import click
 
 

@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-#
-# Copyright 2019-2023 Flávio Gonçalves Garcia
+# Copyright 2019-2024 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import DEFAULT_ACCOUNT_PATH, LETS_ENCRYPT_PRODUCTION
-from . import load_account
-from .. import messages
-from ..errors import AutomatoesError
+from automatoes.cli import DEFAULT_ACCOUNT_PATH, LETS_ENCRYPT_PRODUCTION
+from automatoes.cli import load_account
+from automatoes import messages
+from automatoes.errors import AutomatoesError
 
 from cartola import config, sysexits
 import click
@@ -53,9 +51,10 @@ class AutomatoesCliContext(TaskioCliContext):
 
 pass_context = click.make_pass_decorator(AutomatoesCliContext,
                                          ensure=True)
+config = config.load_yaml_file(AUTOMATOES_CONFIG_FILE)
 
 
-@taskio.root(taskio_conf=config.load_yaml_file(AUTOMATOES_CONFIG_FILE))
+@taskio.root(root="taskio", taskio_conf=config)
 @click.option("-a", "--account", help=messages.OPTION_ACCOUNT_HELP,
               default=DEFAULT_ACCOUNT_PATH, show_default=True)
 @click.option("-s", "--server", help=messages.OPTION_SERVER_HELP,

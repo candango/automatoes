@@ -1,6 +1,6 @@
 taskio:
   program:
-    name: automatoes
+    name: Candango Automatoes
     version: automatoes.get_version
   sources:
     - automatoes.cli.commands.account
