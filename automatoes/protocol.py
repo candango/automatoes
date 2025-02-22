@@ -13,12 +13,17 @@
 # limitations under the License.
 
 from automatoes import get_version
+from automatoes.crypto import generate_protected_header, sign_request_v2
 from automatoes.errors import AccountAlreadyExistsError, AcmeError
 from automatoes.model import Account, RegistrationResult
+
+import copy
 
 from peasant.client.protocol import Peasant
 from peasant.client.transport import METHOD_POST
 from peasant.client.transport_requests import RequestsTransport
+
+import requests
 
 
 class AcmeV2Pesant(Peasant):
@@ -41,6 +46,13 @@ class AcmeV2Pesant(Peasant):
     @property
     def verify(self):
         return self._verify
+
+    def get_registration(self, account: Account):
+        return self.transport.get_registration(account)
+
+    def new_account(self, account: Account, contacts: list,
+                    terms_agreed: bool = False) -> RegistrationResult:
+        return self.transport.new_account(account, contacts, terms_agreed)
 
 
 class AcmeRequestsTransport(RequestsTransport):
@@ -113,6 +125,18 @@ class AcmeRequestsTransport(RequestsTransport):
         else:
             raise Exception
 
+    def get_registration(self, account: Account):
+        """
+        Get available account information from the server.
+        """
+        headers = {'Content-Type': "application/jose+json"}
+        response = self.post_as_get(account.uri, headers=headers,
+                                    kid=self.account.uri,
+                                    key=account.key, uri=account.uri)
+        if str(response.status_code).startswith("2"):
+            return _json(response)
+        raise AcmeError(response)
+
     def new_nonce(self):
         """ Return a new nonce """
         return self.head(self.peasant.directory()['newNonce'], headers={
@@ -120,26 +144,24 @@ class AcmeRequestsTransport(RequestsTransport):
             'payload': None,
         }).headers.get('Replay-Nonce')
 
+    # TODO: Document that this method used to be called register
     def new_account(self, account: Account, contacts: list,
-                    terms_agreed: bool = False):
+                    terms_agreed: bool = False) -> RegistrationResult:
         """ Create a new account in the Acme Server """
         payload = {
            "termsOfServiceAgreed": terms_agreed,
            "contact": [f"mailto:{contact}" for contact in contacts],
         }
-        response = self.post(
-            self.peasant.directory()['newAccount'],
-            payload
-        )
+        headers = {'Content-Type': "application/jose+json"}
+        path = self.peasant.directory()['newAccount']
+        response = self.post_as_get(path, data=payload, headers=headers,
+                                    key=account.key, uri=path)
 
         uri = response.headers.get("Location")
 
         if response.status_code == 201:
-            self.account.uri = uri
-
             # Find terms of service from link headers
             terms = self.terms_from_directory()
-
             return RegistrationResult(
                 contents=_json(response),
                 uri=uri,
@@ -148,6 +170,14 @@ class AcmeRequestsTransport(RequestsTransport):
         elif response.status_code == 409:
             raise AccountAlreadyExistsError(response, uri)
         raise AcmeError(response)
+
+    def terms_from_directory(self):
+        response = self.get_directory()
+        if response.status_code == 200:
+            if "meta" in response.json():
+                if "termsOfService" in response.json()['meta']:
+                    return response.json()['meta']['termsOfService']
+        return None
 
 
 def _json(response):
