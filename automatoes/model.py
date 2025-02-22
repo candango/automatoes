@@ -24,13 +24,18 @@ from datetime import datetime
 
 class Account:
 
-    def __init__(self, key, uri=None):
+    def __init__(self, key, **kwargs):
+        self.contact = kwargs.get("contact")
+        self.orders = kwargs.get("orders")
+        # TODO: Maybe store the key format
         self.key = key
-        self.uri = uri
+        self.uri = kwargs.get("uri")
 
     def serialize(self):
         return json.dumps({
+            'contact': self.contact,
             'key': export_private_key(self.key).decode("utf-8"),
+            'orders': self.orders,
             'uri': self.uri,
         }).encode("utf-8")
 
@@ -46,8 +51,17 @@ class Account:
             data = json.loads(data)
             if "key" not in data or "uri" not in data:
                 raise ValueError("Missing 'key' or 'uri' fields.")
-            return Account(key=load_private_key(data['key'].encode("utf8")),
-                           uri=data['uri'])
+            if "contact" in data:
+                raise ValueError("Missing 'key' or 'uri' fields.")
+            account = Account(key=load_private_key(data['key'].encode("utf8")),
+                              uri=data['uri'])
+            # TODO: Check how to deal with this after migration from 0.9.x to
+            # 1.x finishes
+            if "contact" in data:
+                account.contact = data['contact']
+            if "orders" in data:
+                account.orders = data['orders']
+            return account
         except (TypeError, ValueError, AttributeError) as e:
             raise IOError("Invalid account structure: {}".format(e))
 
@@ -142,7 +156,9 @@ class Order:
             raise IOError("Invalid account structure: {}".format(e))
 
 
-RegistrationResult = namedtuple("RegistrationResult", "contents uri terms")
+AccountResponse = namedtuple("AccountResponse", "orders status terms")
+RegistrationResponse = namedtuple("RegistrationResponse",
+                                  "contact orders status")
 NewAuthorizationResult = namedtuple("NewAuthorizationResult", "contents uri")
 IssuanceResult = namedtuple("IssuanceResult",
                             "certificate location intermediate")
