@@ -23,7 +23,7 @@ from automatoes.crypto import (export_certificate_for_acme, generate_header,
 from automatoes.errors import AccountAlreadyExistsError, AcmeError
 from automatoes.model import (Challenge, IssuanceResult,
                               NewAuthorizationResult, Order,
-                              RegistrationResult)
+                              RegistrationResponse)
 import copy
 import datetime
 import hashlib
@@ -94,7 +94,7 @@ class Acme:
             # Find terms of service from link headers
             terms = response.links.get("terms-of-service")
 
-            return RegistrationResult(
+            return RegistrationResponse(
                 contents=_json(response),
                 uri=uri,
                 terms=(terms['url'] if terms else None)
@@ -343,7 +343,7 @@ class AcmeV2(Acme):
             # Find terms of service from link headers
             terms = self.terms_from_directory()
 
-            return RegistrationResult(
+            return RegistrationResponse(
                 contents=_json(response),
                 uri=uri,
                 terms=terms

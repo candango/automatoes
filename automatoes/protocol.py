@@ -23,6 +23,7 @@ from peasant.client.protocol import Peasant
 from peasant.client.transport import METHOD_POST
 from peasant.client.transport_requests import RequestsTransport
 
+import requests
 import warnings
 
 
