@@ -36,9 +36,6 @@ def info(server, account, paths):
     try:
         print("Requesting account data...\n")
         response = acme_v2.get_registration()
-        print("  Account contacts:")
-        for contact in response['contact']:
-            print("    {}".format(contact[7:]))
         print("\n  Account uri is located at %s." % account.uri)
         print("  Account id is %s.\n" % account.uri.split("/")[-1])
         if "createdAt" in response:
