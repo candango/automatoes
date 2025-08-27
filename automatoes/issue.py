@@ -188,7 +188,7 @@ def issue(server, paths, account, domains, key_size, key_file=None,
         certificate = load_pem_certificate(certificates[0])
 
         # Print some neat info
-        print("  Expires: {}".format(certificate.not_valid_after.strftime(
+        print("  Expires: {}".format(certificate.not_valid_after_utc.strftime(
             EXPIRATION_FORMAT)))
         print("   SHA256: {}".format(binascii.hexlify(
             certificate.fingerprint(SHA256())).decode('ascii')))
