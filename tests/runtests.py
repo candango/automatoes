@@ -15,13 +15,14 @@
 # limitations under the License.
 
 import unittest
-from tests import crypto_test
+from tests import crypto_test, issue_test
 
 
 def suite():
     testLoader = unittest.TestLoader()
     alltests = unittest.TestSuite()
     alltests.addTests(testLoader.loadTestsFromModule(crypto_test))
+    alltests.addTests(testLoader.loadTestsFromModule(issue_test))
     return alltests
 
 
