@@ -26,7 +26,6 @@ from automatoes.issue import EXPIRATION_FORMAT
 
 
 class IssueTestCase(unittest.TestCase):
-
     def test_certificate_expiration_uses_utc_property(self):
         """Test that certificate expiration formatting uses
         not_valid_after_utc."""
@@ -36,28 +35,32 @@ class IssueTestCase(unittest.TestCase):
             key_size=2048,
         )
 
-        subject = issuer = x509.Name([
-            x509.NameAttribute(x509.NameOID.COUNTRY_NAME, 'US'),
-            x509.NameAttribute(x509.NameOID.COMMON_NAME, 'test.example.com'),
-        ])
+        subject = issuer = x509.Name(
+            [
+                x509.NameAttribute(x509.NameOID.COUNTRY_NAME, "US"),
+                x509.NameAttribute(
+                    x509.NameOID.COMMON_NAME,
+                    "test.example.com",
+                ),
+            ]
+        )
 
+        next_year = datetime.datetime.now(datetime.timezone.utc).year + 1
         # Create expiration date in UTC
         expiration_date = datetime.datetime(
-                2025, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc)
+            next_year, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc
+        )
 
-        cert = x509.CertificateBuilder().subject_name(
-            subject
-        ).issuer_name(
-            issuer
-        ).public_key(
-            private_key.public_key()
-        ).serial_number(
-            x509.random_serial_number()
-        ).not_valid_before(
-            datetime.datetime.now()
-        ).not_valid_after(
-            expiration_date
-        ).sign(private_key, hashes.SHA256())
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(private_key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.datetime.now())
+            .not_valid_after(expiration_date)
+            .sign(private_key, hashes.SHA256())
+        )
 
         # Test that not_valid_after_utc returns UTC-aware datetime
         self.assertIsNotNone(cert.not_valid_after_utc)
@@ -65,8 +68,9 @@ class IssueTestCase(unittest.TestCase):
 
         # Test that formatting works correctly with not_valid_after_utc
         formatted_expiration = cert.not_valid_after_utc.strftime(
-                EXPIRATION_FORMAT)
-        self.assertEqual(formatted_expiration, "2025-12-31")
+            EXPIRATION_FORMAT,
+        )
+        self.assertEqual(formatted_expiration, f"{next_year}-12-31")
 
         # Test that not_valid_after (deprecated) produces warnings
         with warnings.catch_warnings(record=True) as w:
@@ -74,5 +78,7 @@ class IssueTestCase(unittest.TestCase):
             _ = cert.not_valid_after
             # Check that a deprecation warning was issued
             self.assertTrue(len(w) > 0)
-            self.assertTrue(any(
-                "deprecated" in str(warning.message).lower() for warning in w))
+            deprecation_warning_found = any(
+                "deprecated" in str(warning.message).lower() for warning in w
+            )
+            self.assertTrue(deprecation_warning_found)
