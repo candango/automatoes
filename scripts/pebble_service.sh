@@ -31,8 +31,14 @@ SCRIPT_NAME=$(basename "$0")
 
 SCRIPT_OK=0
 SCRIPT_ERROR=1
-PEEBLE_CMD=$GOPATH/bin/pebble
-PEEBLE_SERVICE_URL="https://localhost:14000"
+GOPATH=${GOPATH:-$HOME/go}
+PEBBLE_CMD=$GOPATH/bin/pebble
+PEBBLE_SERVICE_URL="https://localhost:14000"
+PEBBLE_LOG_FILE="/tmp/automatoes-pebble.log"
+PEBBLE_START_TIMEOUT=${PEBBLE_START_TIMEOUT:-30}
+PEBBLE_CERT_PATH="$SCRIPT_PATH/../tests/certs/localhost/cert.pem"
+PEBBLE_CA_CERT_PATH="$SCRIPT_PATH/../tests/certs/candango.minica.pem"
+PEBBLE_CA_KEY_PATH="$SCRIPT_PATH/../tests/certs/candango.minica.key.pem"
 
 OK_STRING="[ \033[32mOK\033[37m ]"
 
@@ -59,6 +65,30 @@ EOF
     exit $SCRIPT_ERROR
 }
 
+renew_pebble_certificate_if_needed()
+{
+    if [ -f "$PEBBLE_CERT_PATH" ] && \
+       openssl x509 -checkend 86400 -noout \
+           -in "$PEBBLE_CERT_PATH" >/dev/null 2>&1
+    then
+        return $SCRIPT_OK
+    fi
+
+    if [ ! -x "$GOPATH/bin/minica" ]; then
+        send_error "minica not found at $GOPATH/bin/minica. Run scripts/install_pebble.sh."
+    fi
+
+    echo "* Renewing Pebble localhost certificate"
+    rm -rf "$SCRIPT_PATH/../tests/certs/localhost"
+    (
+        cd "$SCRIPT_PATH/../tests/certs" || exit $SCRIPT_ERROR
+        "$GOPATH/bin/minica" \
+            -domains localhost \
+            -ca-cert "$(basename "$PEBBLE_CA_CERT_PATH")" \
+            -ca-key "$(basename "$PEBBLE_CA_KEY_PATH")"
+    ) || return $SCRIPT_ERROR
+}
+
 is_running()
 {
     for out in $(ps aux | grep "$2" | $AWK_CMD '{print $11";"$2}')
@@ -74,6 +104,9 @@ is_running()
 
 start_pebble()
 {
+    renew_pebble_certificate_if_needed || return $SCRIPT_ERROR
+
+    export PEBBLE_AUTHZREUSE=0
     export PEBBLE_WFE_NONCEREJECT=0
     export PEBBLE_VA_ALWAYS_VALID=1
     export PEBBLE_VA_NOSLEEP=1
@@ -82,14 +115,24 @@ start_pebble()
     echo "* Candango automatoes Pebble Server Start Process"
     echo "* Config File: $2"
     echo "*"
+    echo "* Log File: $PEBBLE_LOG_FILE"
     echo -n "* Starting Pebble Server "
-    nohup $PEEBLE_CMD -config $2 >/dev/null 2>&1 &
-    RETVAL=$(curl --cacert "$SCRIPT_PATH/../tests/certs/candango.minica.pem" --write-out %{http_code} --silent --output /dev/null "$PEEBLE_SERVICE_URL/dir" | tr -d ' ')
-    while [ $RETVAL -ne 200 ]
+    nohup "$PEBBLE_CMD" -strict=false -config "$2" >"$PEBBLE_LOG_FILE" 2>&1 &
+    RETVAL=$(curl --cacert "$PEBBLE_CA_CERT_PATH" --write-out %{http_code} --silent --output /dev/null "$PEBBLE_SERVICE_URL/dir" | tr -d ' ')
+    WAITED=0
+    while [ "$RETVAL" -ne 200 ]
     do
+        if [ "$WAITED" -ge "$PEBBLE_START_TIMEOUT" ]; then
+            echo ""
+            echo "* Pebble failed to start after $PEBBLE_START_TIMEOUT seconds."
+            echo "* Last Pebble log output:"
+            tail -50 "$PEBBLE_LOG_FILE" >&2
+            return $SCRIPT_ERROR
+        fi
         sleep 1
+        WAITED=$((WAITED + 1))
         echo -n "."
-        RETVAL=$(curl --cacert "$SCRIPT_PATH/../tests/certs/candango.minica.pem" --write-out %{http_code} --silent --output /dev/null "$PEEBLE_SERVICE_URL/dir" | tr -d ' ')
+        RETVAL=$(curl --cacert "$PEBBLE_CA_CERT_PATH" --write-out %{http_code} --silent --output /dev/null "$PEBBLE_SERVICE_URL/dir" | tr -d ' ')
     done
     echo -e " $OK_STRING"
     echo "*************************************************************************************************"
