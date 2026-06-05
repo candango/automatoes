@@ -448,11 +448,13 @@ class AcmeV2(Acme):
                                    {'Host': host},
                                    kid=self.account.uri))
         retries = 0
-        while response['status'] == "pending":
-            if retries < retry_limit:
-                time.sleep(timeout)
-                response = _json(self.post_as_get(challenge.contents['url'],
-                                                  kid=self.account.uri))
+        while response['status'] in ["pending", "processing"]:
+            if retries >= retry_limit:
+                break
+            time.sleep(timeout)
+            response = _json(self.post_as_get(challenge.contents['url'],
+                                              kid=self.account.uri))
+            retries += 1
         return response
 
     def finalize_order(self, order: Order, csr):

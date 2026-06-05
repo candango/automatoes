@@ -111,7 +111,7 @@ def step_we_verify_challenges_from_order_for_domain_by_type(
         if challenge.domain == what_domain:
             challenge_response = context.acme_v2.verify_order_challenge(
                 challenge, 1)
-            context.tester.assertEqual('processing',
+            context.tester.assertEqual('valid',
                                        challenge_response['status'])
 
 
