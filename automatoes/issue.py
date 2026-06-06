@@ -49,6 +49,18 @@ logger = logging.getLogger(__name__)
 EXPIRATION_FORMAT = "%Y-%m-%d"
 
 
+def write_certificates(file_object, certificates):
+    """Write PEM certificates to a binary file object.
+
+    The ACME certificate response contains the leaf certificate followed by
+    zero or more intermediate certificates. Callers choose whether to pass the
+    full chain or only the intermediate slice.
+    """
+    for certificate in certificates:
+        file_object.write(export_pem_certificate(load_pem_certificate(
+            certificate)))
+
+
 def issue(server, paths, account, domains, key_size, key_file=None,
           csr_file=None, output_path=None, output_filename=None, must_staple=False, verbose=False):
     print("Candango Automatoes {}. Manuale replacement.\n\n".format(
@@ -213,17 +225,13 @@ def issue(server, paths, account, domains, key_size, key_file=None,
             print("  Wrote certificate to {}".format(f.name))
 
         with open(chain_path, 'wb') as f:
-            f.write(export_pem_certificate(certificate))
-            if len(certificates) > 1:
-                f.write(export_pem_certificate(load_pem_certificate(
-                    certificates[1])))
-            print("  Wrote certificate with intermediate to {}".format(f.name))
+            write_certificates(f, certificates)
+            print("  Wrote certificate chain to {}".format(f.name))
 
         if len(certificates) > 1:
             with open(intermediate_path, 'wb') as f:
-                f.write(export_pem_certificate(load_pem_certificate(
-                    certificates[1])))
-                print("  Wrote intermediate certificate to {}".format(f.name))
+                write_certificates(f, certificates[1:])
+                print("  Wrote intermediate certificates to {}".format(f.name))
     except IOError as e:
         print("  ERROR: Failed to write certificate or key. Going to print "
               "them for you instead.")

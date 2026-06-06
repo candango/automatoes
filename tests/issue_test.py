@@ -20,12 +20,62 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 import datetime
+from io import BytesIO
 import warnings
 
-from automatoes.issue import EXPIRATION_FORMAT
+from automatoes.crypto import export_pem_certificate
+from automatoes.issue import EXPIRATION_FORMAT, write_certificates
+
+
+def create_test_certificate(common_name):
+    """Create a self-signed certificate for issue unit tests."""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    subject = issuer = x509.Name(
+        [
+            x509.NameAttribute(x509.NameOID.COUNTRY_NAME, "US"),
+            x509.NameAttribute(x509.NameOID.COMMON_NAME, common_name),
+        ]
+    )
+    now = datetime.datetime.now(datetime.timezone.utc)
+    return (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(issuer)
+        .public_key(private_key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now)
+        .not_valid_after(now + datetime.timedelta(days=30))
+        .sign(private_key, hashes.SHA256())
+    )
 
 
 class IssueTestCase(unittest.TestCase):
+    def test_write_certificates_writes_all_pem_blocks(self):
+        certificates = [
+            export_pem_certificate(create_test_certificate("leaf.test")),
+            export_pem_certificate(create_test_certificate("intermediate-1")),
+            export_pem_certificate(create_test_certificate("intermediate-2")),
+        ]
+        chain_output = BytesIO()
+        intermediate_output = BytesIO()
+
+        write_certificates(chain_output, certificates)
+        write_certificates(intermediate_output, certificates[1:])
+
+        self.assertEqual(
+            3,
+            chain_output.getvalue().count(b"-----BEGIN CERTIFICATE-----"),
+        )
+        self.assertEqual(
+            2,
+            intermediate_output.getvalue().count(
+                b"-----BEGIN CERTIFICATE-----",
+            ),
+        )
+
     def test_certificate_expiration_uses_utc_property(self):
         """Test that certificate expiration formatting uses
         not_valid_after_utc."""
