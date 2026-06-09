@@ -17,7 +17,7 @@
 
 __author__ = "Flavio Garcia <piraz@candango.org>"
 
-__version__ = (0, 9, 15, "a1")
+__version__ = (0, 9, 15)
 
 __licence__ = "Apache License V2.0"
 
