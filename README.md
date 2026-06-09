@@ -2,8 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/automatoes.svg)](https://pypi.org/project/automatoes/)
 [![Number of PyPI downloads](https://img.shields.io/pypi/dm/automatoes.svg)](https://pypi.org/project/automatoes/#files)
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fcandango%2Fautomatoes%2Fbadge&style=flat)](https://actions-badge.atrox.dev/candango/automatoes/goto)
-
+[![Build Status](https://github.com/candango/automatoes/actions/workflows/run_tests.yml/badge.svg)](https://github.com/candango/automatoes/actions/workflows/run_tests.yml)
 
 Automatoes is a [Let's Encrypt](https://letsencrypt.org)/[ACME](https://github.com/ietf-wg-acme/acme/)
 client for advanced users and developers. It is intended to be used by anyone
