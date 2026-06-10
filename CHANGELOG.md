@@ -187,7 +187,7 @@ Here are the highlights:
 
 We are pleased to announce the release of Automatoes 0.0.0.1.
 
-Candango Automatoes initial rlease.
+Candango Automatoes initial release.
 
 ## Bugs
 
