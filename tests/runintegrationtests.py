@@ -1,4 +1,6 @@
-# Copyright 2026 Flavio Garcia
+#!/usr/bin/env python
+#
+# Copyright 2019-2024 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: Reusing a valid order
+import unittest
+from tests import acme_integration_test
 
-  Scenario: Rejecting a valid order without its private key
-    Given A valid Pebble order was finalized with a private key
-    When Automatoes issues the valid order without the local private key
-    Then The valid order is rejected without its private key
+
+def suite():
+    testLoader = unittest.TestLoader()
+    alltests = unittest.TestSuite()
+    alltests.addTests(
+        testLoader.loadTestsFromModule(acme_integration_test)
+    )
+    return alltests
+
+
+if __name__ == "__main__":
+    runner = unittest.TextTestRunner(verbosity=3)
+    result = runner.run(suite())
+    if not result.wasSuccessful():
+        exit(2)
