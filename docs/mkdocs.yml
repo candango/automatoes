@@ -1,0 +1,15 @@
+site_name: Candango Automatoes
+docs_dir: docs
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - CLI reference: cli.md
+  - Architecture: architecture.md
+  - Testing: testing.md
+  - Rust and PyO3: rust-pyo3.md
+  - Security: security.md
