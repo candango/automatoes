@@ -34,6 +34,7 @@ jobs:
           toolchain: "1.85"
       - name: Build and test Rust backend
         run: |
+          pip install maturin
           maturin build --release
           pip install target/wheels/rust_backend-*-cp$(echo "${{ matrix.python-version }}" | tr -d '.')-*.whl
           PYTHONPATH=$PYTHONPATH:. python tests/runrusttests.py
