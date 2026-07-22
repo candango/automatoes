@@ -30,7 +30,8 @@ jobs:
           PYTHONPATH=$PYTHONPATH:. python tests/runtests.py
       - name: Build and test Rust backend
         run: |
-          maturin develop --release
+          maturin build --release
+          pip install target/wheels/*.whl
           PYTHONPATH=$PYTHONPATH:. python tests/runrusttests.py
       - name: Run python integration tests
         run: |
