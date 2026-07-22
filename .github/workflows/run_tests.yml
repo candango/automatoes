@@ -35,7 +35,7 @@ jobs:
       - name: Build and test Rust backend
         run: |
           maturin build --release
-          pip install target/wheels/*.whl
+          pip install target/wheels/rust_backend-*-cp$(echo "${{ matrix.python-version }}" | tr -d '.')-*.whl
           PYTHONPATH=$PYTHONPATH:. python tests/runrusttests.py
       - name: Run python integration tests
         run: |
