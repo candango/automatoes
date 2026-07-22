@@ -42,7 +42,7 @@ jobs:
         run: |
           export GOPATH=~/go
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
-          PYTHONPATH=$PYTHONPATH:. python tests/runintegrationtests.py
+          behave tests/features
       - name: Build packages
         run: |
           ./scripts/build.sh
