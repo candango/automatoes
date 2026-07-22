@@ -28,6 +28,10 @@ jobs:
       - name: Run python unit tests
         run: |
           PYTHONPATH=$PYTHONPATH:. python tests/runtests.py
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.85"
       - name: Build and test Rust backend
         run: |
           maturin build --release
