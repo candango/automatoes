@@ -28,9 +28,15 @@ jobs:
       - name: Run python unit tests
         run: |
           PYTHONPATH=$PYTHONPATH:. python tests/runtests.py
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.85"
       - name: Build and test Rust backend
         run: |
-          maturin develop --release
+          pip install maturin
+          maturin build --release
+          pip install target/wheels/rust_backend-*-cp$(echo "${{ matrix.python-version }}" | tr -d '.')-*.whl
           PYTHONPATH=$PYTHONPATH:. python tests/runrusttests.py
       - name: Run python integration tests
         run: |
