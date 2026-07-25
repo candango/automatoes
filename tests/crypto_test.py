@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import FIXTURES_ROOT
+import os
+
+FIXTURES_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "fixtures")
+)
 from automatoes.crypto import strip_certificates
 from cartola import fs
 import unittest
-import os
-
 
 class CryptoTestCase(unittest.TestCase):
     """ Tests the crypto module from automatoes

@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import get_absolute_path
+import os
+
+
+def get_absolute_path(directory):
+    return os.path.realpath(
+        os.path.join(os.path.dirname(__file__), directory)
+    )
 from automatoes.protocol import AcmeV2Pesant, AcmeRequestsTransport
 from tornado import testing
 

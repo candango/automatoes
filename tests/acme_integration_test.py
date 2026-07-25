@@ -26,7 +26,12 @@ from automatoes.model import Account, Order
 from automatoes.protocol import AcmeRequestsTransport, AcmeV2Pesant
 from cartola import fs
 
-from tests import get_absolute_path
+
+
+def get_absolute_path(directory):
+    return os.path.realpath(
+        os.path.join(os.path.dirname(__file__), directory)
+    )
 
 PEBBLE_URL = "https://localhost:14000"
 PEBBLE_CERTIFICATE = get_absolute_path("certs/candango.minica.pem")

@@ -14,8 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.util
+import os
 import unittest
-from tests import acme_integration_test
+
+
+def _load_test_module(name):
+    spec = importlib.util.spec_from_file_location(
+        name, os.path.join(os.path.dirname(__file__), f"{name}.py")
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+acme_integration_test = _load_test_module("acme_integration_test")
 
 
 def suite():
