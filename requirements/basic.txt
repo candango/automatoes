@@ -1,4 +1,0 @@
-peasant[requests]>=0.7.5
-taskio>=0.0.7
-maturin==1.14.1
-pyo3-stubgen==0.3.0
