@@ -1,3 +1,5 @@
+use pyo3::create_exception;
+use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use std::time::Duration;
 
@@ -21,6 +23,15 @@ fn sleep_detached(py: Python<'_>, milliseconds: u64) {
     });
 }
 
+create_exception!(rust_backend, MariolaError, PyException);
+
+#[pyfunction]
+#[pyo3(signature = (endpoint, verify=None))]
+fn new_nonce(endpoint: &str, verify: Option<&str>) -> PyResult<String> {
+    automatoes::new_nonce(endpoint, verify)
+        .map_err(|error| MariolaError::new_err(error.to_string()))
+}
+
 #[pyfunction]
 fn automatoes_hello() -> String {
     automatoes::hello().to_owned()
@@ -29,9 +40,11 @@ fn automatoes_hello() -> String {
 /// Python module implemented in Rust.
 #[pymodule]
 fn rust_backend(module: &Bound<'_, PyModule>) -> PyResult<()> {
+    module.add("MariolaError", module.py().get_type::<MariolaError>())?;
     module.add_function(wrap_pyfunction!(hello, module)?)?;
     module.add_function(wrap_pyfunction!(add, module)?)?;
     module.add_function(wrap_pyfunction!(sleep_detached, module)?)?;
     module.add_function(wrap_pyfunction!(automatoes_hello, module)?)?;
+    module.add_function(wrap_pyfunction!(new_nonce, module)?)?;
     Ok(())
 }
