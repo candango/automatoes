@@ -26,10 +26,9 @@ rust_backend.sleep_detached(milliseconds: int) -> None
 ## Build in the project venv
 
 ```bash
-source /home/fpiraz/venvs/candango_automatoes_env/bin/activate
-maturin develop --release
-python automatoes/bin/rust_backend_example.py
-PYTHONPATH=. python tests/runrusttests.py
+uv run maturin develop --release
+uv run python automatoes/bin/rust_backend_example.py
+uv run python tests/runrusttests.py
 ```
 
 Expected output includes a Rust-generated greeting and `42`. The Rust test also
@@ -42,9 +41,8 @@ language server. `pyo3-stubgen` generates a `.pyi` file from the installed
 extension:
 
 ```bash
-python -m pip install pyo3-stubgen
-maturin develop --release
-pyo3-stubgen rust_backend .
+uv run maturin develop --release
+uv run pyo3-stubgen rust_backend .
 ```
 
 The generated `rust_backend.pyi` should remain next to the project root when

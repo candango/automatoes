@@ -6,7 +6,7 @@ Pebble and are separate from fast local unit tests.
 ## Unit tests
 
 ```bash
-PYTHONPATH=. python tests/runtests.py
+uv run python tests/runtests.py
 ```
 
 These tests cover local crypto and certificate behavior without requiring a
@@ -27,7 +27,7 @@ export GOPATH="$HOME/go"
 Run the suite:
 
 ```bash
-PYTHONPATH=. python tests/runintegrationtests.py
+uv run python tests/runintegrationtests.py
 ```
 
 The suite covers:
@@ -59,12 +59,11 @@ py-check path/to/changed_file.py
 ```
 
 For the native extension:
-
 ```bash
 cargo check
-maturin develop --release
-PYTHONPATH=. python tests/runrusttests.py
-python automatoes/bin/rust_backend_example.py
+uv run maturin develop --release
+uv run python tests/runrusttests.py
+uv run python automatoes/bin/rust_backend_example.py
 ```
 
 The Rust backend suite includes a GIL-release canary: a Rust sleep runs while

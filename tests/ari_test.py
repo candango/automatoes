@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import FIXTURES_ROOT
+import os
+
+FIXTURES_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "fixtures")
+)
 from automatoes.crypto import (generate_ari_data,
                                get_certificate_aki,
                                get_certificate_serial,
@@ -20,7 +24,6 @@ from automatoes.crypto import (generate_ari_data,
 import base64
 from cartola import fs
 import unittest
-import os
 
 
 class ARITestCase(unittest.TestCase):

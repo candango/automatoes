@@ -9,24 +9,17 @@
 ## Install from PyPI
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install automatoes
+uv pip install automatoes
 ```
 
 The package installs the `manuale` and `automatoes` console scripts. The
 current production workflow is exposed through `manuale`.
 
 ## Install from the repository
-
 ```bash
 git clone https://github.com/candango/automatoes.git
 cd automatoes
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements/development.txt
-python -m pip install -e .
+uv sync --all-extras
 ```
 
 ## Account and certificate workflow

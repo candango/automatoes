@@ -44,7 +44,7 @@ still bring your own keys and/or CSR's. Everybody wins.
 
 ## Installation
 
-Python 3.9 or above is required.
+Python 3.11 or above is required.
 
 ### Using your package manager
 
@@ -71,11 +71,10 @@ On Debian-based distributions, these will typically be
 
     git clone https://github.com/candango/automatoes ~/.automatoes
     cd ~/.automatoes
-    python3 -m venv env
-    env/bin/python setup.py install
-    ln -s env/bin/manuale ~/.bin/
+    uv tool install .
 
-(Assuming you have a `~/.bin/` directory in your `$PATH`).
+(The `manuale` and `automatoes` commands will be available in your `$PATH`
+after `uv tool install`.)
 
 ## Quick start
 

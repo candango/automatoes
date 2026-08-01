@@ -3,10 +3,56 @@ requires = ["maturin>=1.7,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "rust-backend"
-version = "0.1.0"
-description = "Minimal Python extension backed by Rust"
-requires-python = ">=3.9"
+name = "automatoes"
+version = "0.9.15"
+description = "Let's Encrypt/ACME V2 client replacement for Manuale. Manual or automated your choice."
+license = {text = "Apache License V2.0"}
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    {name = "Flavio Garcia", email = "piraz@candango.org"},
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Apache Software License",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "cartola",
+    "click",
+    "cryptography",
+    "peasant[requests]>=0.7.5",
+    "taskio>=0.0.7",
+]
+
+[project.optional-dependencies]
+test = ["tornado==6.5.7"]
+docs = ["mkdocs-material>=9.5,<10"]
+dev = [
+    "maturin==1.14.1",
+    "pyo3-stubgen==0.3.0",
+]
+
+[project.scripts]
+automatoes = "automatoes.cli:automatoes_main"
+manuale = "automatoes.cli:manuale_main"
+
+[project.urls]
+Homepage = "https://github.com/candango/automatoes"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+python-packages = ["automatoes"]
+
+
+[tool.uv.sources]
+automatoes = { path = ".", editable = true }
