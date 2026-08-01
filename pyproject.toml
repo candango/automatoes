@@ -52,7 +52,7 @@ Homepage = "https://github.com/candango/automatoes"
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-packages = ["automatoes"]
-
+manifest-path = "crates/rust_backend/Cargo.toml"
 
 [tool.uv.sources]
 automatoes = { path = ".", editable = true }

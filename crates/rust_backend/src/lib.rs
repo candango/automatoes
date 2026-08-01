@@ -21,11 +21,17 @@ fn sleep_detached(py: Python<'_>, milliseconds: u64) {
     });
 }
 
+#[pyfunction]
+fn automatoes_hello() -> String {
+    automatoes::hello().to_owned()
+}
+
 /// Python module implemented in Rust.
 #[pymodule]
 fn rust_backend(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(hello, module)?)?;
     module.add_function(wrap_pyfunction!(add, module)?)?;
     module.add_function(wrap_pyfunction!(sleep_detached, module)?)?;
+    module.add_function(wrap_pyfunction!(automatoes_hello, module)?)?;
     Ok(())
 }
