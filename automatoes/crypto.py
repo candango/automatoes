@@ -278,8 +278,15 @@ def export_certificate_for_acme(cert):
     return jose_b64(cert.public_bytes(Encoding.DER))
 
 
+def public_key_bytes(key):
+    return key.public_key().public_bytes(
+            Encoding.DER,
+            PublicFormat.SubjectPublicKeyInfo,
+    )
+
+
 def strip_certificates(data):
-    p = re.compile("(?s)-----BEGIN CERTIFICATE-----\n.+?"
+    p = re.compile("(?s)-----BEGIN CERTIFICATE-----\n.+?" +
                    "-----END CERTIFICATE-----\n")
     stripped_data = []
     for cert in p.findall(data.decode()):

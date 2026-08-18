@@ -32,6 +32,7 @@ from .crypto import (
     load_pem_certificate,
     export_pem_certificate,
     strip_certificates,
+    public_key_bytes,
 )
 from .errors import AutomatoesError
 from .model import Order
@@ -48,13 +49,6 @@ import sys
 logger = logging.getLogger(__name__)
 
 EXPIRATION_FORMAT = "%Y-%m-%d"
-
-
-def public_key_bytes(key):
-    return key.public_key().public_bytes(
-        Encoding.DER,
-        PublicFormat.SubjectPublicKeyInfo,
-    )
 
 
 def write_certificates(file_object, certificates):
