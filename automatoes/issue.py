@@ -39,6 +39,7 @@ from .model import Order
 import binascii
 from cartola import fs, sysexits
 from cryptography.hazmat.primitives.hashes import SHA256
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 import hashlib
 import logging
 import os
@@ -47,6 +48,13 @@ import sys
 logger = logging.getLogger(__name__)
 
 EXPIRATION_FORMAT = "%Y-%m-%d"
+
+
+def public_key_bytes(key):
+    return key.public_key().public_bytes(
+        Encoding.DER,
+        PublicFormat.SubjectPublicKeyInfo,
+    )
 
 
 def write_certificates(file_object, certificates):
@@ -61,17 +69,19 @@ def write_certificates(file_object, certificates):
             certificate)))
 
 
-def issue(server, paths, account, domains, key_size, key_file=None,
-          csr_file=None, output_path=None, output_filename=None, must_staple=False, verbose=False):
-    print("Candango Automatoes {}. Manuale replacement.\n\n".format(
-        get_version()))
+def issue(
+        server, paths, account, domains, key_size, key_file=None,
+        csr_file=None, output_path=None, output_filename=None,
+        must_staple=False, verbose=False):
+    version_message = "Candango Automatoes {}. ".format(get_version())
+    print(version_message + "Manuale replacement.\n\n")
 
-    current_path = paths['current']
     orders_path = paths['orders']
+    domains_string = "_".join(domains)
     domains_hash = hashlib.sha256(
-        "_".join(domains).encode('ascii')).hexdigest()
+        domains_string.encode('ascii')).hexdigest()
     order_path = os.path.join(orders_path, domains_hash)
-    order_file = os.path.join(order_path, "order.json".format(domains_hash))
+    order_file = os.path.join(order_path, "order.json")
 
     if not os.path.exists(orders_path):
         print(" ERROR: Orders path not found. Please run before: manuale "
@@ -118,13 +128,27 @@ def issue(server, paths, account, domains, key_size, key_file=None,
         try:
             with open(key_file, 'rb') as f:
                 certificate_key = load_private_key(f.read())
-            order.key = export_private_key(certificate_key).decode('ascii')
-            update_order(order, order_file)
+            if order.contents['status'] not in ["valid", "processing"]:
+                order.key = export_private_key(certificate_key).decode('ascii')
+                update_order(order, order_file)
         except (ValueError, AttributeError, TypeError, IOError) as e:
             print("ERROR: Couldn't read certificate key.")
             raise AutomatoesError(e)
     else:
         certificate_key = None
+
+    if (order.contents['status'] in ["valid", "processing"] and
+            order.key is None and certificate_key is None):
+        message = (
+            "Cannot issue an existing order without its private key. "
+            "Provide the original key with --key-file."
+        )
+        print("ERROR: {}".format(message))
+        raise AutomatoesError(message)
+
+    if (order.contents['status'] in ["valid", "processing"] and
+            certificate_key is None):
+        certificate_key = load_private_key(order.key.encode('ascii'))
 
     # Load CSR or generate
     if csr_file:
@@ -198,6 +222,17 @@ def issue(server, paths, account, domains, key_size, key_file=None,
     try:
         certificates = strip_certificates(result.content)
         certificate = load_pem_certificate(certificates[0])
+
+        if order.contents['status'] in ["valid", "processing"]:
+            if (
+                    public_key_bytes(certificate_key) !=
+                    public_key_bytes(certificate)):
+                message = "The private key does not match the certificate."
+                print("ERROR: {}".format(message))
+                raise AutomatoesError(message)
+            if key_file:
+                order.key = export_private_key(certificate_key).decode('ascii')
+                update_order(order, order_file)
 
         # Print some neat info
         print("  Expires: {}".format(certificate.not_valid_after_utc.strftime(
