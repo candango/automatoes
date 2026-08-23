@@ -34,6 +34,7 @@ from cryptography.hazmat.primitives.asymmetric.ec import (
 from cryptography.hazmat.primitives.serialization import (
     load_pem_private_key,
     Encoding,
+    PublicFormat,
     PrivateFormat,
     NoEncryption,
 )
