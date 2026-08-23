@@ -33,6 +33,10 @@ jobs:
           export GOPATH=~/go
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
+      - name: Lint
+        run: |
+          pip install ruff
+          ruff check automatoes
       - name: Build packages
         run: |
           ./scripts/build.sh
