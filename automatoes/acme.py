@@ -22,7 +22,8 @@ from automatoes.crypto import (export_certificate_for_acme, generate_header,
                                jose_b64, sign_request, sign_request_v2)
 from automatoes.errors import AccountAlreadyExistsError, AcmeError
 from automatoes.model import (Challenge, IssuanceResult,
-                              NewAuthorizationResult, Order,
+                              NewAuthorizationResult,
+                              Order,
                               RegistrationResult)
 import copy
 import datetime
