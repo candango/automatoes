@@ -37,7 +37,18 @@ jobs:
         run: |
           pip install ruff
           ruff check automatoes --output-format json > ruff.json || true
-          jq -r '.[] | "::error file=\(.filename),line=\(.location.row),col=\(.location.column),endLine=\(.end_location.row),endColumn=\(.end_location.column)::[\(.code // "RUFF")] \(.message)"' ruff.json
+          jq -r '
+            .[] |
+            if (.filename != null and .location != null) then
+              "::error file=\(.filename),line=\(.location.row),col=\(.location.column)" +
+              (if .end_location != null then
+                ",endLine=\(.end_location.row),endColumn=\(.end_location.column)"
+              else "" end) +
+              "::[\(.code // "RUFF")] \(.message)"
+                  else
+              "::error::[\(.code // "RUFF")] \(.message)"
+            end
+          ' ruff.json
       - name: Build packages
         run: |
           ./scripts/build.sh
