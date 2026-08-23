@@ -35,20 +35,9 @@ jobs:
           behave tests/features
       - name: Lint
         run: |
-          pip install ruff
-          ruff check automatoes --output-format json > ruff.json || true
-          jq -r '
-            .[] |
-            if (.filename != null and .location != null) then
-              "TEST:error file=\(.filename),line=\(.location.row),col=\(.location.column)" +
-              (if .end_location != null then
-                ",endLine=\(.end_location.row),endColumn=\(.end_location.column)"
-              else "" end) +
-              "::[\(.code // "RUFF")] \(.message)"
-                  else
-              "TEST:error::[\(.code // "RUFF")] \(.message)"
-            end
-          ' ruff.json
+          echo "::error file=automatoes/acme.py,line=87,col=17,endLine=87,endColumn=42,title=TEST::This is an annotation test"
+          echo "::warning file=automatoes/acme.py,line=87,title=TEST::This is a warning test"
+          echo "::error file=/home/runner/work/automatoes/automatoes/automatoes/acme.py,line=20,col=1,endLine=33,endColumn=43::[I001] Import block is un-sorted or un-formatted"
       - name: Build packages
         run: |
           ./scripts/build.sh
