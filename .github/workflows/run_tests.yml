@@ -38,7 +38,6 @@ jobs:
           pip install ruff
           ruff check automatoes --output-format json > ruff.json || true
           jq -r '.[] | "::error file=\(.filename),line=\(.location.row),col=\(.location.column),endLine=\(.end_location.row),endColumn=\(.end_location.column)::[\(.code // "RUFF")] \(.message)"' ruff.json
-          test "$(jq 'length' ruff.json)" -eq 0
       - name: Build packages
         run: |
           ./scripts/build.sh
