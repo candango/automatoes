@@ -40,13 +40,13 @@ jobs:
           jq -r '
             .[] |
             if (.filename != null and .location != null) then
-              "::error file=\(.filename),line=\(.location.row),col=\(.location.column)" +
+              "TEST:error file=\(.filename),line=\(.location.row),col=\(.location.column)" +
               (if .end_location != null then
                 ",endLine=\(.end_location.row),endColumn=\(.end_location.column)"
               else "" end) +
               "::[\(.code // "RUFF")] \(.message)"
                   else
-              "::error::[\(.code // "RUFF")] \(.message)"
+              "TEST:error::[\(.code // "RUFF")] \(.message)"
             end
           ' ruff.json
       - name: Build packages
