@@ -34,9 +34,11 @@ jobs:
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
       - name: Lint
-        uses: astral-sh/ruff-action@v4.1.0
-        with:
-          src: "./automatoes"
+        run: |
+          pip install ruff
+          ruff check automatoes --output-format json > ruff.json || true
+          jq -r '.[] | "::error file=\(.filename),line=\(.location.row),col=\(.location.column),endLine=\(.end_location.row),endColumn=\(.end_location.column)::[\(.code // "RUFF")] \(.message)"' ruff.json
+          test "$(jq 'length' ruff.json)" -eq 0
       - name: Build packages
         run: |
           ./scripts/build.sh
