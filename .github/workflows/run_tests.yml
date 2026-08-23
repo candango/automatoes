@@ -36,7 +36,7 @@ jobs:
       - name: Lint
         run: |
           pip install ruff
-          ruff check automatoes
+          ruff check --output-format=github automatoes
       - name: Build packages
         run: |
           ./scripts/build.sh
