@@ -34,9 +34,9 @@ jobs:
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
       - name: Lint
-        run: |
-          pip install ruff
-          ruff check --output-format=github automatoes
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          src: "./automatoes"
       - name: Build packages
         run: |
           ./scripts/build.sh
