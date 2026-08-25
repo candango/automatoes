@@ -9,6 +9,9 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          - python-version: 3.9
+            lint: true
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -33,6 +36,11 @@ jobs:
           export GOPATH=~/go
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
           behave tests/features
+      - name: Lint
+        if: ${{ matrix.lint }}
+        run: |
+          pip install ruff
+          ruff check --output-format=github automatoes
       - name: Build packages
         run: |
           ./scripts/build.sh
