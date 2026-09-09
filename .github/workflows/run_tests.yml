@@ -28,11 +28,11 @@ jobs:
       - name: Run python unit tests
         run: |
           PYTHONPATH=$PYTHONPATH:. python tests/runtests.py
-      - name: Run python behave tests
+      - name: Run python integration tests
         run: |
           export GOPATH=~/go
           ./scripts/pebble_service.sh start tests/conf/pebble-config.json
-          behave tests/features
+          PYTHONPATH=$PYTHONPATH:. python tests/runintegrationtests.py
       - name: Build packages
         run: |
           ./scripts/build.sh

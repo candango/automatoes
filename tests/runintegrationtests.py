@@ -1,5 +1,6 @@
-# Copyright 2019 Flavio Garcia
-# Copyright 2016-2017 Veeti Paananen under MIT License
+#!/usr/bin/env python
+#
+# Copyright 2019-2024 Flavio Garcia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Feature: Replay Nonce
+import unittest
+from tests import acme_integration_test
 
-  Scenario: Get ACME V2 Replay Nonce
-    # Enter steps here
-    Given We have a newNonce url from ACME V2 directory
-    When We request nonce from ACME V2 server
-    Then ACME V2 server provides nonce in response headers
+
+def suite():
+    testLoader = unittest.TestLoader()
+    alltests = unittest.TestSuite()
+    alltests.addTests(
+        testLoader.loadTestsFromModule(acme_integration_test)
+    )
+    return alltests
+
+
+if __name__ == "__main__":
+    runner = unittest.TextTestRunner(verbosity=3)
+    result = runner.run(suite())
+    if not result.wasSuccessful():
+        exit(2)
