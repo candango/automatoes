@@ -13,8 +13,16 @@
 # limitations under the License.
 
 from . import FIXTURES_ROOT
-from automatoes.crypto import strip_certificates
+from automatoes.crypto import (
+    generate_rsa_key,
+    public_key_bytes,
+    strip_certificates,
+)
 from cartola import fs
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    PublicFormat,
+)
 import unittest
 import os
 
@@ -47,3 +55,12 @@ class CryptoTestCase(unittest.TestCase):
 
         self.assertEqual(key_crt, chain_crt_x[0])
         self.assertEqual(intermediate_crt, chain_crt_x[1])
+
+    def test_public_key_bytes_uses_subject_public_key_info(self):
+        key = generate_rsa_key()
+        expected = key.public_key().public_bytes(
+            Encoding.DER,
+            PublicFormat.SubjectPublicKeyInfo,
+        )
+
+        self.assertEqual(expected, public_key_bytes(key))
